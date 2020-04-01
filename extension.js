@@ -20,7 +20,14 @@ function activate(context) {
 
   vscode.languages.registerHoverProvider("*", {
     provideHover(document, position, token) {
-      console.log("hovered position", position);
+      console.log(
+        "hovered document",
+        document,
+        "hovered position",
+        position,
+        "token",
+        token
+      );
       return new vscode.Hover("I am a hover!");
     }
   });
@@ -52,4 +59,42 @@ function deactivate() {}
 module.exports = {
   activate,
   deactivate
+};
+
+/*
+	Liveshare sessions structure - used to determine active file and cursor position
+	Created on first joinLiveshare mutation in a given project
+	Cursor position updated on hover
+	
+	Note: It seems its best to make a separate subscription to prevent sending huge amounts
+	of data many times a second
+	*/
+const projects = {
+  // projectId
+  projectId1: {
+    user1Id: {
+      documentUrl: "/src/assets/index.html",
+      position: {
+        x: 11,
+        y: 2
+      }
+    },
+    user2Id: {
+      documentUrl: "/package.json",
+      position: {
+        x: 1,
+        y: 1
+      }
+    }
+  },
+  // projectId
+  project456Id: {
+    user13455ID: {
+      documentUrl: "/index.ts",
+      position: {
+        x: 1,
+        y: 1
+      }
+    }
+  }
 };
