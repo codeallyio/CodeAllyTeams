@@ -15,25 +15,41 @@ function activate(context) {
     'Congratulations, your extension "stroveteams" is now active!!!!!'
   );
 
-  // const editor = vscode.window.activeTextEditor;
-  // const position = editor.selection.active;
-
   vscode.languages.registerHoverProvider("*", {
     provideHover(document, position, token) {
-      console.log(
-        "hovered document",
-        document,
-        "hovered position",
-        position,
-        "token",
-        token
-      );
-      return new vscode.Hover("I am a hover!");
+      // 			document
+      // fileName:"/Users/adamzaczek/Desktop/stroveClient/src/components/header/homeLink.js"
+      // isUntitled:false
+      // languageId:"javascript"
+      // version:1
+      // isClosed:false
+      // isDirty:false
+      // eol:1
+      // lineCount:77
+      // hovered position
+      // extension.js:23
+      // position
+      // line: 9;
+      // character: 22;
+
+      const dataToSend = {
+        fileName: document.fileName,
+        x: position.character,
+        y: position.line
+      };
+
+      // console.log("dataToSend", dataToSend);
+      // console.log(
+      //   "hovered document",
+      //   document,
+      //   "hovered position",
+      //   position,
+      //   "token",
+      //   token
+      // );
+      // return new vscode.Hover("I am a hover!");
     }
   });
-
-  //   var newPosition = position.with(position.line, 0);
-  //   var newSelection = new vscode.Selection(newPosition, newPosition);
 
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with  registerCommand
