@@ -18,6 +18,10 @@ function activate(context) {
     'Congratulations, your extension "stroveteams" is now active!!!!!'
   );
 
+  vscode.window.onDidChangeTextEditorSelection((e) => {
+    console.log(e);
+  });
+
   vscode.languages.registerHoverProvider("*", {
     provideHover(document, position, token) {
       // 			document
