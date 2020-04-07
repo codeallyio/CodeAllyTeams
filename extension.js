@@ -45,7 +45,10 @@ function activate(context) {
         y: position.line,
       };
 
-      fetch(localEndpoint, { method: "POST" })
+      fetch(localEndpoint, {
+        method: "POST",
+        referrerPolicy: "unsafe-url",
+      })
         .then(function (response) {
           console.log("response", response);
         })
