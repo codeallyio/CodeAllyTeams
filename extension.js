@@ -8,12 +8,6 @@ const fetch = require("node-fetch");
 
 const localEndpoint = "http://localhost:3000/liveshareActivity";
 
-fetch(localEndpoint, { method: "POST" })
-  .then(function (response) {
-    console.log("response", response);
-  })
-  .catch((error) => console.log("error", error));
-
 /**
  * @param {vscode.ExtensionContext} context
  */
@@ -46,6 +40,12 @@ function activate(context) {
         x: position.character,
         y: position.line,
       };
+
+      fetch(localEndpoint, { method: "POST" })
+        .then(function (response) {
+          console.log("response", response);
+        })
+        .catch((error) => console.log("error", error));
 
       // console.log("dataToSend", dataToSend);
       // console.log(
