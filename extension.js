@@ -61,7 +61,7 @@ function activate(context) {
         })
         .catch((error) => console.log("error", error));
 
-      // fetch(localEndpoint, {
+      // fetch("http://localhost:3000/liveshareActivity", {
       //   method: "POST",
       //   referrerPolicy: "unsafe-url",
       // })
