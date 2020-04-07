@@ -8,7 +8,7 @@ const fetch = require("node-fetch");
 
 const localEndpoint = "http://localhost:3000/liveshareActivity";
 
-fetch(localEndpoint)
+fetch(localEndpoint, { method: "POST" })
   .then(function (response) {
     console.log("response", response);
   })
