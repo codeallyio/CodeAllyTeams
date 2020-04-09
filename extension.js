@@ -4,6 +4,7 @@ const vscode = require("vscode");
 const axios = require("axios").default;
 const throttle = require("lodash.throttle");
 const rateLimit = require("axios-rate-limit");
+const Bottleneck = require("bottleneck/es5");
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -90,17 +91,19 @@ function activate(context) {
       selections,
     };
 
-    const throttledAxios = rateLimit(axios.create(), {
-      maxRequests: 1,
-      perMilliseconds: 13000,
+    const limiter = new Bottleneck({
+      maxConcurrent: 1,
+      minTime: 2000,
     });
 
-    throttledAxios
-      .post(localEndpoint, {
-        data,
-        credentials: "include",
-        referrerPolicy: "unsafe-url",
-      })
+    const sendEditrData = axios.post(localEndpoint, {
+      data,
+      credentials: "include",
+      referrerPolicy: "unsafe-url",
+    });
+
+    limiter
+      .schedule(() => sendEditrData)
       .then(function (response) {
         console.log("response", response);
       })
