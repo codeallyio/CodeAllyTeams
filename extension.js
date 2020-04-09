@@ -8,6 +8,21 @@ const axios = require("axios").default;
 
 const localEndpoint = "http://localhost:3000/liveshareActivity";
 
+const throttle = (func, wait, immediate) => {
+  let timeout;
+  return function () {
+    const context = this,
+      args = arguments;
+    const later = function () {
+      timeout = null;
+      if (!immediate) func.apply(context, args);
+    };
+    const callNow = immediate && !timeout;
+    if (!timeout) timeout = setTimeout(later, wait);
+    if (callNow) func.apply(context, args);
+  };
+};
+
 /**
  * @param {vscode.ExtensionContext} context
  */
@@ -101,31 +116,6 @@ function activate(context) {
 
     console.log("data", data);
   });
-
-  // fetch("http://example.com/movies.json")
-  //   .then((response) => {
-  //     console.log("response", response);
-  //     return response.json();
-  //   })
-  //   .then((data) => {
-  //     console.log("data", data);
-  //   })
-  //   .catch((error) => console.log("error", error));
-
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with  registerCommand
-  // The commandId parameter must match the command field in package.json
-  // let disposable = vscode.commands.registerCommand(
-  //   "extension.helloWorld",
-  //   function () {
-  //     // The code you place here will be executed every time your command is executed
-
-  //     // Display a message box to the user
-  //     vscode.window.showInformationMessage("Hello World!");
-  //   }
-  // );
-
-  // context.subscriptions.push(disposable);
 }
 
 exports.activate = activate;
