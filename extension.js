@@ -82,33 +82,20 @@ function activate(context) {
   // });
 
   vscode.window.onDidChangeTextEditorSelection(({ textEditor, selections }) => {
-    // const dataToSend = {
-    //   fileName: document.fileName,
-    //   x: position.character,
-    //   y: position.line,
-    // };
-
     const data = {
+      userId: process.env.STROVE_USER_ID,
       filePath: textEditor._documentData._uri.path,
       selections,
     };
 
     axios
       .post(localEndpoint, {
-        // referrerPolicy: "unsafe-url",
-        // headers: {
-        //   referrerPolicy: "unsafe-url",
-        // },
-
         data,
         credentials: "include",
         referrerPolicy: "unsafe-url",
-        // headers: {
-        //   token:
-        // }
       })
       .then(function (response) {
-        // console.log("response", response);
+        console.log("response", response);
       })
       .catch((error) => console.log("error", error));
 
