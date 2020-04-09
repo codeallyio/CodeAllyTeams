@@ -7,13 +7,13 @@ const throttle = require("lodash.throttle");
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 
-const localEndpoint = "http://localhost:3000/liveshareActivity";
+const localEndpoint = "http://localhost:4040/liveshareActivity";
 
 const throttleCall = throttle(
   (data) =>
     axios
       .post(localEndpoint, {
-        data,
+        ...data,
         credentials: "include",
         referrerPolicy: "unsafe-url",
       })
@@ -57,33 +57,6 @@ function activate(context) {
   //   x: position.character,
   //   y: position.line,
   // };
-
-  // axios
-  //   .post(localEndpoint, {
-  //     // referrerPolicy: "unsafe-url",
-  //     // headers: {
-  //     //   referrerPolicy: "unsafe-url",
-  //     // },
-
-  //     credentials: "include",
-  //     referrerPolicy: "unsafe-url",
-  //     headers: {
-  //       token:
-  //     }
-  //   })
-  //   .then(function (response) {
-  //     // console.log("response", response);
-  //   })
-  //   .catch((error) => console.log("error", error));
-
-  // fetch("http://localhost:3000/liveshareActivity", {
-  //   method: "POST",
-  //   referrerPolicy: "unsafe-url",
-  // })
-  //   .then(function (response) {
-  //     console.log("response", response);
-  //   })
-  //   .catch((error) => console.log("error", error));
 
   // console.log("dataToSend", dataToSend);
   // console.log(
