@@ -1,7 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require("vscode");
-const fetch = require("node-fetch");
 const axios = require("axios").default;
 
 // this method is called when your extension is activated
@@ -19,68 +18,82 @@ function activate(context) {
     'Congratulations, your extension "stroveteams" is now active!!!!!'
   );
 
-  vscode.window.onDidChangeTextEditorSelection((e) => {
-    console.log(e);
-  });
+  // vscode.languages.registerHoverProvider("*", {
+  //   provideHover(document, position, token) {
+  // 			document
+  // fileName:"/Users/adamzaczek/Desktop/stroveClient/src/components/header/homeLink.js"
+  // isUntitled:false
+  // languageId:"javascript"
+  // version:1
+  // isClosed:false
+  // isDirty:false
+  // eol:1
+  // lineCount:77
+  // hovered position
+  // extension.js:23
+  // position
+  // line: 9;
+  // character: 22;
 
-  vscode.languages.registerHoverProvider("*", {
-    provideHover(document, position, token) {
-      // 			document
-      // fileName:"/Users/adamzaczek/Desktop/stroveClient/src/components/header/homeLink.js"
-      // isUntitled:false
-      // languageId:"javascript"
-      // version:1
-      // isClosed:false
-      // isDirty:false
-      // eol:1
-      // lineCount:77
-      // hovered position
-      // extension.js:23
-      // position
-      // line: 9;
-      // character: 22;
+  // const dataToSend = {
+  //   fileName: document.fileName,
+  //   x: position.character,
+  //   y: position.line,
+  // };
 
-      const dataToSend = {
-        fileName: document.fileName,
-        x: position.character,
-        y: position.line,
-      };
+  // axios
+  //   .post(localEndpoint, {
+  //     // referrerPolicy: "unsafe-url",
+  //     // headers: {
+  //     //   referrerPolicy: "unsafe-url",
+  //     // },
 
-      axios
-        .post(localEndpoint, {
-          // referrerPolicy: "unsafe-url",
-          // headers: {
-          //   referrerPolicy: "unsafe-url",
-          // },
+  //     credentials: "include",
+  //     referrerPolicy: "unsafe-url",
+  //     headers: {
+  //       token:
+  //     }
+  //   })
+  //   .then(function (response) {
+  //     // console.log("response", response);
+  //   })
+  //   .catch((error) => console.log("error", error));
 
-          credentials: "include",
-          referrerPolicy: "unsafe-url",
-        })
-        .then(function (response) {
-          console.log("response", response);
-        })
-        .catch((error) => console.log("error", error));
+  // fetch("http://localhost:3000/liveshareActivity", {
+  //   method: "POST",
+  //   referrerPolicy: "unsafe-url",
+  // })
+  //   .then(function (response) {
+  //     console.log("response", response);
+  //   })
+  //   .catch((error) => console.log("error", error));
 
-      // fetch("http://localhost:3000/liveshareActivity", {
-      //   method: "POST",
-      //   referrerPolicy: "unsafe-url",
-      // })
-      //   .then(function (response) {
-      //     console.log("response", response);
-      //   })
-      //   .catch((error) => console.log("error", error));
+  // console.log("dataToSend", dataToSend);
+  // console.log(
+  //   "hovered document",
+  //   document,
+  //   "hovered position",
+  //   position,
+  //   "token",
+  //   token
+  // );
+  // return new vscode.Hover("I am a hover!");
+  //   },
+  // });
 
-      // console.log("dataToSend", dataToSend);
-      // console.log(
-      //   "hovered document",
-      //   document,
-      //   "hovered position",
-      //   position,
-      //   "token",
-      //   token
-      // );
-      // return new vscode.Hover("I am a hover!");
-    },
+  vscode.window.onDidChangeTextEditorSelection(({ textEditor, selections }) => {
+    // const dataToSend = {
+    //   fileName: document.fileName,
+    //   x: position.character,
+    //   y: position.line,
+    // };
+
+    const dataToSend = {
+      filePath: textEditor._documentData._uri.path,
+      selections,
+    };
+
+    console.log("dataToSend", dataToSend);
   });
 
   // fetch("http://example.com/movies.json")
@@ -96,17 +109,17 @@ function activate(context) {
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with  registerCommand
   // The commandId parameter must match the command field in package.json
-  let disposable = vscode.commands.registerCommand(
-    "extension.helloWorld",
-    function () {
-      // The code you place here will be executed every time your command is executed
+  // let disposable = vscode.commands.registerCommand(
+  //   "extension.helloWorld",
+  //   function () {
+  //     // The code you place here will be executed every time your command is executed
 
-      // Display a message box to the user
-      vscode.window.showInformationMessage("Hello World!");
-    }
-  );
+  //     // Display a message box to the user
+  //     vscode.window.showInformationMessage("Hello World!");
+  //   }
+  // );
 
-  context.subscriptions.push(disposable);
+  // context.subscriptions.push(disposable);
 }
 
 exports.activate = activate;
