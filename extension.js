@@ -73,6 +73,7 @@ function activate(context) {
 
   vscode.window.onDidChangeTextEditorSelection(({ textEditor, selections }) => {
     const data = {
+      projectId: process.env.PROJECT_ID,
       userId: process.env.STROVE_USER_ID,
       filePath: textEditor._documentData._uri.path,
       selections,
