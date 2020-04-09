@@ -88,12 +88,31 @@ function activate(context) {
     //   y: position.line,
     // };
 
-    const dataToSend = {
+    const data = {
       filePath: textEditor._documentData._uri.path,
       selections,
     };
 
-    console.log("dataToSend", dataToSend);
+    axios
+      .post(localEndpoint, {
+        // referrerPolicy: "unsafe-url",
+        // headers: {
+        //   referrerPolicy: "unsafe-url",
+        // },
+
+        data,
+        credentials: "include",
+        referrerPolicy: "unsafe-url",
+        // headers: {
+        //   token:
+        // }
+      })
+      .then(function (response) {
+        // console.log("response", response);
+      })
+      .catch((error) => console.log("error", error));
+
+    console.log("data", data);
   });
 
   // fetch("http://example.com/movies.json")
