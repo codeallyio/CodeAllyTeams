@@ -78,23 +78,7 @@ function activate(context) {
       selections,
     };
 
-    // throttle(
-    //   axios
-    //     .post(localEndpoint, {
-    //       data,
-    //       credentials: "include",
-    //       referrerPolicy: "unsafe-url",
-    //     })
-    //     .then(function (response) {
-    //       console.log("response", response);
-    //     })
-    //     .catch((error) => console.log("error", error)),
-    //   10000,
-    //   { leading: false }
-    // );
-
     throttleCall(data);
-    // console.log("data", data);
   });
 }
 
