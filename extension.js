@@ -21,7 +21,7 @@ const throttleCall = throttle(
         console.log("response", response);
       })
       .catch((error) => console.log("error", error)),
-  10000,
+  500,
   { leading: true }
 );
 
