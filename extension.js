@@ -3,6 +3,7 @@
 const vscode = require("vscode");
 const axios = require("axios").default;
 const throttle = require("lodash.throttle");
+const rateLimit = require("axios-rate-limit");
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -89,20 +90,21 @@ function activate(context) {
       selections,
     };
 
-    throttle(
-      axios
-        .post(localEndpoint, {
-          data,
-          credentials: "include",
-          referrerPolicy: "unsafe-url",
-        })
-        .then(function (response) {
-          console.log("response", response);
-        })
-        .catch((error) => console.log("error", error)),
-      10000,
-      { leading: true }
-    );
+    const throttledAxios = rateLimit(axios.create(), {
+      maxRequests: 1,
+      perMilliseconds: 13000,
+    });
+
+    throttledAxios
+      .post(localEndpoint, {
+        data,
+        credentials: "include",
+        referrerPolicy: "unsafe-url",
+      })
+      .then(function (response) {
+        console.log("response", response);
+      })
+      .catch((error) => console.log("error", error));
 
     // console.log("data", data);
   });
