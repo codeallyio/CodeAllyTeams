@@ -11,6 +11,11 @@ const Bottleneck = require("bottleneck/es5");
 
 const localEndpoint = "http://localhost:3000/liveshareActivity";
 
+const limiter = new Bottleneck({
+  maxConcurrent: 1,
+  minTime: 2000,
+});
+
 /**
  * @param {vscode.ExtensionContext} context
  */
@@ -91,19 +96,20 @@ function activate(context) {
       selections,
     };
 
-    const limiter = new Bottleneck({
-      maxConcurrent: 1,
-      minTime: 2000,
-    });
-
-    const sendEditrData = axios.post(localEndpoint, {
-      data,
-      credentials: "include",
-      referrerPolicy: "unsafe-url",
-    });
+    // const sendEditrData = axios.post(localEndpoint, {
+    //   data,
+    //   credentials: "include",
+    //   referrerPolicy: "unsafe-url",
+    // });
 
     limiter
-      .schedule(() => sendEditrData)
+      .schedule(() =>
+        axios.post(localEndpoint, {
+          data,
+          credentials: "include",
+          referrerPolicy: "unsafe-url",
+        })
+      )
       .then(function (response) {
         console.log("response", response);
       })
