@@ -3,18 +3,27 @@
 const vscode = require("vscode");
 const axios = require("axios").default;
 const throttle = require("lodash.throttle");
-const rateLimit = require("axios-rate-limit");
-const Bottleneck = require("bottleneck/es5");
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 
 const localEndpoint = "http://localhost:3000/liveshareActivity";
 
-const limiter = new Bottleneck({
-  maxConcurrent: 1,
-  minTime: 2000,
-});
+const throttleCall = throttle(
+  (data) =>
+    axios
+      .post(localEndpoint, {
+        data,
+        credentials: "include",
+        referrerPolicy: "unsafe-url",
+      })
+      .then(function (response) {
+        console.log("response", response);
+      })
+      .catch((error) => console.log("error", error)),
+  10000,
+  { leading: true }
+);
 
 /**
  * @param {vscode.ExtensionContext} context
@@ -96,25 +105,22 @@ function activate(context) {
       selections,
     };
 
-    // const sendEditrData = axios.post(localEndpoint, {
-    //   data,
-    //   credentials: "include",
-    //   referrerPolicy: "unsafe-url",
-    // });
+    // throttle(
+    //   axios
+    //     .post(localEndpoint, {
+    //       data,
+    //       credentials: "include",
+    //       referrerPolicy: "unsafe-url",
+    //     })
+    //     .then(function (response) {
+    //       console.log("response", response);
+    //     })
+    //     .catch((error) => console.log("error", error)),
+    //   10000,
+    //   { leading: false }
+    // );
 
-    limiter
-      .schedule(() =>
-        axios.post(localEndpoint, {
-          data,
-          credentials: "include",
-          referrerPolicy: "unsafe-url",
-        })
-      )
-      .then(function (response) {
-        console.log("response", response);
-      })
-      .catch((error) => console.log("error", error));
-
+    throttleCall(data);
     // console.log("data", data);
   });
 }
