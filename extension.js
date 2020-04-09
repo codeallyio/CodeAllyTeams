@@ -2,26 +2,12 @@
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require("vscode");
 const axios = require("axios").default;
+const throttle = require("lodash.throttle");
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 
 const localEndpoint = "http://localhost:3000/liveshareActivity";
-
-const throttle = (func, wait, immediate) => {
-  let timeout;
-  return function () {
-    const context = this,
-      args = arguments;
-    const later = function () {
-      timeout = null;
-      if (!immediate) func.apply(context, args);
-    };
-    const callNow = immediate && !timeout;
-    if (!timeout) timeout = setTimeout(later, wait);
-    if (callNow) func.apply(context, args);
-  };
-};
 
 /**
  * @param {vscode.ExtensionContext} context
@@ -115,7 +101,7 @@ function activate(context) {
         })
         .catch((error) => console.log("error", error)),
       10000,
-      true
+      { leading: true }
     );
 
     // console.log("data", data);
