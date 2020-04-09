@@ -103,18 +103,22 @@ function activate(context) {
       selections,
     };
 
-    axios
-      .post(localEndpoint, {
-        data,
-        credentials: "include",
-        referrerPolicy: "unsafe-url",
-      })
-      .then(function (response) {
-        console.log("response", response);
-      })
-      .catch((error) => console.log("error", error));
+    throttle(
+      axios
+        .post(localEndpoint, {
+          data,
+          credentials: "include",
+          referrerPolicy: "unsafe-url",
+        })
+        .then(function (response) {
+          console.log("response", response);
+        })
+        .catch((error) => console.log("error", error)),
+      10000,
+      true
+    );
 
-    console.log("data", data);
+    // console.log("data", data);
   });
 }
 
