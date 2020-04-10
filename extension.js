@@ -80,6 +80,8 @@ function activate(context) {
 
     throttleCall(data);
   });
+
+  vscode.window.createTerminal("strove");
 }
 
 exports.activate = activate;
