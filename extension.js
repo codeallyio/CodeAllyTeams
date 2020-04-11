@@ -39,14 +39,17 @@ const createDecorationsType = (color) =>
     after: {
       height: "15px",
       width: "15px",
-      contentIconPath: new vscode.Uri(
-        "https",
-        "avatars1.githubusercontent.com",
-        "/u/14284341",
-        "v=4",
-        ""
+      contentIconPath: vscode.Uri.parse(
+        "https://avatars1.githubusercontent.com/u/14284341?v=4"
         // "https://avatars1.githubusercontent.com/u/14284341?v=4"
-      ),
+      ), // contentIconPath: new vscode.Uri(
+      //   "https",
+      //   "avatars1.githubusercontent.com",
+      //   "/u/14284341",
+      //   "v=4",
+      //   ""
+      //   // "https://avatars1.githubusercontent.com/u/14284341?v=4"
+      // ),
       color,
       // contentText: "Adam",
     },
