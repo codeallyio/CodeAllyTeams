@@ -30,44 +30,45 @@ const decorationType = vscode.window.createTextEditorDecorationType({
   border: "2px solid white",
 });
 
-const decorate = ({}) => {
+const decorate = ({ decorationsArray }) => {
   const editor = vscode.window.activeTextEditor;
-  let sourceCode = editor.document.getText();
-  let regex = /(console\.log)/;
+  // let sourceCode = editor.document.getText();
+  // let regex = /(console\.log)/;
 
-  let decorationsArray = [];
+  // let decorationsArray = [];
 
-  const sourceCodeArr = sourceCode.split("\n");
+  // const sourceCodeArr = sourceCode.split("\n");
 
-  for (let line = 0; line < sourceCodeArr.length; line++) {
-    let match = sourceCodeArr[line].match(regex);
+  // for (let line = 0; line < sourceCodeArr.length; line++) {
+  //   let match = sourceCodeArr[line].match(regex);
 
-    if (match !== null && match.index !== undefined) {
-      let range = new vscode.Range(
-        new vscode.Position(line, match.index),
-        new vscode.Position(line, match.index + match[1].length)
-      );
+  //   if (match !== null && match.index !== undefined) {
+  //     let range = new vscode.Range(
+  //       new vscode.Position(line, match.index),
+  //       new vscode.Position(line, match.index + match[1].length)
+  //     );
 
-      let decoration = { range };
+  //     let decoration = { range };
 
-      decorationsArray.push(decoration);
-    }
-  }
+  //     decorationsArray.push(decoration);
+  //   }
+  // }
 
-  let range = new vscode.Range(
-    new vscode.Position(13, 0),
-    new vscode.Position(13, 11)
-  );
+  // let range = new vscode.Range(
+  //   new vscode.Position(13, 0),
+  //   new vscode.Position(13, 11)
+  // );
 
-  const decorations = [
-    {
-      range,
-    },
-  ];
+  // const decorations = [
+  //   {
+  //     range,
+  //   },
+  // ];
+  console.log("decorationsArray", decorationsArray);
 
-  console.log("decorations", decorations, "decorationsArray", decorationsArray);
+  // console.log("decorations", decorations, "decorationsArray", decorationsArray);
 
-  editor.setDecorations(decorationType, decorations);
+  editor.setDecorations(decorationType, decorationsArray);
 };
 
 // this method is called when your extension is activated
