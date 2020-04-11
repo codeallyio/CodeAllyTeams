@@ -143,15 +143,30 @@ function activate(context) {
       //   },
       // ]);
 
+      let range = new vscode.Range(
+        new vscode.Position(13, 0),
+        new vscode.Position(13, 11)
+      );
+
+      const decorations = [
+        {
+          range,
+        },
+      ];
+
       decorate({
-        // decorationsArray: [
-        //   {
-        //     range: [
-        //       liveshareActivity["123"]["selections"][0]["start"],
-        //       liveshareActivity["123"]["selections"][0]["end"],
-        //     ],
-        //   },
-        // ],
+        decorationsArray: [
+          {
+            range: new vscode.Range(
+              new vscode.Position(
+                liveshareActivity["123"]["selections"][0]["start"]["line"]
+              ),
+              new vscode.Position(
+                liveshareActivity["123"]["selections"][0]["end"]["character"]
+              )
+            ),
+          },
+        ],
       });
     },
   });
