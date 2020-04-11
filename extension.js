@@ -73,18 +73,36 @@ function activate(context) {
 
       console.log("liveshareActivity", liveshareActivity);
 
+      const activeEditor = vscode.window.activeTextEditor;
+
       const someDecoration = vscode.window.createTextEditorDecorationType({
-        cursor: "crosshair",
-        // use a themable color. See package.json for the declaration and default values.
-        backgroundColor: "red",
-        after: {},
+        borderWidth: "1px",
+        borderStyle: "solid",
+        overviewRulerColor: "blue",
+        overviewRulerLane: vscode.OverviewRulerLane.Right,
+        light: {
+          // this color will be used in light color themes
+          borderColor: "darkblue",
+        },
+        dark: {
+          // this color will be used in dark color themes
+          borderColor: "lightblue",
+        },
+        after: {
+          contentIconPath:
+            "https://avatars1.githubusercontent.com/u/14284341?v=4",
+        },
       });
+      activeEditor.setDecorations(someDecoration, [
+        {
+          range: new vscode.Range(0, 200),
+          hoverMessage: "Number **" + "**",
+        },
+      ]);
     },
   });
 
   vscode.window.onDidChangeTextEditorSelection(({ textEditor, selections }) => {
-    const activeEditor = vscode.window.activeTextEditor;
-
     const data = {
       projectId: process.env.STROVE_PROJECT_ID,
       userId: process.env.STROVE_USER_ID,
