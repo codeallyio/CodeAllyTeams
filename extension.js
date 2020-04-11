@@ -36,6 +36,13 @@ const createDecorationsType = (color) =>
   vscode.window.createTextEditorDecorationType({
     border: `2px solid rgba(${color}, 1)`,
     backgroundColor: `rgba(${color}, 0.3)`,
+    after: {
+      height: "50px",
+      width: "50px",
+      // contentIconPath: "https://avatars1.githubusercontent.com/u/14284341?v=4",
+      color,
+      contentText: "Adam",
+    },
   });
 
 const decorate = ({ decorationsArray, decorationsType }) => {
