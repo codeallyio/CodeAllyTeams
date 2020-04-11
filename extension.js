@@ -34,8 +34,9 @@ let liveshareActivity = {};
 
 const createDecorationsType = (color) =>
   vscode.window.createTextEditorDecorationType({
-    backgroundColor: color,
+    // backgroundColor: color,
     border: `2px solid ${color}`,
+    opacity: "0.9",
   });
 
 const decorate = ({ decorationsArray, decorationsType }) => {
