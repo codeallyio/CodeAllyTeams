@@ -45,6 +45,8 @@ const decorate = ({ decorationsArray, decorationsType }) => {
   editor.setDecorations(decorationsType, decorationsArray);
 };
 
+const decorationsTypes = [];
+
 const throttleCall = throttle(
   (data) =>
     axios
@@ -54,6 +56,7 @@ const throttleCall = throttle(
         referrerPolicy: "unsafe-url",
       })
       .then(function (response) {
+        decorationsTypes.forEach((type) => type.dispose());
         console.log("response color", response.data["123"].color);
         // we need to irate through users to make this work
 
@@ -61,7 +64,7 @@ const throttleCall = throttle(
           console.log("userData", userData);
           liveshareActivity[userData.userId] = {
             ...userData,
-            decorationsType: createDecorationsType(userData.color),
+            // decorationsType: createDecorationsType(userData.color),
             // decorationsType:
             //   liveshareActivity?.[userData.userId]?.["decorationsType"] ||
             //   createDecorationsType(userData.color),
@@ -78,6 +81,12 @@ const throttleCall = throttle(
           'liveshareActivity["123"]["decorationsType"]',
           liveshareActivity["123"]
         );
+
+        const decorationsType = createDecorationsType(
+          response.data["123"].color
+        );
+
+        decorationsTypes.push[decorationsType];
 
         decorate({
           decorationsArray: [
@@ -96,7 +105,7 @@ const throttleCall = throttle(
               ),
             },
           ],
-          decorationsType: createDecorationsType(response.data["123"].color), //liveshareActivity["123"]["decorationsType"],
+          decorationsType, //liveshareActivity["123"]["decorationsType"],
         });
       })
       .catch((error) => console.log("error", error)),
