@@ -8,22 +8,23 @@ const localEndpoint = "http://localhost:4040/liveshareActivity";
 
 let liveshareActivity = {};
 
-const throttleCall = throttle(
-  (data) =>
-    axios
-      .post(localEndpoint, {
-        ...data,
-        credentials: "include",
-        referrerPolicy: "unsafe-url",
-      })
-      .then(function (response) {
-        console.log("response", response);
-        liveshareActivity = response.data;
-      })
-      .catch((error) => console.log("error", error)),
-  500,
-  { leading: true }
-);
+// const decorationType = vscode.window.createTextEditorDecorationType({
+//   borderWidth: "1px",
+//   borderStyle: "solid",
+//   overviewRulerColor: "blue",
+//   overviewRulerLane: vscode.OverviewRulerLane.Right,
+//   light: {
+//     // this color will be used in light color themes
+//     borderColor: "darkblue",
+//   },
+//   dark: {
+//     // this color will be used in dark color themes
+//     borderColor: "lightblue",
+//   },
+//   after: {
+//     contentIconPath: "https://avatars1.githubusercontent.com/u/14284341?v=4",
+//   },
+// });
 
 const decorationType = vscode.window.createTextEditorDecorationType({
   backgroundColor: "green",
@@ -36,6 +37,42 @@ const decorate = ({ decorationsArray }) => {
 
   editor.setDecorations(decorationType, decorationsArray);
 };
+
+const throttleCall = throttle(
+  (data) =>
+    axios
+      .post(localEndpoint, {
+        ...data,
+        credentials: "include",
+        referrerPolicy: "unsafe-url",
+      })
+      .then(function (response) {
+        console.log("response", response);
+        liveshareActivity = response.data;
+
+        decorate({
+          decorationsArray: [
+            {
+              range: new vscode.Range(
+                new vscode.Position(
+                  liveshareActivity["123"]["selections"][0]["start"]["line"],
+                  liveshareActivity["123"]["selections"][0]["start"][
+                    "character"
+                  ]
+                ),
+                new vscode.Position(
+                  liveshareActivity["123"]["selections"][0]["end"]["line"],
+                  liveshareActivity["123"]["selections"][0]["end"]["character"]
+                )
+              ),
+            },
+          ],
+        });
+      })
+      .catch((error) => console.log("error", error)),
+  500,
+  { leading: true }
+);
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -65,13 +102,11 @@ function activate(context) {
       // position
       // line: 9;
       // character: 22;
-
       // const dataToSend = {
       //   fileName: document.fileName,
       //   x: position.character,
       //   y: position.line,
       // };
-
       // console.log("dataToSend", dataToSend);
       // console.log(
       //   "hovered document",
@@ -82,63 +117,7 @@ function activate(context) {
       //   token
       // );
       // return new vscode.Hover("I am a hover!");
-
       // console.log("liveshareActivity", liveshareActivity);
-
-      // const someDecoration = vscode.window.createTextEditorDecorationType({
-      //   borderWidth: "1px",
-      //   borderStyle: "solid",
-      //   overviewRulerColor: "blue",
-      //   overviewRulerLane: vscode.OverviewRulerLane.Right,
-      //   light: {
-      //     // this color will be used in light color themes
-      //     borderColor: "darkblue",
-      //   },
-      //   dark: {
-      //     // this color will be used in dark color themes
-      //     borderColor: "lightblue",
-      //   },
-      //   after: {
-      //     contentIconPath:
-      //       "https://avatars1.githubusercontent.com/u/14284341?v=4",
-      //   },
-      // });
-      // activeEditor.setDecorations(someDecoration, [
-      //   {
-      //     range: new vscode.Range(0, 200),
-      //     hoverMessage: "Number **" + "**",
-      //   },
-      // ]);
-
-      decorate({
-        decorationsArray: [
-          {
-            range: new vscode.Range(
-              new vscode.Position(
-                liveshareActivity["123"]["selections"][0]["start"]["line"],
-                liveshareActivity["123"]["selections"][0]["start"]["character"]
-              ),
-              new vscode.Position(
-                liveshareActivity["123"]["selections"][0]["end"]["line"],
-                liveshareActivity["123"]["selections"][0]["end"]["character"]
-              )
-            ),
-          },
-        ],
-        // decorationsArray: [
-        //   {
-        //     range: new vscode.Range(
-        //       new vscode.Position(
-        //         liveshareActivity["123"]["selections"][0]["active"]["line"],
-        //         liveshareActivity["123"]["selections"][0]["active"]["character"]
-        //       )
-        //       // new vscode.Position(
-        //       //   liveshareActivity["123"]["selections"][0]["active"]["character"]
-        //       // )
-        //     ),
-        //   },
-        // ],
-      });
     },
   });
 
