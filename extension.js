@@ -45,7 +45,7 @@ const decorate = ({ decorationsArray, decorationsType }) => {
   editor.setDecorations(decorationsType, decorationsArray);
 };
 
-const decorationsTypes = [];
+let decorationsTypes = [];
 
 const throttleCall = throttle(
   (data) =>
@@ -56,7 +56,12 @@ const throttleCall = throttle(
         referrerPolicy: "unsafe-url",
       })
       .then(function (response) {
-        decorationsTypes.forEach((type) => type.dispose());
+        // decorationsTypes.forEach((type) => type.dispose());
+
+        decorationsTypes.forEach((type) => {
+          vscode.window.activeTextEditor.setDecorations(type, []);
+        });
+
         console.log("response color", response.data["123"].color);
         // we need to irate through users to make this work
 
@@ -86,7 +91,7 @@ const throttleCall = throttle(
           response.data["123"].color
         );
 
-        decorationsTypes.push[decorationsType];
+        decorationsTypes = [...decorationsTypes, decorationsType];
 
         decorate({
           decorationsArray: [
