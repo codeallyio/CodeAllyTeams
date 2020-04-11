@@ -56,11 +56,11 @@ const throttleCall = throttle(
         referrerPolicy: "unsafe-url",
       })
       .then(function (response) {
-        // decorationsTypes.forEach((type) => type.dispose());
+        decorationsTypes.forEach((type) => type.dispose());
 
-        decorationsTypes.forEach((type) => {
-          vscode.window.activeTextEditor.setDecorations(type, []);
-        });
+        // decorationsTypes.forEach((type) => {
+        //   vscode.window.activeTextEditor.setDecorations(type, []);
+        // });
 
         console.log("response color", response.data["123"].color);
         // we need to irate through users to make this work
