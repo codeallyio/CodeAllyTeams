@@ -71,6 +71,7 @@ function activate(context) {
   // });
 
   vscode.window.onDidChangeTextEditorSelection(({ textEditor, selections }) => {
+    const activeEditor = vscode.window.activeTextEditor;
     const data = {
       projectId: process.env.PROJECT_ID,
       userId: process.env.STROVE_USER_ID,
