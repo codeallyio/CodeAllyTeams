@@ -27,16 +27,22 @@ let liveshareActivity = {};
 // });
 
 /* TODO: Create this for each new user that joins the liveshare */
-const decorationType = vscode.window.createTextEditorDecorationType({
-  backgroundColor: "green",
-  border: "2px solid white",
-});
+// const decorationType = vscode.window.createTextEditorDecorationType({
+//   backgroundColor: "green",
+//   border: "2px solid white",
+// });
 
-const decorate = ({ decorationsArray }) => {
+const createDecorationType = (color) =>
+  vscode.window.createTextEditorDecorationType({
+    backgroundColor: color,
+    border: `2px solid ${color}`,
+  });
+
+const decorate = ({ decorationsArray, decorationsType }) => {
   const editor = vscode.window.activeTextEditor;
   console.log("decorationsArray", decorationsArray);
 
-  editor.setDecorations(decorationType, decorationsArray);
+  editor.setDecorations(decorationsType, decorationsArray);
 };
 
 const throttleCall = throttle(
@@ -48,8 +54,11 @@ const throttleCall = throttle(
         referrerPolicy: "unsafe-url",
       })
       .then(function (response) {
-        console.log("response", response);
-        liveshareActivity = response.data;
+        // console.log("response", response);
+        liveshareActivity = {
+          ...response.data,
+          // decoration: createDecorationType(response.data.color),
+        };
 
         decorate({
           decorationsArray: [
@@ -68,6 +77,7 @@ const throttleCall = throttle(
               ),
             },
           ],
+          decorationsType: createDecorationType(response.data.color),
         });
       })
       .catch((error) => console.log("error", error)),
