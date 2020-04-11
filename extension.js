@@ -26,6 +26,7 @@ let liveshareActivity = {};
 //   },
 // });
 
+/* TODO: Create this for each new user that joins the liveshare */
 const decorationType = vscode.window.createTextEditorDecorationType({
   backgroundColor: "green",
   border: "2px solid white",
