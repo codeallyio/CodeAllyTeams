@@ -34,9 +34,8 @@ let liveshareActivity = {};
 
 const createDecorationsType = (color) =>
   vscode.window.createTextEditorDecorationType({
-    // backgroundColor: color,
-    border: `2px solid ${color}`,
-    opacity: "0.9",
+    border: `2px solid rgba(${color}, 1)`,
+    backgroundColor: `rgba(${color}, 0.3)`,
   });
 
 const decorate = ({ decorationsArray, decorationsType }) => {
@@ -89,7 +88,7 @@ const throttleCall = throttle(
                 ),
               },
             ],
-            decorationsType, //liveshareActivity["123"]["decorationsType"],
+            decorationsType,
           });
         });
       })
