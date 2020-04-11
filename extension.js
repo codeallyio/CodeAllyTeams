@@ -61,9 +61,11 @@ const throttleCall = throttle(
 
         Object.values(response.data).forEach((userData) => {
           const userId = userData.userId;
-          liveshareActivity[userId] = userData;
+          liveshareActivity[userId] = { ...userData };
 
           const decorationsType = createDecorationsType(userData.color);
+
+          decorationsTypes = [...decorationsTypes, decorationsType];
 
           console.log(
             "userData",
