@@ -6,6 +6,8 @@ const throttle = require("lodash.throttle");
 
 const localEndpoint = "http://localhost:4040/liveshareActivity";
 
+let liveshareActivity = {};
+
 const throttleCall = throttle(
   (data) =>
     axios
@@ -16,6 +18,7 @@ const throttleCall = throttle(
       })
       .then(function (response) {
         console.log("response", response);
+        liveshareActivity = response.data;
       })
       .catch((error) => console.log("error", error)),
   500,
@@ -72,6 +75,7 @@ function activate(context) {
 
   vscode.window.onDidChangeTextEditorSelection(({ textEditor, selections }) => {
     const activeEditor = vscode.window.activeTextEditor;
+
     const data = {
       projectId: process.env.PROJECT_ID,
       userId: process.env.STROVE_USER_ID,
@@ -80,6 +84,15 @@ function activate(context) {
     };
 
     throttleCall(data);
+
+    console.log("liveshareActivity", liveshareActivity);
+
+    const someDecoration = vscode.window.createTextEditorDecorationType({
+      cursor: "crosshair",
+      // use a themable color. See package.json for the declaration and default values.
+      backgroundColor: "red",
+      after: {},
+    });
   });
 
   vscode.window.createTerminal("strove");
