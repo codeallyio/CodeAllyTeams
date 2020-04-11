@@ -161,10 +161,10 @@ function activate(context) {
             range: new vscode.Range(
               new vscode.Position(
                 liveshareActivity["123"]["selections"][0]["start"]["line"],
-                liveshareActivity["123"]["selections"][0]["end"]["character"]
+                liveshareActivity["123"]["selections"][0]["start"]["character"]
               ),
               new vscode.Position(
-                liveshareActivity["123"]["selections"][0]["start"]["line"],
+                liveshareActivity["123"]["selections"][0]["end"]["line"],
                 liveshareActivity["123"]["selections"][0]["end"]["character"]
               )
               // new vscode.Position(
