@@ -54,10 +54,11 @@ const throttleCall = throttle(
         referrerPolicy: "unsafe-url",
       })
       .then(function (response) {
-        // console.log("response", response);
-        liveshareActivity[response.data["123"]] = {
+        console.log("response color", response.data["123"].color);
+        // we need to irate through users to make this work
+        liveshareActivity[response.data.userId] = {
           ...response.data["123"],
-          decorationsType:
+          // decorationsType:
             liveshareActivity?.["123"]?.["decorationsType"] ||
             createDecorationsType(response.data["123"].color),
         };
