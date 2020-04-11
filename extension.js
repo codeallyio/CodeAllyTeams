@@ -56,10 +56,10 @@ const throttleCall = throttle(
       .then(function (response) {
         // console.log("response", response);
         liveshareActivity[response.data["123"]] = {
-          ...response.dataUserId,
-          // decorationsType:
-          //   liveshareActivity?.["123"]?.["decorationsType"] ||
-          //   createDecorationsType(response.data.color),
+          ...response.data["123"],
+          decorationsType:
+            liveshareActivity?.["123"]?.["decorationsType"] ||
+            createDecorationsType(response.data["123"].color),
         };
 
         console.log(
