@@ -30,32 +30,44 @@ const decorationType = vscode.window.createTextEditorDecorationType({
   border: "2px solid white",
 });
 
-const decorate = ({ editor, decorationsArray }) => {
+const decorate = ({}) => {
+  const editor = vscode.window.activeTextEditor;
   let sourceCode = editor.document.getText();
-  // let regex = /(console\.log)/;
+  let regex = /(console\.log)/;
 
-  // let decorationsArray = [];
+  let decorationsArray = [];
 
   const sourceCodeArr = sourceCode.split("\n");
 
-  // for (let line = 0; line < sourceCodeArr.length; line++) {
-  //   let match = sourceCodeArr[line].match(regex);
+  for (let line = 0; line < sourceCodeArr.length; line++) {
+    let match = sourceCodeArr[line].match(regex);
 
-  //   if (match !== null && match.index !== undefined) {
-  //     let range = new vscode.Range(
-  //       new vscode.Position(line, match.index),
-  //       new vscode.Position(line, match.index + match[1].length)
-  //     );
+    if (match !== null && match.index !== undefined) {
+      let range = new vscode.Range(
+        new vscode.Position(line, match.index),
+        new vscode.Position(line, match.index + match[1].length)
+      );
 
-  //     let decoration = { range };
+      let decoration = { range };
 
-  //     decorationsArray.push(decoration);
-  //   }
-  // }
+      decorationsArray.push(decoration);
+    }
+  }
 
-  console.log("decorationsArray", decorationsArray);
+  let range = new vscode.Range(
+    new vscode.Position(13, 0),
+    new vscode.Position(13, 11)
+  );
 
-  editor.setDecorations(decorationType, decorationsArray);
+  const decorations = [
+    {
+      range,
+    },
+  ];
+
+  console.log("decorations", decorations, "decorationsArray", decorationsArray);
+
+  editor.setDecorations(decorationType, decorations);
 };
 
 // this method is called when your extension is activated
@@ -104,28 +116,26 @@ function activate(context) {
       // );
       // return new vscode.Hover("I am a hover!");
 
-      console.log("liveshareActivity", liveshareActivity);
+      // console.log("liveshareActivity", liveshareActivity);
 
-      const activeEditor = vscode.window.activeTextEditor;
-
-      const someDecoration = vscode.window.createTextEditorDecorationType({
-        borderWidth: "1px",
-        borderStyle: "solid",
-        overviewRulerColor: "blue",
-        overviewRulerLane: vscode.OverviewRulerLane.Right,
-        light: {
-          // this color will be used in light color themes
-          borderColor: "darkblue",
-        },
-        dark: {
-          // this color will be used in dark color themes
-          borderColor: "lightblue",
-        },
-        after: {
-          contentIconPath:
-            "https://avatars1.githubusercontent.com/u/14284341?v=4",
-        },
-      });
+      // const someDecoration = vscode.window.createTextEditorDecorationType({
+      //   borderWidth: "1px",
+      //   borderStyle: "solid",
+      //   overviewRulerColor: "blue",
+      //   overviewRulerLane: vscode.OverviewRulerLane.Right,
+      //   light: {
+      //     // this color will be used in light color themes
+      //     borderColor: "darkblue",
+      //   },
+      //   dark: {
+      //     // this color will be used in dark color themes
+      //     borderColor: "lightblue",
+      //   },
+      //   after: {
+      //     contentIconPath:
+      //       "https://avatars1.githubusercontent.com/u/14284341?v=4",
+      //   },
+      // });
       // activeEditor.setDecorations(someDecoration, [
       //   {
       //     range: new vscode.Range(0, 200),
@@ -134,15 +144,14 @@ function activate(context) {
       // ]);
 
       decorate({
-        editor: activeEditor,
-        decorationsArray: [
-          {
-            range: [
-              liveshareActivity["123"]["selections"][0]["start"],
-              liveshareActivity["123"]["selections"][0]["end"],
-            ],
-          },
-        ],
+        // decorationsArray: [
+        //   {
+        //     range: [
+        //       liveshareActivity["123"]["selections"][0]["start"],
+        //       liveshareActivity["123"]["selections"][0]["end"],
+        //     ],
+        //   },
+        // ],
       });
     },
   });
