@@ -55,11 +55,11 @@ const throttleCall = throttle(
       })
       .then(function (response) {
         // console.log("response", response);
-        liveshareActivity[response.data.userId] = {
+        liveshareActivity[response.data["123"]] = {
           ...response.dataUserId,
-          decorationsType:
-            liveshareActivity?.["123"]?.["decorationsType"] ||
-            createDecorationsType(response.data.color),
+          // decorationsType:
+          //   liveshareActivity?.["123"]?.["decorationsType"] ||
+          //   createDecorationsType(response.data.color),
         };
 
         console.log(
@@ -84,7 +84,7 @@ const throttleCall = throttle(
               ),
             },
           ],
-          decorationsType: liveshareActivity["123"]["decorationsType"],
+          decorationsType: createDecorationsType(response.data["123"].color), //liveshareActivity["123"]["decorationsType"],
         });
       })
       .catch((error) => console.log("error", error)),
