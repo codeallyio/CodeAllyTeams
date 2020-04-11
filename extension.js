@@ -52,6 +52,8 @@ const throttleCall = throttle(
           const editor = vscode.window.activeTextEditor;
           console.log("editor", editor);
 
+          const lastLine = userData["selections"][0]["end"]["line"];
+
           decorationsTypes = [...decorationsTypes, decorationsType];
 
           console.log(
@@ -136,6 +138,7 @@ function activate(context) {
     const data = {
       projectId: process.env.STROVE_PROJECT_ID,
       userId: process.env.STROVE_USER_ID,
+      fullName: process.env.STROVE_USER_FULL_NAME,
       photoUrl: process.env.STROVE_PHOTO_URL,
       filePath: textEditor._documentData._uri.path,
       selections,
