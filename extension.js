@@ -61,34 +61,34 @@ const throttleCall = throttle(
 
         Object.values(response.data).forEach((userData) => {
           const userId = userData.userId;
-          console.log("userData", userData);
           liveshareActivity[userId] = userData;
 
-          const decorationsType = createDecorationsType(
-            response.data[userId].color
+          const decorationsType = createDecorationsType(userData.color);
+
+          console.log(
+            "userData",
+            userData,
+            "liveshareActivity",
+            liveshareActivity
           );
 
-          decorationsTypes = [...decorationsTypes, decorationsType];
-        });
-
-        decorate({
-          decorationsArray: [
-            {
-              range: new vscode.Range(
-                new vscode.Position(
-                  liveshareActivity["123"]["selections"][0]["start"]["line"],
-                  liveshareActivity["123"]["selections"][0]["start"][
-                    "character"
-                  ]
+          decorate({
+            decorationsArray: [
+              {
+                range: new vscode.Range(
+                  new vscode.Position(
+                    userData["selections"][0]["start"]["line"],
+                    userData["selections"][0]["start"]["character"]
+                  ),
+                  new vscode.Position(
+                    userData["selections"][0]["end"]["line"],
+                    userData["selections"][0]["end"]["character"]
+                  )
                 ),
-                new vscode.Position(
-                  liveshareActivity["123"]["selections"][0]["end"]["line"],
-                  liveshareActivity["123"]["selections"][0]["end"]["character"]
-                )
-              ),
-            },
-          ],
-          decorationsType, //liveshareActivity["123"]["decorationsType"],
+              },
+            ],
+            decorationsType, //liveshareActivity["123"]["decorationsType"],
+          });
         });
       })
       .catch((error) => console.log("error", error)),
