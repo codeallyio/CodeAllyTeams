@@ -32,41 +32,7 @@ const decorationType = vscode.window.createTextEditorDecorationType({
 
 const decorate = ({ decorationsArray }) => {
   const editor = vscode.window.activeTextEditor;
-  // let sourceCode = editor.document.getText();
-  // let regex = /(console\.log)/;
-
-  // let decorationsArray = [];
-
-  // const sourceCodeArr = sourceCode.split("\n");
-
-  // for (let line = 0; line < sourceCodeArr.length; line++) {
-  //   let match = sourceCodeArr[line].match(regex);
-
-  //   if (match !== null && match.index !== undefined) {
-  //     let range = new vscode.Range(
-  //       new vscode.Position(line, match.index),
-  //       new vscode.Position(line, match.index + match[1].length)
-  //     );
-
-  //     let decoration = { range };
-
-  //     decorationsArray.push(decoration);
-  //   }
-  // }
-
-  // let range = new vscode.Range(
-  //   new vscode.Position(13, 0),
-  //   new vscode.Position(13, 11)
-  // );
-
-  // const decorations = [
-  //   {
-  //     range,
-  //   },
-  // ];
   console.log("decorationsArray", decorationsArray);
-
-  // console.log("decorations", decorations, "decorationsArray", decorationsArray);
 
   editor.setDecorations(decorationType, decorationsArray);
 };
@@ -144,17 +110,6 @@ function activate(context) {
       //   },
       // ]);
 
-      let range = new vscode.Range(
-        new vscode.Position(13, 0),
-        new vscode.Position(13, 11)
-      );
-
-      const decorations = [
-        {
-          range,
-        },
-      ];
-
       decorate({
         decorationsArray: [
           {
@@ -167,9 +122,6 @@ function activate(context) {
                 liveshareActivity["123"]["selections"][0]["end"]["line"],
                 liveshareActivity["123"]["selections"][0]["end"]["character"]
               )
-              // new vscode.Position(
-              //   liveshareActivity["123"]["selections"][0]["end"]["character"]
-              // )
             ),
           },
         ],
