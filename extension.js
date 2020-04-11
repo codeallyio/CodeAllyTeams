@@ -48,7 +48,7 @@ const throttleCall = throttle(
 
           const decorationsType = createDecorationsType(userData.color);
 
-          /* Need to make another decoration just to append user name at the end of the last selected line */
+          /* ToDO: Need to make another decoration just to append user name at the end of the last selected line */
           const editor = vscode.window.activeTextEditor;
           console.log("editor", editor);
 
