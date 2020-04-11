@@ -25,6 +25,37 @@ const throttleCall = throttle(
   { leading: true }
 );
 
+const decorationType = vscode.window.createTextEditorDecorationType({
+  backgroundColor: "green",
+  border: "2px solid white",
+});
+
+const decorate = (editor) => {
+  let sourceCode = editor.document.getText();
+  let regex = /(console\.log)/;
+
+  let decorationsArray = [];
+
+  const sourceCodeArr = sourceCode.split("\n");
+
+  for (let line = 0; line < sourceCodeArr.length; line++) {
+    let match = sourceCodeArr[line].match(regex);
+
+    if (match !== null && match.index !== undefined) {
+      let range = new vscode.Range(
+        new vscode.Position(line, match.index),
+        new vscode.Position(line, match.index + match[1].length)
+      );
+
+      let decoration = { range };
+
+      decorationsArray.push(decoration);
+    }
+  }
+
+  editor.setDecorations(decorationType, decorationsArray);
+};
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 /**
@@ -93,12 +124,14 @@ function activate(context) {
             "https://avatars1.githubusercontent.com/u/14284341?v=4",
         },
       });
-      activeEditor.setDecorations(someDecoration, [
-        {
-          range: new vscode.Range(0, 200),
-          hoverMessage: "Number **" + "**",
-        },
-      ]);
+      // activeEditor.setDecorations(someDecoration, [
+      //   {
+      //     range: new vscode.Range(0, 200),
+      //     hoverMessage: "Number **" + "**",
+      //   },
+      // ]);
+
+      decorate(activeEditor);
     },
   });
 
