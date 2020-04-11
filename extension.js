@@ -160,14 +160,36 @@ function activate(context) {
           {
             range: new vscode.Range(
               new vscode.Position(
-                liveshareActivity["123"]["selections"][0]["start"]["line"]
+                liveshareActivity["123"]["selections"][0]["start"]["line"],
+                new vscode.Position(
+                  liveshareActivity["123"]["selections"][0]["end"]["character"]
+                )
               ),
               new vscode.Position(
-                liveshareActivity["123"]["selections"][0]["end"]["character"]
+                liveshareActivity["123"]["selections"][0]["start"]["line"],
+                new vscode.Position(
+                  liveshareActivity["123"]["selections"][0]["end"]["character"]
+                )
               )
+              // new vscode.Position(
+              //   liveshareActivity["123"]["selections"][0]["end"]["character"]
+              // )
             ),
           },
         ],
+        // decorationsArray: [
+        //   {
+        //     range: new vscode.Range(
+        //       new vscode.Position(
+        //         liveshareActivity["123"]["selections"][0]["active"]["line"],
+        //         liveshareActivity["123"]["selections"][0]["active"]["character"]
+        //       )
+        //       // new vscode.Position(
+        //       //   liveshareActivity["123"]["selections"][0]["active"]["character"]
+        //       // )
+        //     ),
+        //   },
+        // ],
       });
     },
   });
