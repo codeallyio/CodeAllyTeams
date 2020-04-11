@@ -8,30 +8,6 @@ const localEndpoint = "http://localhost:4040/liveshareActivity";
 
 let liveshareActivity = {};
 
-// const decorationType = vscode.window.createTextEditorDecorationType({
-//   borderWidth: "1px",
-//   borderStyle: "solid",
-//   overviewRulerColor: "blue",
-//   overviewRulerLane: vscode.OverviewRulerLane.Right,
-//   light: {
-//     // this color will be used in light color themes
-//     borderColor: "darkblue",
-//   },
-//   dark: {
-//     // this color will be used in dark color themes
-//     borderColor: "lightblue",
-//   },
-//   after: {
-//     contentIconPath: "https://avatars1.githubusercontent.com/u/14284341?v=4",
-//   },
-// });
-
-/* TODO: Create this for each new user that joins the liveshare */
-// const decorationType = vscode.window.createTextEditorDecorationType({
-//   backgroundColor: "green",
-//   border: "2px solid white",
-// });
-
 const createDecorationsType = (color) =>
   vscode.window.createTextEditorDecorationType({
     border: `2px solid rgba(${color}, 1)`,
@@ -41,17 +17,9 @@ const createDecorationsType = (color) =>
       width: "15px",
       contentIconPath: vscode.Uri.parse(
         "https://avatars1.githubusercontent.com/u/14284341?v=4"
-        // "https://avatars1.githubusercontent.com/u/14284341?v=4"
-      ), // contentIconPath: new vscode.Uri(
-      //   "https",
-      //   "avatars1.githubusercontent.com",
-      //   "/u/14284341",
-      //   "v=4",
-      //   ""
-      //   // "https://avatars1.githubusercontent.com/u/14284341?v=4"
-      // ),
+      ),
       color,
-      // contentText: "Adam",
+      contentText: "Adam",
     },
   });
 
