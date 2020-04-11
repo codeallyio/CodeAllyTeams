@@ -56,12 +56,23 @@ const throttleCall = throttle(
       .then(function (response) {
         console.log("response color", response.data["123"].color);
         // we need to irate through users to make this work
-        liveshareActivity[response.data.userId] = {
-          ...response.data["123"],
-          // decorationsType:
-            liveshareActivity?.["123"]?.["decorationsType"] ||
-            createDecorationsType(response.data["123"].color),
-        };
+
+        Object.values(response.data).forEach((userData) => {
+          console.log("userData", userData);
+          liveshareActivity[userData.userId] = {
+            ...userData,
+            decorationsType: createDecorationsType(userData.color),
+            // decorationsType:
+            //   liveshareActivity?.[userData.userId]?.["decorationsType"] ||
+            //   createDecorationsType(userData.color),
+          };
+        });
+        // liveshareActivity[response.data.userId] = {
+        //   ...response.data["123"],
+        //   // decorationsType:
+        //     liveshareActivity?.["123"]?.["decorationsType"] ||
+        //     createDecorationsType(response.data["123"].color),
+        // };
 
         console.log(
           'liveshareActivity["123"]["decorationsType"]',
