@@ -32,7 +32,7 @@ let liveshareActivity = {};
 //   border: "2px solid white",
 // });
 
-const createDecorationType = (color) =>
+const createDecorationsType = (color) =>
   vscode.window.createTextEditorDecorationType({
     backgroundColor: color,
     border: `2px solid ${color}`,
@@ -57,7 +57,9 @@ const throttleCall = throttle(
         // console.log("response", response);
         liveshareActivity = {
           ...response.data,
-          // decoration: createDecorationType(response.data.color),
+          decorationsType:
+            liveshareActivity?.["123"]?.["decorationsType"] ||
+            createDecorationsType(response.data.color),
         };
 
         decorate({
@@ -77,7 +79,7 @@ const throttleCall = throttle(
               ),
             },
           ],
-          decorationsType: createDecorationType(response.data.color),
+          decorationsType: liveshareActivity["123"]["decorationsType"],
         });
       })
       .catch((error) => console.log("error", error)),
