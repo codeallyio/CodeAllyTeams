@@ -37,62 +37,63 @@ function activate(context) {
     'Congratulations, your extension "stroveteams" is now active!!!!!'
   );
 
-  // vscode.languages.registerHoverProvider("*", {
-  //   provideHover(document, position, token) {
-  // 			document
-  // fileName:"/Users/adamzaczek/Desktop/stroveClient/src/components/header/homeLink.js"
-  // isUntitled:false
-  // languageId:"javascript"
-  // version:1
-  // isClosed:false
-  // isDirty:false
-  // eol:1
-  // lineCount:77
-  // hovered position
-  // extension.js:23
-  // position
-  // line: 9;
-  // character: 22;
+  vscode.languages.registerHoverProvider("*", {
+    provideHover(document, position, token) {
+      // 			document
+      // fileName:"/Users/adamzaczek/Desktop/stroveClient/src/components/header/homeLink.js"
+      // isUntitled:false
+      // languageId:"javascript"
+      // version:1
+      // isClosed:false
+      // isDirty:false
+      // eol:1
+      // lineCount:77
+      // hovered position
+      // extension.js:23
+      // position
+      // line: 9;
+      // character: 22;
 
-  // const dataToSend = {
-  //   fileName: document.fileName,
-  //   x: position.character,
-  //   y: position.line,
-  // };
+      // const dataToSend = {
+      //   fileName: document.fileName,
+      //   x: position.character,
+      //   y: position.line,
+      // };
 
-  // console.log("dataToSend", dataToSend);
-  // console.log(
-  //   "hovered document",
-  //   document,
-  //   "hovered position",
-  //   position,
-  //   "token",
-  //   token
-  // );
-  // return new vscode.Hover("I am a hover!");
-  //   },
-  // });
+      // console.log("dataToSend", dataToSend);
+      // console.log(
+      //   "hovered document",
+      //   document,
+      //   "hovered position",
+      //   position,
+      //   "token",
+      //   token
+      // );
+      // return new vscode.Hover("I am a hover!");
+
+      console.log("liveshareActivity", liveshareActivity);
+
+      const someDecoration = vscode.window.createTextEditorDecorationType({
+        cursor: "crosshair",
+        // use a themable color. See package.json for the declaration and default values.
+        backgroundColor: "red",
+        after: {},
+      });
+    },
+  });
 
   vscode.window.onDidChangeTextEditorSelection(({ textEditor, selections }) => {
     const activeEditor = vscode.window.activeTextEditor;
 
     const data = {
-      projectId: process.env.PROJECT_ID,
+      projectId: process.env.STROVE_PROJECT_ID,
       userId: process.env.STROVE_USER_ID,
+      photoUrl: process.env.STROVE_PHOTO_URL,
       filePath: textEditor._documentData._uri.path,
       selections,
     };
 
     throttleCall(data);
-
-    console.log("liveshareActivity", liveshareActivity);
-
-    const someDecoration = vscode.window.createTextEditorDecorationType({
-      cursor: "crosshair",
-      // use a themable color. See package.json for the declaration and default values.
-      backgroundColor: "red",
-      after: {},
-    });
   });
 
   vscode.window.createTerminal("strove");
