@@ -59,40 +59,17 @@ const throttleCall = throttle(
       .then(function (response) {
         decorationsTypes.forEach((type) => type.dispose());
 
-        // decorationsTypes.forEach((type) => {
-        //   vscode.window.activeTextEditor.setDecorations(type, []);
-        // });
-
-        console.log("response color", response.data["123"].color);
-        // we need to irate through users to make this work
-
         Object.values(response.data).forEach((userData) => {
+          const userId = userData.userId;
           console.log("userData", userData);
-          liveshareActivity[userData.userId] = {
-            ...userData,
-            // decorationsType: createDecorationsType(userData.color),
-            // decorationsType:
-            //   liveshareActivity?.[userData.userId]?.["decorationsType"] ||
-            //   createDecorationsType(userData.color),
-          };
+          liveshareActivity[userId] = userData;
+
+          const decorationsType = createDecorationsType(
+            response.data[userId].color
+          );
+
+          decorationsTypes = [...decorationsTypes, decorationsType];
         });
-        // liveshareActivity[response.data.userId] = {
-        //   ...response.data["123"],
-        //   // decorationsType:
-        //     liveshareActivity?.["123"]?.["decorationsType"] ||
-        //     createDecorationsType(response.data["123"].color),
-        // };
-
-        console.log(
-          'liveshareActivity["123"]["decorationsType"]',
-          liveshareActivity["123"]
-        );
-
-        const decorationsType = createDecorationsType(
-          response.data["123"].color
-        );
-
-        decorationsTypes = [...decorationsTypes, decorationsType];
 
         decorate({
           decorationsArray: [
