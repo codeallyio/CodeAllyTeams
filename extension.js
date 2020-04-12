@@ -80,7 +80,8 @@ const throttleCall = throttle(
             };
 
             const editor = vscode.window.activeTextEditor;
-            const editorPath = editor._documentData._uri.path === userData.path;
+            const isEditorPathTheSameAsUsers =
+              editor._documentData._uri.path === userData.documentPath;
 
             const codeDecorationType = createDecorationType({
               userData,
@@ -104,8 +105,13 @@ const throttleCall = throttle(
             console.log(
               "editor",
               editor,
-              "editorPath",
-              editorPath // "userData",
+              "isEditorPathTheSameAsUsers",
+              isEditorPathTheSameAsUsers,
+              "editor._documentData._uri.path",
+              editor._documentData._uri.path,
+              "userData.documentPath",
+              userData.documentPath
+              // "userData",
               // userData,
               // "liveshareActivity",
               // liveshareActivity
