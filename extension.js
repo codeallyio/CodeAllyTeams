@@ -7,11 +7,11 @@ const throttle = require("lodash.throttle");
 let endpoint;
 
 if (
-  process.envSTROVE_ENVIRONMENT === "local" ||
-  !process.envSTROVE_ENVIRONMENT
+  process.env.STROVE_ENVIRONMENT === "local" ||
+  !process.env.STROVE_ENVIRONMENT
 ) {
   endpoint = "http://localhost:4040/liveshareActivity";
-} else if (process.envSTROVE_ENVIRONMENT === "development") {
+} else if (process.env.STROVE_ENVIRONMENT === "development") {
   endpoint = "https://graphql.strove.io/liveshareActivity";
 } else {
   endpoint = "https://api.strove.io/liveshareActivity";
