@@ -66,98 +66,105 @@ const throttleCall = throttle(
       .then(function (response) {
         decorationTypes.forEach((type) => type.dispose());
 
-        Object.values(response.data).forEach((userData) => {
-          const userId = userData.userId;
+        const userDataArray = Object.values(response.data);
 
-          if (userId) {
-            /*
+        console.log("userDataArray.length", userDataArray.length);
+
+        /* Theres no point to do any of those if there is no user */
+        if (userDataArray.length > 1) {
+          userDataArray.forEach((userData) => {
+            const userId = userData.userId;
+
+            if (userId) {
+              /*
               We create a new object because liveshareActivity[userId] = userData has
               circular type and node does not show it's contents in the console making
               debugging harder.
             */
-            liveshareActivity[userId] = {
-              ...userData,
-            };
+              liveshareActivity[userId] = {
+                ...userData,
+              };
 
-            const editor = vscode.window.activeTextEditor;
-            const isEditorPathTheSameAsUsers =
-              editor._documentData._uri.path === userData.documentPath;
+              const editor = vscode.window.activeTextEditor;
+              const isEditorPathTheSameAsUsers =
+                editor._documentData._uri.path === userData.documentPath;
 
-            if (isEditorPathTheSameAsUsers) {
-              const codeDecorationType = createDecorationType({
-                userData,
-              });
+              if (isEditorPathTheSameAsUsers) {
+                const codeDecorationType = createDecorationType({
+                  userData,
+                });
 
-              /* Need to make another decoration just to append user name at the end of the last selected line */
-              const userNameDecorationType = createUserNameDecorationType({
-                userData,
-              });
+                /* Need to make another decoration just to append user name at the end of the last selected line */
+                const userNameDecorationType = createUserNameDecorationType({
+                  userData,
+                });
 
-              const lastLine = userData["selections"][0]["end"]["line"];
-              const lastLineLastCharacterPosition =
-                editor._documentData._lines[lastLine].length;
+                const lastLine = userData["selections"][0]["end"]["line"];
+                const lastLineLastCharacterPosition =
+                  editor._documentData._lines[lastLine].length;
 
-              decorationTypes = [
-                ...decorationTypes,
-                codeDecorationType,
-                userNameDecorationType,
-              ];
+                decorationTypes = [
+                  ...decorationTypes,
+                  codeDecorationType,
+                  userNameDecorationType,
+                ];
 
-              console.log(
-                "editor",
-                editor,
-                "isEditorPathTheSameAsUsers",
-                isEditorPathTheSameAsUsers,
-                "editor._documentData._uri.path",
-                editor._documentData._uri.path,
-                "userData.documentPath",
-                userData.documentPath
-                // "userData",
-                // userData,
-                // "liveshareActivity",
-                // liveshareActivity
-              );
+                console.log(
+                  "editor",
+                  editor,
+                  "isEditorPathTheSameAsUsers",
+                  isEditorPathTheSameAsUsers,
+                  "editor._documentData._uri.path",
+                  editor._documentData._uri.path,
+                  "userData.documentPath",
+                  userData.documentPath
+                  // "userData",
+                  // userData,
+                  // "liveshareActivity",
+                  // liveshareActivity
+                );
 
-              /* Decorate code */
-              decorate({
-                decorationArray: [
-                  {
-                    range: new vscode.Range(
-                      new vscode.Position(
-                        userData["selections"][0]["start"]["line"],
-                        userData["selections"][0]["start"]["character"]
+                /* Decorate code */
+                decorate({
+                  decorationArray: [
+                    {
+                      range: new vscode.Range(
+                        new vscode.Position(
+                          userData["selections"][0]["start"]["line"],
+                          userData["selections"][0]["start"]["character"]
+                        ),
+                        new vscode.Position(
+                          userData["selections"][0]["end"]["line"],
+                          userData["selections"][0]["end"]["character"]
+                        )
                       ),
-                      new vscode.Position(
-                        userData["selections"][0]["end"]["line"],
-                        userData["selections"][0]["end"]["character"]
-                      )
-                    ),
-                  },
-                ],
-                decorationType: codeDecorationType,
-              });
+                    },
+                  ],
+                  decorationType: codeDecorationType,
+                });
 
-              /* Append user name at the end */
-              decorate({
-                decorationArray: [
-                  {
-                    range: new vscode.Range(
-                      new vscode.Position(
-                        userData["selections"][0]["end"]["line"],
-                        lastLineLastCharacterPosition
+                /* Append user name at the end */
+                decorate({
+                  decorationArray: [
+                    {
+                      range: new vscode.Range(
+                        new vscode.Position(
+                          userData["selections"][0]["end"]["line"],
+                          lastLineLastCharacterPosition
+                        ),
+                        new vscode.Position(
+                          userData["selections"][0]["end"]["line"],
+                          lastLineLastCharacterPosition
+                        )
                       ),
-                      new vscode.Position(
-                        userData["selections"][0]["end"]["line"],
-                        lastLineLastCharacterPosition
-                      )
-                    ),
-                  },
-                ],
-                decorationType: userNameDecorationType,
-              });
+                    },
+                  ],
+                  decorationType: userNameDecorationType,
+                });
+              }
             }
-          }
-        });
+          });
+        }
       })
       .catch((error) => console.log("error", error)),
   500,
