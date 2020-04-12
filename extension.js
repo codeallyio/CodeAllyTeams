@@ -56,73 +56,76 @@ const throttleCall = throttle(
 
         Object.values(response.data).forEach((userData) => {
           const userId = userData.userId;
-          liveshareActivity[userId] = {
-            ...userData,
-          };
 
-          const codeDecorationType = createDecorationType({ userData });
+          if (userId) {
+            liveshareActivity[userId] = {
+              ...userData,
+            };
 
-          /* Need to make another decoration just to append user name at the end of the last selected line */
-          const userNameDecorationType = createUserNameDecorationType({
-            userData,
-          });
+            const codeDecorationType = createDecorationType({ userData });
 
-          const editor = vscode.window.activeTextEditor;
+            /* Need to make another decoration just to append user name at the end of the last selected line */
+            const userNameDecorationType = createUserNameDecorationType({
+              userData,
+            });
 
-          const lastLine = userData["selections"][0]["end"]["line"];
-          const lastLineLastCharacterPosition =
-            editor._documentData._lines[lastLine].length;
+            const editor = vscode.window.activeTextEditor;
 
-          decorationTypes = [
-            ...decorationTypes,
-            codeDecorationType,
-            userNameDecorationType,
-          ];
+            const lastLine = userData["selections"][0]["end"]["line"];
+            const lastLineLastCharacterPosition =
+              editor._documentData._lines[lastLine].length;
 
-          console.log(
-            "userData",
-            userData,
-            "liveshareActivity",
-            liveshareActivity
-          );
+            decorationTypes = [
+              ...decorationTypes,
+              codeDecorationType,
+              userNameDecorationType,
+            ];
 
-          /* Decorate code */
-          decorate({
-            decorationArray: [
-              {
-                range: new vscode.Range(
-                  new vscode.Position(
-                    userData["selections"][0]["start"]["line"],
-                    userData["selections"][0]["start"]["character"]
+            console.log(
+              "userData",
+              userData,
+              "liveshareActivity",
+              liveshareActivity
+            );
+
+            /* Decorate code */
+            decorate({
+              decorationArray: [
+                {
+                  range: new vscode.Range(
+                    new vscode.Position(
+                      userData["selections"][0]["start"]["line"],
+                      userData["selections"][0]["start"]["character"]
+                    ),
+                    new vscode.Position(
+                      userData["selections"][0]["end"]["line"],
+                      userData["selections"][0]["end"]["character"]
+                    )
                   ),
-                  new vscode.Position(
-                    userData["selections"][0]["end"]["line"],
-                    userData["selections"][0]["end"]["character"]
-                  )
-                ),
-              },
-            ],
-            decorationType: codeDecorationType,
-          });
+                },
+              ],
+              decorationType: codeDecorationType,
+            });
 
-          /* Append user name at the end */
-          decorate({
-            decorationArray: [
-              {
-                range: new vscode.Range(
-                  new vscode.Position(
-                    userData["selections"][0]["end"]["line"],
-                    lastLineLastCharacterPosition
+            /* Append user name at the end */
+            decorate({
+              decorationArray: [
+                {
+                  range: new vscode.Range(
+                    new vscode.Position(
+                      userData["selections"][0]["end"]["line"],
+                      lastLineLastCharacterPosition
+                    ),
+                    new vscode.Position(
+                      userData["selections"][0]["end"]["line"],
+                      lastLineLastCharacterPosition
+                    )
                   ),
-                  new vscode.Position(
-                    userData["selections"][0]["end"]["line"],
-                    lastLineLastCharacterPosition
-                  )
-                ),
-              },
-            ],
-            decorationType: userNameDecorationType,
-          });
+                },
+              ],
+              decorationType: userNameDecorationType,
+            });
+          }
         });
       })
       .catch((error) => console.log("error", error)),
@@ -186,7 +189,7 @@ function activate(context) {
   vscode.window.onDidChangeTextEditorSelection(({ textEditor, selections }) => {
     const data = {
       projectId: process.env.STROVE_PROJECT_ID,
-      userId: process.env.STROVE_USER_ID,
+      userId: process.env.STROVE_USER_ID || "123",
       fullName: process.env.STROVE_USER_FULL_NAME,
       photoUrl: process.env.STROVE_PHOTO_URL,
       filePath: textEditor._documentData._uri.path,
