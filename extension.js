@@ -8,18 +8,18 @@ const localEndpoint = "http://localhost:4040/liveshareActivity";
 
 let liveshareActivity = {};
 
-const createDecorationsType = (color) =>
+const createDecorationsType = ({ userData }) =>
   vscode.window.createTextEditorDecorationType({
-    border: `2px solid rgba(${color}, 1)`,
-    backgroundColor: `rgba(${color}, 0.3)`,
+    border: `2px solid rgba(${userData.color}, 1)`,
+    backgroundColor: `rgba(${userData.color}, 0.3)`,
     after: {
       height: "15px",
       width: "15px",
       contentIconPath: vscode.Uri.parse(
         "https://avatars1.githubusercontent.com/u/14284341?v=4"
       ),
-      color,
-      contentText: "Adam",
+      color: userData.color,
+      contentText: userData.fullName,
     },
   });
 
@@ -46,7 +46,7 @@ const throttleCall = throttle(
           const userId = userData.userId;
           liveshareActivity[userId] = { ...userData };
 
-          const decorationsType = createDecorationsType(userData.color);
+          const decorationsType = createDecorationsType({ userData });
 
           /* ToDO: Need to make another decoration just to append user name at the end of the last selected line */
           const editor = vscode.window.activeTextEditor;
