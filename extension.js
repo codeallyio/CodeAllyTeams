@@ -70,11 +70,18 @@ const throttleCall = throttle(
           const userId = userData.userId;
 
           if (userId) {
+            /*
+              We create a new object because liveshareActivity[userId] = userData has
+              circular type and node does not show it's contents in the console making
+              debugging harder.
+            */
             liveshareActivity[userId] = {
               ...userData,
             };
 
-            const codeDecorationType = createDecorationType({ userData });
+            const codeDecorationType = createDecorationType({
+              userData,
+            });
 
             /* Need to make another decoration just to append user name at the end of the last selected line */
             const userNameDecorationType = createUserNameDecorationType({
