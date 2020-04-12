@@ -67,7 +67,7 @@ const liveshareActivityRequest = (data) =>
 
       const userDataArray = Object.values(response.data);
 
-      console.log("userDataArray.length", userDataArray.length);
+      // console.log("userDataArray.length", userDataArray.length);
 
       userDataArray.forEach((userData) => {
         const userId = userData.userId;
@@ -107,20 +107,20 @@ const liveshareActivityRequest = (data) =>
               userNameDecorationType,
             ];
 
-            console.log(
-              "editor",
-              editor,
-              "isEditorPathTheSameAsUsers",
-              isEditorPathTheSameAsUsers,
-              "editor._documentData._uri.path",
-              editor._documentData._uri.path,
-              "userData.documentPath",
-              userData.documentPath
-              // "userData",
-              // userData,
-              // "liveshareActivity",
-              // liveshareActivity
-            );
+            // console.log(
+            //   "editor",
+            //   editor,
+            //   "isEditorPathTheSameAsUsers",
+            //   isEditorPathTheSameAsUsers,
+            //   "editor._documentData._uri.path",
+            //   editor._documentData._uri.path,
+            //   "userData.documentPath",
+            //   userData.documentPath
+            //   // "userData",
+            //   // userData,
+            //   // "liveshareActivity",
+            //   // liveshareActivity
+            // );
 
             /* Decorate code */
             decorate({
@@ -177,9 +177,7 @@ const throttleLiveShareActiviyCall = throttle(liveshareActivityRequest, 500, {
 function activate(context) {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
-  console.log(
-    'Congratulations, your extension "stroveteams" is now active!!!!!'
-  );
+  console.log("stroveteams extension is active");
 
   /* Make sure to also refresh editor data once in a while if user does not actively type */
   setInterval(
