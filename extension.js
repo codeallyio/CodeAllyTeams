@@ -4,7 +4,18 @@ const vscode = require("vscode");
 const axios = require("axios").default;
 const throttle = require("lodash.throttle");
 
-const localEndpoint = "http://localhost:4040/liveshareActivity";
+let localEndpoint;
+
+if (
+  process.envSTROVE_ENVIRONMENT === "local" ||
+  !process.envSTROVE_ENVIRONMENT
+) {
+  localEndpoint = "http://localhost:4040/liveshareActivity";
+} else if (process.envSTROVE_ENVIRONMENT === "development") {
+  localEndpoint = "https://graphql.strove.io/liveshareActivity";
+} else {
+  localEndpoint = "https://api.strove.io/liveshareActivity";
+}
 
 let liveshareActivity = {};
 
