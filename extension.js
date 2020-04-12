@@ -55,7 +55,7 @@ const decorate = ({ decorationArray, decorationType }) => {
 
 let decorationTypes = [];
 
-const throttleCall = throttle(
+const throttleLiveShareActiviyCall = throttle(
   (data) =>
     axios
       .post(endpoint, {
@@ -183,7 +183,7 @@ function activate(context) {
 
   /* Make sure to also refresh editor data once in a while if user does not actively type */
   // setInterval(
-  //   () => throttleCall({ projectId: process.env.STROVE_PROJECT_ID }),
+  //   () => throttleLiveShareActiviyCall({ projectId: process.env.STROVE_PROJECT_ID }),
   //   2000
   // );
 
@@ -197,7 +197,7 @@ function activate(context) {
       selections,
     };
 
-    throttleCall(data);
+    throttleLiveShareActiviyCall(data);
   });
 
   vscode.window.createTerminal("strove");
