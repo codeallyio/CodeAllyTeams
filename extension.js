@@ -142,6 +142,9 @@ function activate(context) {
     'Congratulations, your extension "stroveteams" is now active!!!!!'
   );
 
+  /* Make sure to also refresh editor data once in a while if user does not actively type */
+  setInterva(() => throttleCall(), 3000);
+
   vscode.languages.registerHoverProvider("*", {
     provideHover(document, position, token) {
       // 			document
