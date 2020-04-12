@@ -25,15 +25,11 @@ const createDecorationType = ({ userData }) =>
 
 const createUserNameDecorationType = ({ userData }) =>
   vscode.window.createTextEditorDecorationType({
-    border: `2px solid rgba(${userData.color}, 1)`,
-    backgroundColor: `rgba(${userData.color}, 0.3)`,
     after: {
-      height: "100px",
-      width: "100px",
       // contentIconPath: vscode.Uri.parse(
       //   "https://avatars1.githubusercontent.com/u/14284341?v=4"
       // ),
-      color: userData.color,
+      color: `rgba(${userData.color}, 0.5)`,
       contentText: userData.fullName,
     },
   });
@@ -73,13 +69,6 @@ const throttleCall = throttle(
           const lastLine = userData["selections"][0]["end"]["line"];
           const lastLineLastCharacterPosition =
             editor._documentData._lines[lastLine].length;
-
-          console.log(
-            "editor",
-            editor,
-            "lastLineLastCharacterPosition",
-            lastLineLastCharacterPosition
-          );
 
           decorationTypes = [
             ...decorationTypes,
