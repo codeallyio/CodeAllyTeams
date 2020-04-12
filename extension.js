@@ -75,7 +75,8 @@ const throttleCall = throttle(
           userDataArray.forEach((userData) => {
             const userId = userData.userId;
 
-            if (userId) {
+            /* Skip decorating editor using users own activity data */
+            if (userId && userId !== process.env.STROVE_USER_ID) {
               /*
               We create a new object because liveshareActivity[userId] = userData has
               circular type and node does not show it's contents in the console making
