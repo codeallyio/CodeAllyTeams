@@ -27,11 +27,12 @@ const createUserNameDecorationType = ({ userData }) =>
   vscode.window.createTextEditorDecorationType({
     after: {
       margin: "20px",
+      /* This can be used to pass avatar but we need to resize it on the server side first */
       // contentIconPath: vscode.Uri.parse(
       //   "https://avatars1.githubusercontent.com/u/14284341?v=4"
       // ),
       color: `rgba(${userData.color})`,
-      contentText: `     ${userData.fullName}`,
+      contentText: ` ${userData.fullName}`,
     },
   });
 
