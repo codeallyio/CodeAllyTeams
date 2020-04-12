@@ -12,12 +12,27 @@ const createDecorationType = ({ userData }) =>
   vscode.window.createTextEditorDecorationType({
     border: `2px solid rgba(${userData.color}, 1)`,
     backgroundColor: `rgba(${userData.color}, 0.3)`,
+    // after: {
+    //   height: "15px",
+    //   width: "15px",
+    //   // contentIconPath: vscode.Uri.parse(
+    //   //   "https://avatars1.githubusercontent.com/u/14284341?v=4"
+    //   // ),
+    //   color: userData.color,
+    //   contentText: userData.fullName,
+    // },
+  });
+
+const createUserNameDecorationType = ({ userData }) =>
+  vscode.window.createTextEditorDecorationType({
+    border: `2px solid rgba(${userData.color}, 1)`,
+    backgroundColor: `rgba(${userData.color}, 0.3)`,
     after: {
-      height: "15px",
-      width: "15px",
-      contentIconPath: vscode.Uri.parse(
-        "https://avatars1.githubusercontent.com/u/14284341?v=4"
-      ),
+      height: "100px",
+      width: "100px",
+      // contentIconPath: vscode.Uri.parse(
+      //   "https://avatars1.githubusercontent.com/u/14284341?v=4"
+      // ),
       color: userData.color,
       contentText: userData.fullName,
     },
@@ -48,12 +63,16 @@ const throttleCall = throttle(
 
           const decorationType = createDecorationType({ userData });
 
+          const userNameDecorationType = createUserNameDecorationType({
+            userData,
+          });
+
           /* ToDO: Need to make another decoration just to append user name at the end of the last selected line */
           const editor = vscode.window.activeTextEditor;
 
           const lastLine = userData["selections"][0]["end"]["line"];
           const lastLineLastCharacterPosition =
-            editor._documentData._lines[lastLine].length - 1;
+            editor._documentData._lines[lastLine].length;
 
           console.log(
             "editor",
@@ -62,7 +81,11 @@ const throttleCall = throttle(
             lastLineLastCharacterPosition
           );
 
-          decorationTypes = [...decorationTypes, decorationType];
+          decorationTypes = [
+            ...decorationTypes,
+            decorationType,
+            userNameDecorationType,
+          ];
 
           console.log(
             "userData",
@@ -87,6 +110,20 @@ const throttleCall = throttle(
               },
             ],
             decorationType,
+          });
+
+          decorate({
+            decorationArray: [
+              {
+                range: new vscode.Range(
+                  new vscode.Position(
+                    userData["selections"][0]["end"]["line"],
+                    lastLineLastCharacterPosition
+                  )
+                ),
+              },
+            ],
+            decorationType: userNameDecorationType,
           });
         });
       })
