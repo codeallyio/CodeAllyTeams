@@ -83,77 +83,79 @@ const throttleCall = throttle(
             const isEditorPathTheSameAsUsers =
               editor._documentData._uri.path === userData.documentPath;
 
-            const codeDecorationType = createDecorationType({
-              userData,
-            });
+            if (isEditorPathTheSameAsUsers) {
+              const codeDecorationType = createDecorationType({
+                userData,
+              });
 
-            /* Need to make another decoration just to append user name at the end of the last selected line */
-            const userNameDecorationType = createUserNameDecorationType({
-              userData,
-            });
+              /* Need to make another decoration just to append user name at the end of the last selected line */
+              const userNameDecorationType = createUserNameDecorationType({
+                userData,
+              });
 
-            const lastLine = userData["selections"][0]["end"]["line"];
-            const lastLineLastCharacterPosition =
-              editor._documentData._lines[lastLine].length;
+              const lastLine = userData["selections"][0]["end"]["line"];
+              const lastLineLastCharacterPosition =
+                editor._documentData._lines[lastLine].length;
 
-            decorationTypes = [
-              ...decorationTypes,
-              codeDecorationType,
-              userNameDecorationType,
-            ];
+              decorationTypes = [
+                ...decorationTypes,
+                codeDecorationType,
+                userNameDecorationType,
+              ];
 
-            console.log(
-              "editor",
-              editor,
-              "isEditorPathTheSameAsUsers",
-              isEditorPathTheSameAsUsers,
-              "editor._documentData._uri.path",
-              editor._documentData._uri.path,
-              "userData.documentPath",
-              userData.documentPath
-              // "userData",
-              // userData,
-              // "liveshareActivity",
-              // liveshareActivity
-            );
+              console.log(
+                "editor",
+                editor,
+                "isEditorPathTheSameAsUsers",
+                isEditorPathTheSameAsUsers,
+                "editor._documentData._uri.path",
+                editor._documentData._uri.path,
+                "userData.documentPath",
+                userData.documentPath
+                // "userData",
+                // userData,
+                // "liveshareActivity",
+                // liveshareActivity
+              );
 
-            /* Decorate code */
-            decorate({
-              decorationArray: [
-                {
-                  range: new vscode.Range(
-                    new vscode.Position(
-                      userData["selections"][0]["start"]["line"],
-                      userData["selections"][0]["start"]["character"]
+              /* Decorate code */
+              decorate({
+                decorationArray: [
+                  {
+                    range: new vscode.Range(
+                      new vscode.Position(
+                        userData["selections"][0]["start"]["line"],
+                        userData["selections"][0]["start"]["character"]
+                      ),
+                      new vscode.Position(
+                        userData["selections"][0]["end"]["line"],
+                        userData["selections"][0]["end"]["character"]
+                      )
                     ),
-                    new vscode.Position(
-                      userData["selections"][0]["end"]["line"],
-                      userData["selections"][0]["end"]["character"]
-                    )
-                  ),
-                },
-              ],
-              decorationType: codeDecorationType,
-            });
+                  },
+                ],
+                decorationType: codeDecorationType,
+              });
 
-            /* Append user name at the end */
-            decorate({
-              decorationArray: [
-                {
-                  range: new vscode.Range(
-                    new vscode.Position(
-                      userData["selections"][0]["end"]["line"],
-                      lastLineLastCharacterPosition
+              /* Append user name at the end */
+              decorate({
+                decorationArray: [
+                  {
+                    range: new vscode.Range(
+                      new vscode.Position(
+                        userData["selections"][0]["end"]["line"],
+                        lastLineLastCharacterPosition
+                      ),
+                      new vscode.Position(
+                        userData["selections"][0]["end"]["line"],
+                        lastLineLastCharacterPosition
+                      )
                     ),
-                    new vscode.Position(
-                      userData["selections"][0]["end"]["line"],
-                      lastLineLastCharacterPosition
-                    )
-                  ),
-                },
-              ],
-              decorationType: userNameDecorationType,
-            });
+                  },
+                ],
+                decorationType: userNameDecorationType,
+              });
+            }
           }
         });
       })
