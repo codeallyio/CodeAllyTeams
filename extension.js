@@ -80,8 +80,7 @@ const throttleCall = throttle(
             };
 
             const editor = vscode.window.activeTextEditor;
-            const editorPath =
-              editor._documentData._uri.path === userData.filePath;
+            const editorPath = editor._documentData._uri.path === userData.path;
 
             const codeDecorationType = createDecorationType({
               userData,
@@ -216,7 +215,7 @@ function activate(context) {
       userId: process.env.STROVE_USER_ID || "123",
       fullName: process.env.STROVE_USER_FULL_NAME,
       photoUrl: process.env.STROVE_PHOTO_URL,
-      filePath: textEditor._documentData._uri.path,
+      documentPath: textEditor._documentData._uri.path,
       selections,
     };
 
