@@ -10,7 +10,7 @@ let liveshareActivity = {};
 
 const createDecorationType = ({ userData }) =>
   vscode.window.createTextEditorDecorationType({
-    border: `2px solid rgba(${userData.color}, 1)`,
+    border: `1px solid rgba(${userData.color}, 1)`,
     backgroundColor: `rgba(${userData.color}, 0.3)`,
     // after: {
     //   height: "15px",
