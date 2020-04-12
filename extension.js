@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require("vscode");
+const WebSocket = require("ws");
 const axios = require("axios").default;
 const throttle = require("lodash.throttle");
 
@@ -10,7 +11,7 @@ if (
   process.envSTROVE_ENVIRONMENT === "local" ||
   !process.envSTROVE_ENVIRONMENT
 ) {
-  endpoint = "http://localhost:4040/liveshareActivity";
+  endpoint = "ws://localhost:4040/liveshareActivity";
 } else if (process.envSTROVE_ENVIRONMENT === "development") {
   endpoint = "https://graphql.strove.io/liveshareActivity";
 } else {
@@ -187,6 +188,27 @@ function activate(context) {
   //   2000
   // );
 
+  let ws;
+
+  const connect = () => {
+    ws = new WebSocket(endpoint);
+
+    ws.on("open", function open() {
+      ws.send("something");
+    });
+
+    ws.on("message", function incoming(data) {
+      console.log(data);
+    });
+
+    ws.on("close", () => {
+      console.log("disconnected");
+      setTimeout(() => connect(), 5000);
+    });
+  };
+
+  connect();
+
   vscode.window.onDidChangeTextEditorSelection(({ textEditor, selections }) => {
     const data = {
       projectId: process.env.STROVE_PROJECT_ID,
@@ -197,31 +219,11 @@ function activate(context) {
       selections,
     };
 
-    throttleLiveshareActivityCall(data);
+    console.log("trying to send data", data, "ws", ws);
 
-    const connection = new WebSocket(endpoint);
+    ws.send(data);
 
-    connection.onopen = function () {
-      console.log("opened");
-      // connection is opened and ready to use
-    };
-
-    connection.onerror = function (error) {
-      console.log("error");
-      // an error occurred when sending/receiving data
-    };
-
-    connection.onmessage = function (message) {
-      // try to decode json (I assume that each message
-      // from server is json)
-      try {
-        const json = JSON.parse(message.data);
-      } catch (e) {
-        console.log("This doesn't look like a valid JSON: ", message.data);
-        return;
-      }
-      // handle incoming message
-    };
+    // throttleLiveshareActivityCall(data);
   });
 
   vscode.window.createTerminal("strove");
