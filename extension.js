@@ -119,6 +119,10 @@ const throttleCall = throttle(
                   new vscode.Position(
                     userData["selections"][0]["end"]["line"],
                     lastLineLastCharacterPosition
+                  ),
+                  new vscode.Position(
+                    userData["selections"][0]["end"]["line"],
+                    lastLineLastCharacterPosition
                   )
                 ),
               },
