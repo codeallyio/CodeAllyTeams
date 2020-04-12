@@ -143,7 +143,10 @@ function activate(context) {
   );
 
   /* Make sure to also refresh editor data once in a while if user does not actively type */
-  setInterval(() => throttleCall(), 2000);
+  setInterval(
+    () => throttleCall({ projectId: process.env.STROVE_PROJECT_ID }),
+    2000
+  );
 
   vscode.languages.registerHoverProvider("*", {
     provideHover(document, position, token) {
