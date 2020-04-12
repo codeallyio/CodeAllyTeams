@@ -143,7 +143,7 @@ function activate(context) {
   );
 
   /* Make sure to also refresh editor data once in a while if user does not actively type */
-  setInterva(() => throttleCall(), 3000);
+  setInterval(() => throttleCall(), 2000);
 
   vscode.languages.registerHoverProvider("*", {
     provideHover(document, position, token) {
