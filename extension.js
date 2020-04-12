@@ -55,119 +55,119 @@ const decorate = ({ decorationArray, decorationType }) => {
 
 let decorationTypes = [];
 
-const throttleLiveShareActiviyCall = throttle(
-  (data) =>
-    axios
-      .post(endpoint, {
-        ...data,
-        credentials: "include",
-        referrerPolicy: "unsafe-url",
-      })
-      .then(function (response) {
-        decorationTypes.forEach((type) => type.dispose());
+const liveshareActivityRequest = (data) =>
+  axios
+    .post(endpoint, {
+      ...data,
+      credentials: "include",
+      referrerPolicy: "unsafe-url",
+    })
+    .then(function (response) {
+      decorationTypes.forEach((type) => type.dispose());
 
-        const userDataArray = Object.values(response.data);
+      const userDataArray = Object.values(response.data);
 
-        console.log("userDataArray.length", userDataArray.length);
+      console.log("userDataArray.length", userDataArray.length);
 
-        userDataArray.forEach((userData) => {
-          const userId = userData.userId;
+      userDataArray.forEach((userData) => {
+        const userId = userData.userId;
 
-          /* Skip decorating editor using users own activity data */
-          if (userId && userId !== process.env.STROVE_USER_ID) {
-            /*
+        /* Skip decorating editor using users own activity data */
+        if (userId && userId !== process.env.STROVE_USER_ID) {
+          /*
               We create a new object because liveshareActivity[userId] = userData has
               circular type and node does not show it's contents in the console making
               debugging harder.
             */
-            liveshareActivity[userId] = {
-              ...userData,
-            };
+          liveshareActivity[userId] = {
+            ...userData,
+          };
 
-            const editor = vscode.window.activeTextEditor;
-            const isEditorPathTheSameAsUsers =
-              editor._documentData._uri.path === userData.documentPath;
+          const editor = vscode.window.activeTextEditor;
+          const isEditorPathTheSameAsUsers =
+            editor._documentData._uri.path === userData.documentPath;
 
-            if (isEditorPathTheSameAsUsers) {
-              const codeDecorationType = createDecorationType({
-                userData,
-              });
+          if (isEditorPathTheSameAsUsers) {
+            const codeDecorationType = createDecorationType({
+              userData,
+            });
 
-              /* Need to make another decoration just to append user name at the end of the last selected line */
-              const userNameDecorationType = createUserNameDecorationType({
-                userData,
-              });
+            /* Need to make another decoration just to append user name at the end of the last selected line */
+            const userNameDecorationType = createUserNameDecorationType({
+              userData,
+            });
 
-              const lastLine = userData["selections"][0]["end"]["line"];
-              const lastLineLastCharacterPosition =
-                editor._documentData._lines[lastLine].length;
+            const lastLine = userData["selections"][0]["end"]["line"];
+            const lastLineLastCharacterPosition =
+              editor._documentData._lines[lastLine].length;
 
-              decorationTypes = [
-                ...decorationTypes,
-                codeDecorationType,
-                userNameDecorationType,
-              ];
+            decorationTypes = [
+              ...decorationTypes,
+              codeDecorationType,
+              userNameDecorationType,
+            ];
 
-              console.log(
-                "editor",
-                editor,
-                "isEditorPathTheSameAsUsers",
-                isEditorPathTheSameAsUsers,
-                "editor._documentData._uri.path",
-                editor._documentData._uri.path,
-                "userData.documentPath",
-                userData.documentPath
-                // "userData",
-                // userData,
-                // "liveshareActivity",
-                // liveshareActivity
-              );
+            console.log(
+              "editor",
+              editor,
+              "isEditorPathTheSameAsUsers",
+              isEditorPathTheSameAsUsers,
+              "editor._documentData._uri.path",
+              editor._documentData._uri.path,
+              "userData.documentPath",
+              userData.documentPath
+              // "userData",
+              // userData,
+              // "liveshareActivity",
+              // liveshareActivity
+            );
 
-              /* Decorate code */
-              decorate({
-                decorationArray: [
-                  {
-                    range: new vscode.Range(
-                      new vscode.Position(
-                        userData["selections"][0]["start"]["line"],
-                        userData["selections"][0]["start"]["character"]
-                      ),
-                      new vscode.Position(
-                        userData["selections"][0]["end"]["line"],
-                        userData["selections"][0]["end"]["character"]
-                      )
+            /* Decorate code */
+            decorate({
+              decorationArray: [
+                {
+                  range: new vscode.Range(
+                    new vscode.Position(
+                      userData["selections"][0]["start"]["line"],
+                      userData["selections"][0]["start"]["character"]
                     ),
-                  },
-                ],
-                decorationType: codeDecorationType,
-              });
+                    new vscode.Position(
+                      userData["selections"][0]["end"]["line"],
+                      userData["selections"][0]["end"]["character"]
+                    )
+                  ),
+                },
+              ],
+              decorationType: codeDecorationType,
+            });
 
-              /* Append user name at the end */
-              decorate({
-                decorationArray: [
-                  {
-                    range: new vscode.Range(
-                      new vscode.Position(
-                        userData["selections"][0]["end"]["line"],
-                        lastLineLastCharacterPosition
-                      ),
-                      new vscode.Position(
-                        userData["selections"][0]["end"]["line"],
-                        lastLineLastCharacterPosition
-                      )
+            /* Append user name at the end */
+            decorate({
+              decorationArray: [
+                {
+                  range: new vscode.Range(
+                    new vscode.Position(
+                      userData["selections"][0]["end"]["line"],
+                      lastLineLastCharacterPosition
                     ),
-                  },
-                ],
-                decorationType: userNameDecorationType,
-              });
-            }
+                    new vscode.Position(
+                      userData["selections"][0]["end"]["line"],
+                      lastLineLastCharacterPosition
+                    )
+                  ),
+                },
+              ],
+              decorationType: userNameDecorationType,
+            });
           }
-        });
-      })
-      .catch((error) => console.log("error", error)),
-  500,
-  { leading: true }
-);
+        }
+      });
+    })
+    .catch((error) => console.log("error", error));
+
+const throttleLiveShareActiviyCall = throttle(liveshareActivityRequest, 500, {
+  leading: true,
+});
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -182,10 +182,11 @@ function activate(context) {
   );
 
   /* Make sure to also refresh editor data once in a while if user does not actively type */
-  // setInterval(
-  //   () => throttleLiveShareActiviyCall({ projectId: process.env.STROVE_PROJECT_ID }),
-  //   2000
-  // );
+  setInterval(
+    () =>
+      liveshareActivityRequest({ projectId: process.env.STROVE_PROJECT_ID }),
+    2000
+  );
 
   vscode.window.onDidChangeTextEditorSelection(({ textEditor, selections }) => {
     const data = {
