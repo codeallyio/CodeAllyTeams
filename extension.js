@@ -79,6 +79,10 @@ const throttleCall = throttle(
               ...userData,
             };
 
+            const editor = vscode.window.activeTextEditor;
+            const editorPath =
+              editor._documentData._uri.path === userData.filePath;
+
             const codeDecorationType = createDecorationType({
               userData,
             });
@@ -87,8 +91,6 @@ const throttleCall = throttle(
             const userNameDecorationType = createUserNameDecorationType({
               userData,
             });
-
-            const editor = vscode.window.activeTextEditor;
 
             const lastLine = userData["selections"][0]["end"]["line"];
             const lastLineLastCharacterPosition =
@@ -101,10 +103,13 @@ const throttleCall = throttle(
             ];
 
             console.log(
-              "userData",
-              userData,
-              "liveshareActivity",
-              liveshareActivity
+              "editor",
+              editor,
+              "editorPath",
+              editorPath // "userData",
+              // userData,
+              // "liveshareActivity",
+              // liveshareActivity
             );
 
             /* Decorate code */
