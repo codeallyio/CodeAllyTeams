@@ -182,45 +182,10 @@ function activate(context) {
   );
 
   /* Make sure to also refresh editor data once in a while if user does not actively type */
-  setInterval(
-    () => throttleCall({ projectId: process.env.STROVE_PROJECT_ID }),
-    2000
-  );
-
-  vscode.languages.registerHoverProvider("*", {
-    provideHover(document, position, token) {
-      // 			document
-      // fileName:"/Users/adamzaczek/Desktop/stroveClient/src/components/header/homeLink.js"
-      // isUntitled:false
-      // languageId:"javascript"
-      // version:1
-      // isClosed:false
-      // isDirty:false
-      // eol:1
-      // lineCount:77
-      // hovered position
-      // extension.js:23
-      // position
-      // line: 9;
-      // character: 22;
-      // const dataToSend = {
-      //   fileName: document.fileName,
-      //   x: position.character,
-      //   y: position.line,
-      // };
-      // console.log("dataToSend", dataToSend);
-      // console.log(
-      //   "hovered document",
-      //   document,
-      //   "hovered position",
-      //   position,
-      //   "token",
-      //   token
-      // );
-      // return new vscode.Hover("I am a hover!");
-      // console.log("liveshareActivity", liveshareActivity);
-    },
-  });
+  // setInterval(
+  //   () => throttleCall({ projectId: process.env.STROVE_PROJECT_ID }),
+  //   2000
+  // );
 
   vscode.window.onDidChangeTextEditorSelection(({ textEditor, selections }) => {
     const data = {
