@@ -55,15 +55,17 @@ const throttleCall = throttle(
 
         Object.values(response.data).forEach((userData) => {
           const userId = userData.userId;
-          liveshareActivity[userId] = { ...userData };
+          liveshareActivity[userId] = {
+            ...userData,
+          };
 
-          const decorationType = createDecorationType({ userData });
+          const codeDecorationType = createDecorationType({ userData });
 
+          /* Need to make another decoration just to append user name at the end of the last selected line */
           const userNameDecorationType = createUserNameDecorationType({
             userData,
           });
 
-          /* ToDO: Need to make another decoration just to append user name at the end of the last selected line */
           const editor = vscode.window.activeTextEditor;
 
           const lastLine = userData["selections"][0]["end"]["line"];
@@ -72,7 +74,7 @@ const throttleCall = throttle(
 
           decorationTypes = [
             ...decorationTypes,
-            decorationType,
+            codeDecorationType,
             userNameDecorationType,
           ];
 
@@ -83,6 +85,7 @@ const throttleCall = throttle(
             liveshareActivity
           );
 
+          /* Decorate code */
           decorate({
             decorationArray: [
               {
@@ -98,9 +101,10 @@ const throttleCall = throttle(
                 ),
               },
             ],
-            decorationType,
+            decorationType: codeDecorationType,
           });
 
+          /* Append user name at the end */
           decorate({
             decorationArray: [
               {
