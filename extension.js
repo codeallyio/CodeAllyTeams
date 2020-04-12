@@ -8,7 +8,7 @@ const localEndpoint = "http://localhost:4040/liveshareActivity";
 
 let liveshareActivity = {};
 
-const createDecorationsType = ({ userData }) =>
+const createDecorationType = ({ userData }) =>
   vscode.window.createTextEditorDecorationType({
     border: `2px solid rgba(${userData.color}, 1)`,
     backgroundColor: `rgba(${userData.color}, 0.3)`,
@@ -23,13 +23,13 @@ const createDecorationsType = ({ userData }) =>
     },
   });
 
-const decorate = ({ decorationsArray, decorationsType }) => {
+const decorate = ({ decorationArray, decorationType }) => {
   const editor = vscode.window.activeTextEditor;
 
-  editor.setDecorations(decorationsType, decorationsArray);
+  editor.setDecorations(decorationType, decorationArray);
 };
 
-let decorationsTypes = [];
+let decorationTypes = [];
 
 const throttleCall = throttle(
   (data) =>
@@ -40,13 +40,13 @@ const throttleCall = throttle(
         referrerPolicy: "unsafe-url",
       })
       .then(function (response) {
-        decorationsTypes.forEach((type) => type.dispose());
+        decorationTypes.forEach((type) => type.dispose());
 
         Object.values(response.data).forEach((userData) => {
           const userId = userData.userId;
           liveshareActivity[userId] = { ...userData };
 
-          const decorationsType = createDecorationsType({ userData });
+          const decorationType = createDecorationType({ userData });
 
           /* ToDO: Need to make another decoration just to append user name at the end of the last selected line */
           const editor = vscode.window.activeTextEditor;
@@ -54,7 +54,7 @@ const throttleCall = throttle(
 
           const lastLine = userData["selections"][0]["end"]["line"];
 
-          decorationsTypes = [...decorationsTypes, decorationsType];
+          decorationTypes = [...decorationTypes, decorationType];
 
           console.log(
             "userData",
@@ -64,7 +64,7 @@ const throttleCall = throttle(
           );
 
           decorate({
-            decorationsArray: [
+            decorationArray: [
               {
                 range: new vscode.Range(
                   new vscode.Position(
@@ -78,7 +78,7 @@ const throttleCall = throttle(
                 ),
               },
             ],
-            decorationsType,
+            decorationType,
           });
         });
       })
