@@ -4,17 +4,17 @@ const vscode = require("vscode");
 const axios = require("axios").default;
 const throttle = require("lodash.throttle");
 
-let localEndpoint;
+let endpoint;
 
 if (
   process.envSTROVE_ENVIRONMENT === "local" ||
   !process.envSTROVE_ENVIRONMENT
 ) {
-  localEndpoint = "http://localhost:4040/liveshareActivity";
+  endpoint = "http://localhost:4040/liveshareActivity";
 } else if (process.envSTROVE_ENVIRONMENT === "development") {
-  localEndpoint = "https://graphql.strove.io/liveshareActivity";
+  endpoint = "https://graphql.strove.io/liveshareActivity";
 } else {
-  localEndpoint = "https://api.strove.io/liveshareActivity";
+  endpoint = "https://api.strove.io/liveshareActivity";
 }
 
 let liveshareActivity = {};
@@ -58,7 +58,7 @@ let decorationTypes = [];
 const throttleCall = throttle(
   (data) =>
     axios
-      .post(localEndpoint, {
+      .post(endpoint, {
         ...data,
         credentials: "include",
         referrerPolicy: "unsafe-url",
