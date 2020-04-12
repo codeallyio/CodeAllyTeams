@@ -26,6 +26,7 @@ const createDecorationType = ({ userData }) =>
 const createUserNameDecorationType = ({ userData }) =>
   vscode.window.createTextEditorDecorationType({
     after: {
+      margin: "20px",
       // contentIconPath: vscode.Uri.parse(
       //   "https://avatars1.githubusercontent.com/u/14284341?v=4"
       // ),
