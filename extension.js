@@ -55,7 +55,7 @@ const decorate = ({ decorationArray, decorationType }) => {
 
 let decorationTypes = [];
 
-const throttleLiveShareActiviyCall = throttle(
+const throttleLiveshareActivityCall = throttle(
   (data) =>
     axios
       .post(endpoint, {
@@ -183,7 +183,7 @@ function activate(context) {
 
   /* Make sure to also refresh editor data once in a while if user does not actively type */
   // setInterval(
-  //   () => throttleLiveShareActiviyCall({ projectId: process.env.STROVE_PROJECT_ID }),
+  //   () => throttleLiveshareActivityCall({ projectId: process.env.STROVE_PROJECT_ID }),
   //   2000
   // );
 
@@ -197,7 +197,31 @@ function activate(context) {
       selections,
     };
 
-    throttleLiveShareActiviyCall(data);
+    throttleLiveshareActivityCall(data);
+
+    const connection = new WebSocket(endpoint);
+
+    connection.onopen = function () {
+      console.log("opened");
+      // connection is opened and ready to use
+    };
+
+    connection.onerror = function (error) {
+      console.log("error");
+      // an error occurred when sending/receiving data
+    };
+
+    connection.onmessage = function (message) {
+      // try to decode json (I assume that each message
+      // from server is json)
+      try {
+        const json = JSON.parse(message.data);
+      } catch (e) {
+        console.log("This doesn't look like a valid JSON: ", message.data);
+        return;
+      }
+      // handle incoming message
+    };
   });
 
   vscode.window.createTerminal("strove");
