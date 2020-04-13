@@ -200,7 +200,12 @@ function activate(context) {
 
   const terminal = vscode.window.createTerminal("strove");
 
-  if (process.env.STROVE_INIT_COMMAND || true) {
+  if (process.env.STROVE_INIT_COMMAND) {
+    terminal.sendText(process.env.STROVE_INIT_COMMAND);
+  }
+
+  /* Used for local debugging */
+  if (environment === "local") {
     terminal.sendText(process.env.STROVE_INIT_COMMAND || "yarn start");
   }
 }
