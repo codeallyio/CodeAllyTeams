@@ -205,7 +205,7 @@ function activate(context) {
   }
 
   /* Used for local debugging */
-  if (environment === "local") {
+  if (environment === "local" || !environment) {
     terminal.sendText(process.env.STROVE_INIT_COMMAND || "yarn start");
   }
 }
