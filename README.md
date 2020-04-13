@@ -2,4 +2,4 @@
 
 Liveshare toolkit for strove.io.
 
-Note: This extension is required for liveshare to work properly when usinn
+Note: This extension is required for liveshare to work properly inside strove.io. It will not work outside of the platform.
