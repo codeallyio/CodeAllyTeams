@@ -72,7 +72,11 @@ const liveshareActivityRequest = (data) =>
         const userId = userData.userId;
 
         /* Skip decorating editor using users own activity data */
-        if (userId && userId !== process.env.STROVE_USER_ID) {
+        /* ToDO Remove === "development" part after debugging */
+        if (
+          (userId && userId !== process.env.STROVE_USER_ID) ||
+          (userId && environment === "development")
+        ) {
           /*
             We create a new object because liveshareActivity[userId] = userData has
             circular type and node does not show it's contents in the console making
