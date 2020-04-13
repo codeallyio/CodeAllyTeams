@@ -42,8 +42,8 @@ const createUserNameDecorationType = ({ userData }) =>
       // contentIconPath: vscode.Uri.parse(
       //   "https://avatars1.githubusercontent.com/u/14284341?v=4"
       // ),
-      fontWeight: "700",
-      color: `rgba(${userData.color})`,
+      fontWeight: "900",
+      color: `rgba(${userData.color}, 1)`,
       contentText: ` ${userData.fullName}`,
     },
   });
