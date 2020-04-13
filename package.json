@@ -4,7 +4,7 @@
   "description": "Teams support for Strove",
   "version": "0.0.2",
   "engines": {
-    "vscode": "^1.43.0"
+    "vscode": "^1.39.2"
   },
   "publisher": "stroveio",
   "repository": "https://github.com/stroveio/stroveTeams",
