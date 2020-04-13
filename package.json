@@ -7,6 +7,7 @@
     "vscode": "^1.43.0"
   },
   "publisher": "stroveio",
+  "repository": "https://github.com/stroveio/stroveTeams",
   "categories": [
     "Other"
   ],
