@@ -76,10 +76,10 @@ const liveshareActivityRequest = (data) =>
         /* Skip decorating editor using users own activity data */
         if (userId && userId !== process.env.STROVE_USER_ID) {
           /*
-              We create a new object because liveshareActivity[userId] = userData has
-              circular type and node does not show it's contents in the console making
-              debugging harder.
-            */
+            We create a new object because liveshareActivity[userId] = userData has
+            circular type and node does not show it's contents in the console making
+            debugging harder.
+          */
           liveshareActivity[userId] = {
             ...userData,
           };
@@ -200,7 +200,10 @@ function activate(context) {
     throttleLiveShareActiviyCall(data);
   });
 
-  vscode.window.createTerminal("strove");
+  const terminal = vscode.window.createTerminal("strove");
+
+  terminal.sendText("ls");
+  // new vscode.ShellExecution("ls");
 }
 
 exports.activate = activate;
