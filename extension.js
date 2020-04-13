@@ -202,8 +202,9 @@ function activate(context) {
 
   const terminal = vscode.window.createTerminal("strove");
 
-  terminal.sendText("ls");
-  // new vscode.ShellExecution("ls");
+  if (process.env.STROVE_INIT_COMMAND || true) {
+    terminal.sendText(process.env.STROVE_INIT_COMMAND || "yarn start");
+  }
 }
 
 exports.activate = activate;
