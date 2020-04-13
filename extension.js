@@ -5,13 +5,11 @@ const axios = require("axios").default;
 const throttle = require("lodash.throttle");
 
 let endpoint;
+const environment = process.env.STROVE_ENVIRONMENT;
 
-if (
-  process.env.STROVE_ENVIRONMENT === "local" ||
-  !process.env.STROVE_ENVIRONMENT
-) {
+if (environment === "local" || !environment) {
   endpoint = "http://localhost:4040/liveshareActivity";
-} else if (process.env.STROVE_ENVIRONMENT === "development") {
+} else if (environment === "development") {
   endpoint = "https://graphql.strove.io/liveshareActivity";
 } else {
   endpoint = "https://api.strove.io/liveshareActivity";
