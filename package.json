@@ -2,10 +2,11 @@
   "name": "stroveteams",
   "displayName": "stroveTeams",
   "description": "Teams support for Strove",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "engines": {
     "vscode": "^1.39.2"
   },
+  "icon": "./logo.png",
   "publisher": "stroveio",
   "repository": "https://github.com/stroveio/stroveTeams",
   "categories": [
