@@ -153,7 +153,7 @@ const liveshareActivityRequest = (data) =>
     })
     .catch((error) => console.log("error", error));
 
-const throttleLiveShareActiviyCall = throttle(liveshareActivityRequest, 500, {
+const throttleLiveshareActiviyCall = throttle(liveshareActivityRequest, 500, {
   leading: true,
 });
 
@@ -184,7 +184,7 @@ function activate(context) {
       selections,
     };
 
-    throttleLiveShareActiviyCall(data);
+    throttleLiveshareActiviyCall(data);
   });
 
   let terminal;
