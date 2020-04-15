@@ -8,7 +8,10 @@
   },
   "icon": "./logo.png",
   "publisher": "stroveio",
-  "repository": "https://github.com/stroveio/stroveTeams",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stroveio/stroveTeams"
+  },
   "categories": [
     "Other"
   ],
