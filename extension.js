@@ -110,21 +110,6 @@ const liveshareActivityRequest = (data) =>
               userNameDecorationType,
             ];
 
-            // console.log(
-            //   "editor",
-            //   editor,
-            //   "isEditorPathTheSameAsUsers",
-            //   isEditorPathTheSameAsUsers,
-            //   "editor._documentData._uri.path",
-            //   editor._documentData._uri.path,
-            //   "userData.documentPath",
-            //   userData.documentPath
-            //   // "userData",
-            //   // userData,
-            //   // "liveshareActivity",
-            //   // liveshareActivity
-            // );
-
             /* Decorate code */
             decorate({
               decorationArray: [
@@ -210,8 +195,6 @@ function activate(context) {
   } else {
     terminal = vscode.window.createTerminal("strove");
   }
-
-  // const terminal = vscode.window.createTerminal("strove");
 
   if (process.env.STROVE_INIT_COMMAND) {
     terminal.sendText(process.env.STROVE_INIT_COMMAND);
