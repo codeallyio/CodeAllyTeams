@@ -202,7 +202,16 @@ function activate(context) {
     throttleLiveShareActiviyCall(data);
   });
 
-  const terminal = vscode.window.createTerminal("strove");
+  let terminal;
+  const terminals = vscode.window.terminals;
+
+  if (terminals.length) {
+    terminal = vscode.window.terminals[0];
+  } else {
+    terminal = vscode.window.createTerminal("strove");
+  }
+
+  // const terminal = vscode.window.createTerminal("strove");
 
   if (process.env.STROVE_INIT_COMMAND) {
     terminal.sendText(process.env.STROVE_INIT_COMMAND);
