@@ -174,15 +174,19 @@ function activate(context) {
 
   /*
     Make sure to also refresh editor data once in a while if user does not actively type
-    It's turned off locally by default to prevent console errors spam when api is not running.
+    It's delayed off locally by default to prevent console errors spam when api is not running.
   */
-  if (environment !== "local") {
-    setInterval(
-      () =>
-        liveshareActivityRequest({ projectId: process.env.STROVE_PROJECT_ID }),
-      2000
-    );
-  }
+  setTimeout(
+    () =>
+      setInterval(
+        () =>
+          liveshareActivityRequest({
+            projectId: process.env.STROVE_PROJECT_ID,
+          }),
+        2000
+      ),
+    environment === "local" ? 10000 : 2000
+  );
 
   vscode.window.onDidChangeTextEditorSelection(({ textEditor, selections }) => {
     const data = {
