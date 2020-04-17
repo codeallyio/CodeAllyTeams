@@ -189,6 +189,8 @@ function activate(context) {
   );
 
   vscode.window.onDidChangeTextEditorSelection(({ textEditor, selections }) => {
+    clearTimeout(timer);
+    setTimeout(() => console.log("timeout passed"), idleTimeout);
     const data = {
       projectId: process.env.STROVE_PROJECT_ID,
       userId: process.env.STROVE_USER_ID || "123",
