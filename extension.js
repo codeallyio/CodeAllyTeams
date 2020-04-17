@@ -5,6 +5,8 @@ const axios = require("axios").default;
 const throttle = require("lodash.throttle");
 
 let endpoint;
+let timer;
+const idleTimeout = process.env.STROVE_TIMEOUT;
 const environment = process.env.STROVE_ENVIRONMENT;
 
 if (environment === "local" || !environment) {
