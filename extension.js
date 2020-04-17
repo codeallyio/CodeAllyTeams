@@ -19,7 +19,7 @@ if (environment === "local" || !environment) {
 
 let liveshareActivity = {};
 
-let timer = setTimeout(() => console.log("timeout passed"), idleTimeout);
+let timer;
 
 const createDecorationType = ({ userData }) =>
   vscode.window.createTextEditorDecorationType({
@@ -169,6 +169,8 @@ function activate(context) {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
   console.log("stroveteams extension is active");
+
+  timer = setTimeout(() => console.log("timeout passed"), idleTimeout);
 
   /* Make sure to also refresh editor data once in a while if user does not actively type */
   setInterval(
