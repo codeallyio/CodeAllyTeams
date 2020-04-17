@@ -5,11 +5,11 @@ const axios = require("axios").default;
 const throttle = require("lodash.throttle");
 
 let endpoint;
-let timer;
-const idleTimeout = process.env.STROVE_TIMEOUT;
+let idleTimeout = process.env.STROVE_TIMEOUT;
 const environment = process.env.STROVE_ENVIRONMENT;
 
 if (environment === "local" || !environment) {
+  idleTimeout = 5000;
   endpoint = "http://localhost:4040/liveshareActivity";
 } else if (environment === "development") {
   endpoint = "https://graphql.strove.io/liveshareActivity";
@@ -18,6 +18,8 @@ if (environment === "local" || !environment) {
 }
 
 let liveshareActivity = {};
+
+let timer = setTimeout(() => console.log("timeout passed"), idleTimeout);
 
 const createDecorationType = ({ userData }) =>
   vscode.window.createTextEditorDecorationType({
