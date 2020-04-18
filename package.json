@@ -2,7 +2,7 @@
   "name": "stroveteams",
   "displayName": "stroveTeams",
   "description": "Teams support for Strove",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "engines": {
     "vscode": "^1.39.2"
   },
@@ -19,14 +19,7 @@
     "*"
   ],
   "main": "./extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "extension.helloWorld",
-        "title": "Hello World"
-      }
-    ]
-  },
+  "contributes": {},
   "scripts": {
     "lint": "eslint .",
     "pretest": "yarn run lint",
