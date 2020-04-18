@@ -17,10 +17,26 @@ if (environment === "local" || !environment) {
   endpoint = "https://api.strove.io";
 }
 const liveshareActivityEndpoint = `${endpoint}/liveshareActivity`;
+const graphqlEndpoint = `${endpoint}/graphql`;
 
 let liveshareActivity = {};
 
 let timer;
+
+const mutation = ({ mutation, variables }) =>
+  axios
+    .post(graphqlEndpoint, {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        mutation,
+        variables,
+      }),
+    })
+    .then((r) => r.json())
+    .then((data) => console.log("data returned:", data));
 
 const createDecorationType = ({ userData }) =>
   vscode.window.createTextEditorDecorationType({
