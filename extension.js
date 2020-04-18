@@ -43,22 +43,6 @@ const stopProject = () =>
     .then((res) => console.log(res))
     .catch((res) => console.log(res));
 
-const mutation = ({ mutation, variables }) =>
-  axios
-    .post(graphqlEndpoint, {
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization: `Bearer ${process.env.STROVE_USER_TOKEN}`,
-      },
-      body: JSON.stringify({
-        mutation,
-        variables,
-      }),
-    })
-    .then((r) => r.json())
-    .then((data) => console.log("data returned:", data));
-
 const createDecorationType = ({ userData }) =>
   vscode.window.createTextEditorDecorationType({
     border: `1px solid rgba(${userData.color}, 1)`,
