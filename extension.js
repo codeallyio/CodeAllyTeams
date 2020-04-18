@@ -28,11 +28,20 @@ const fetch = createApolloFetch({
   uri: graphqlEndpoint,
 });
 
+const stopProjectQueryString = `
+  mutation StopProject ($projectId: String!) {
+    stopProject(projectId: $projectId)
+  }
+`;
+
+const stopProjectVariables = {
+  projectId: process.env.STROVE_PROJECT_ID,
+};
+
 const stopProject = () =>
-  fetch({
-    mutation: "stopProject",
-    variables: { projectId: process.env.STROVE_PROJECT_ID },
-  });
+  fetch({ query: stopProjectQueryString, variables: stopProjectVariables })
+    .then((res) => console.log(res))
+    .catch((res) => console.log(res));
 
 const mutation = ({ mutation, variables }) =>
   axios
