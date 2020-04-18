@@ -10,12 +10,13 @@ const environment = process.env.STROVE_ENVIRONMENT;
 
 if (environment === "local" || !environment) {
   idleTimeout = 5000;
-  endpoint = "http://localhost:4040/liveshareActivity";
+  endpoint = "http://localhost:4040";
 } else if (environment === "development") {
-  endpoint = "https://graphql.strove.io/liveshareActivity";
+  endpoint = "https://graphql.strove.io";
 } else {
-  endpoint = "https://api.strove.io/liveshareActivity";
+  endpoint = "https://api.strove.io";
 }
+const liveshareActivityEndpoint = `${endpoint}/liveshareActivity`;
 
 let liveshareActivity = {};
 
@@ -60,7 +61,7 @@ let decorationTypes = [];
 
 const liveshareActivityRequest = (data) =>
   axios
-    .post(endpoint, {
+    .post(liveshareActivityEndpoint, {
       ...data,
       credentials: "include",
       referrerPolicy: "unsafe-url",
@@ -185,7 +186,7 @@ function activate(context) {
           }),
         2000
       ),
-    environment === "local" ? 10000 : 2000
+    environment === "local" ? 15000 : 2000
   );
 
   vscode.window.onDidChangeTextEditorSelection(({ textEditor, selections }) => {
