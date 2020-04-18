@@ -3,6 +3,7 @@
 const vscode = require("vscode");
 const axios = require("axios").default;
 const throttle = require("lodash.throttle");
+const { createApolloFetch } = require("apollo-fetch");
 
 let endpoint;
 let idleTimeout = process.env.STROVE_TIMEOUT;
@@ -22,6 +23,16 @@ const graphqlEndpoint = `${endpoint}/graphql`;
 let liveshareActivity = {};
 
 let timer;
+
+const fetch = createApolloFetch({
+  uri: graphqlEndpoint,
+});
+
+const stopProject = () =>
+  fetch({
+    mutation: "stopProject",
+    variables: { projectId: process.env.STROVE_PROJECT_ID },
+  });
 
 const mutation = ({ mutation, variables }) =>
   axios
@@ -188,7 +199,7 @@ function activate(context) {
   // This line of code will only be executed once when your extension is activated
   console.log("stroveteams extension is active");
 
-  timer = setTimeout(() => console.log("timeout passed"), idleTimeout);
+  timer = setTimeout(stopProject, idleTimeout);
 
   /*
     Make sure to also refresh editor data once in a while if user does not actively type
@@ -208,7 +219,7 @@ function activate(context) {
 
   vscode.window.onDidChangeTextEditorSelection(({ textEditor, selections }) => {
     clearTimeout(timer);
-    setTimeout(() => console.log("timeout passed"), idleTimeout);
+    setTimeout(stopProject, idleTimeout);
     const data = {
       projectId: process.env.STROVE_PROJECT_ID,
       userId: process.env.STROVE_USER_ID || "123",
