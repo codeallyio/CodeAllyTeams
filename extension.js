@@ -6,7 +6,7 @@ const throttle = require("lodash.throttle");
 const { createApolloFetch } = require("apollo-fetch");
 
 let endpoint;
-let idleTimeout = process.env.STROVE_TIMEOUT;
+let idleTimeout = process.env.STROVE_IDLE_TIMEOUT;
 const environment = process.env.STROVE_ENVIRONMENT;
 
 if (environment === "local" || !environment) {
