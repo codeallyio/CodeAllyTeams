@@ -29,13 +29,13 @@ const fetch = createApolloFetch({
 });
 
 const stopProjectQueryString = `
-  mutation StopProject ($projectId: String!) {
+  mutation StopProject ($projectId: ID!) {
     stopProject(projectId: $projectId)
   }
 `;
 
 const stopProjectVariables = {
-  projectId: process.env.STROVE_PROJECT_ID,
+  projectId: process.env.STROVE_PROJECT_ID || "123",
 };
 
 const stopProject = () =>
