@@ -29,6 +29,7 @@ const mutation = ({ mutation, variables }) =>
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
+        Authorization: `Bearer ${process.env.STROVE_USER_TOKEN}`,
       },
       body: JSON.stringify({
         mutation,
