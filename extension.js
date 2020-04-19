@@ -257,7 +257,6 @@ if (environment) {
     deactivate,
   };
 } else {
-  console.log("oh");
   module.exports = {
     activate: () => {},
     deactivate: () => {},
