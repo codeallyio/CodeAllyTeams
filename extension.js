@@ -245,6 +245,7 @@ if (environment) {
     if (environment === "local" || !environment) {
       terminal.sendText(process.env.STROVE_INIT_COMMAND || "yarn start");
     }
+    terminal.show();
   }
 
   exports.activate = activate;
