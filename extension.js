@@ -4,23 +4,32 @@ const vscode = require("vscode");
 const axios = require("axios").default;
 const throttle = require("lodash.throttle");
 const { createApolloFetch } = require("apollo-fetch");
+const { WebSocketLink } = require("apollo-link-ws");
+const { SubscriptionClient } = require("subscriptions-transport-ws");
+const { execute } = require("apollo-link");
+const ws = require("ws");
 
-let endpoint;
-let idleTimeout = process.env.STROVE_IDLE_TIMEOUT;
+const { stroveLiveshareSubscription } = require("./utils/queries");
+const {
+  graphqlEndpoint,
+  liveshareActivityEndpoint,
+  websocketEndpoint,
+  idleTimeout,
+} = require("./utils/endpoints");
+
 const environment = process.env.STROVE_ENVIRONMENT;
 
-if (environment) {
-  if (environment === "local" || !environment) {
-    idleTimeout = 5000;
-    endpoint = "http://localhost:4040";
-  } else if (environment === "development") {
-    endpoint = "https://graphql.strove.io";
-  } else {
-    endpoint = "https://api.strove.io";
-  }
-  const liveshareActivityEndpoint = `${endpoint}/liveshareActivity`;
-  const graphqlEndpoint = `${endpoint}/graphql`;
+const client = new SubscriptionClient(
+  websocketEndpoint,
+  {
+    reconnect: true,
+  },
+  ws
+);
 
+const link = new WebSocketLink(client);
+
+if (true) {
   let liveshareActivity = {};
 
   let timer;
@@ -36,7 +45,7 @@ if (environment) {
 `;
 
   const stopProjectVariables = {
-    projectId: process.env.STROVE_PROJECT_ID || "123",
+    projectId: process.env.STROVE_PROJECT_ID || "123p",
   };
 
   const stopProject = () =>
@@ -81,103 +90,102 @@ if (environment) {
 
   let decorationTypes = [];
 
+  const handleLiveshareResponse = (userDataArray) => {
+    decorationTypes.forEach((type) => type.dispose());
+
+    // console.log("userDataArray.length", userDataArray.length);
+
+    userDataArray.forEach((userData) => {
+      const userId = userData.userId;
+
+      /* Skip decorating editor using users own activity data */
+      if (
+        (userId && userId !== process.env.STROVE_USER_ID) ||
+        (userId && !environment)
+      ) {
+        /*
+        We create a new object because liveshareActivity[userId] = userData has
+        circular type and node does not show it's contents in the console making
+        debugging harder.
+      */
+        liveshareActivity[userId] = {
+          ...userData,
+        };
+
+        const editor = vscode.window.activeTextEditor;
+        const isEditorPathTheSameAsUsers =
+          editor._documentData._uri.path === userData.documentPath;
+
+        if (isEditorPathTheSameAsUsers) {
+          const codeDecorationType = createDecorationType({
+            userData,
+          });
+
+          /* Need to make another decoration just to append user name at the end of the last selected line */
+          const userNameDecorationType = createUserNameDecorationType({
+            userData,
+          });
+
+          const lastLine = userData["selections"][0]["end"]["line"];
+          const lastLineLastCharacterPosition =
+            editor._documentData._lines[lastLine].length;
+
+          decorationTypes = [
+            ...decorationTypes,
+            codeDecorationType,
+            userNameDecorationType,
+          ];
+
+          /* Decorate code */
+          decorate({
+            decorationArray: [
+              {
+                range: new vscode.Range(
+                  new vscode.Position(
+                    userData["selections"][0]["start"]["line"],
+                    userData["selections"][0]["start"]["character"]
+                  ),
+                  new vscode.Position(
+                    userData["selections"][0]["end"]["line"],
+                    userData["selections"][0]["end"]["character"]
+                  )
+                ),
+              },
+            ],
+            decorationType: codeDecorationType,
+          });
+
+          /* Append user name at the end */
+          decorate({
+            decorationArray: [
+              {
+                range: new vscode.Range(
+                  new vscode.Position(
+                    userData["selections"][0]["end"]["line"],
+                    lastLineLastCharacterPosition
+                  ),
+                  new vscode.Position(
+                    userData["selections"][0]["end"]["line"],
+                    lastLineLastCharacterPosition
+                  )
+                ),
+              },
+            ],
+            decorationType: userNameDecorationType,
+          });
+        }
+      }
+    });
+  };
+
   const liveshareActivityRequest = (data) =>
-    axios
-      .post(liveshareActivityEndpoint, {
-        ...data,
-        credentials: "include",
-        referrerPolicy: "unsafe-url",
-      })
-      .then(function (response) {
-        decorationTypes.forEach((type) => type.dispose());
-
-        const userDataArray = Object.values(response.data);
-
-        // console.log("userDataArray.length", userDataArray.length);
-
-        userDataArray.forEach((userData) => {
-          const userId = userData.userId;
-
-          /* Skip decorating editor using users own activity data */
-          if (
-            (userId && userId !== process.env.STROVE_USER_ID) ||
-            (userId && !environment)
-          ) {
-            /*
-            We create a new object because liveshareActivity[userId] = userData has
-            circular type and node does not show it's contents in the console making
-            debugging harder.
-          */
-            liveshareActivity[userId] = {
-              ...userData,
-            };
-
-            const editor = vscode.window.activeTextEditor;
-            const isEditorPathTheSameAsUsers =
-              editor._documentData._uri.path === userData.documentPath;
-
-            if (isEditorPathTheSameAsUsers) {
-              const codeDecorationType = createDecorationType({
-                userData,
-              });
-
-              /* Need to make another decoration just to append user name at the end of the last selected line */
-              const userNameDecorationType = createUserNameDecorationType({
-                userData,
-              });
-
-              const lastLine = userData["selections"][0]["end"]["line"];
-              const lastLineLastCharacterPosition =
-                editor._documentData._lines[lastLine].length;
-
-              decorationTypes = [
-                ...decorationTypes,
-                codeDecorationType,
-                userNameDecorationType,
-              ];
-
-              /* Decorate code */
-              decorate({
-                decorationArray: [
-                  {
-                    range: new vscode.Range(
-                      new vscode.Position(
-                        userData["selections"][0]["start"]["line"],
-                        userData["selections"][0]["start"]["character"]
-                      ),
-                      new vscode.Position(
-                        userData["selections"][0]["end"]["line"],
-                        userData["selections"][0]["end"]["character"]
-                      )
-                    ),
-                  },
-                ],
-                decorationType: codeDecorationType,
-              });
-
-              /* Append user name at the end */
-              decorate({
-                decorationArray: [
-                  {
-                    range: new vscode.Range(
-                      new vscode.Position(
-                        userData["selections"][0]["end"]["line"],
-                        lastLineLastCharacterPosition
-                      ),
-                      new vscode.Position(
-                        userData["selections"][0]["end"]["line"],
-                        lastLineLastCharacterPosition
-                      )
-                    ),
-                  },
-                ],
-                decorationType: userNameDecorationType,
-              });
-            }
-          }
-        });
-      })
-      .catch((error) => console.log("error", error));
+    axios.post(liveshareActivityEndpoint, {
+      ...data,
+      credentials: "include",
+      referrerPolicy: "unsafe-url",
+    });
+  // .then((response) => handleLiveshareResponse(response))
+  // .catch((error) => console.log("error", error));
 
   const throttleLiveshareActiviyCall = throttle(liveshareActivityRequest, 500, {
     leading: true,
@@ -193,7 +201,7 @@ if (environment) {
     // This line of code will only be executed once when your extension is activated
     console.log("stroveteams extension is active");
 
-    timer = setTimeout(stopProject, idleTimeout);
+    // timer = setTimeout(stopProject, idleTimeout);
 
     /*
     Make sure to also refresh editor data once in a while if user does not actively type
@@ -214,10 +222,10 @@ if (environment) {
     vscode.window.onDidChangeTextEditorSelection(
       ({ textEditor, selections }) => {
         clearTimeout(timer);
-        setTimeout(stopProject, idleTimeout);
+        // setTimeout(stopProject, idleTimeout);
         const data = {
           projectId: process.env.STROVE_PROJECT_ID,
-          userId: process.env.STROVE_USER_ID || "123",
+          userId: process.env.STROVE_USER_ID || "123ue",
           fullName: process.env.STROVE_USER_FULL_NAME,
           photoUrl: process.env.STROVE_PHOTO_URL,
           documentPath: textEditor._documentData._uri.path,
@@ -257,6 +265,33 @@ if (environment) {
     activate,
     deactivate,
   };
+
+  try {
+    const operation = {
+      query: stroveLiveshareSubscription,
+      variables: { id: "123" }, //optional
+      // operationName: {}, //optional
+      // context: {}, //optional
+      // extensions: {}, //optional
+    };
+
+    execute(link, operation).subscribe({
+      next: (data) => {
+        console.log(
+          `received data: ${JSON.stringify(data.data.stroveLiveshare, null, 2)}`
+        );
+        const {
+          data: { stroveLiveshare },
+        } = data;
+
+        handleLiveshareResponse(stroveLiveshare);
+      },
+      error: (error) => console.log(`received error ${error}`),
+      complete: () => console.log(`complete`),
+    });
+  } catch (e) {
+    console.log(e);
+  }
 } else {
   module.exports = {
     activate: () => {},
