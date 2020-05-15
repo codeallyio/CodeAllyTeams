@@ -1,30 +1,40 @@
-exports.stroveLiveshareSubscription = `
-subscription($id: String!) {
-    stroveLiveshare (id: $id) {
-      projectId
-      userId
-      fullName
-      photoUrl
-      documentPath
-      selections {
+const userDataFragment = `
+    projectId
+    userId
+    fullName
+    photoUrl
+    documentPath
+    selections {
         start {
-          line
-          character
+            line
+            character
         }
         end{
-          line
-          character
+            line
+            character
         }
         active{
-          line
-          character
+            line
+            character
         }
         anchor{
-          line
-          character
+            line
+            character
         }
-      }
-      color
+    }
+    color
+`;
+
+exports.stroveLiveshareSubscription = `
+subscription($userId: String!, $projectId: String!) {
+    stroveLiveshare (userId: $userId, projectId: $projectId) {
+      ${userDataFragment}
     }
   }
+`;
+
+exports.liveshareActivity = `
+mutation($userData: UserActivityInput) {
+    liveshareActivity (userData: $userData)
+}
 `;
