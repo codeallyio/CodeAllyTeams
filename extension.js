@@ -1,9 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require("vscode");
-const axios = require("axios").default;
 const throttle = require("lodash.throttle");
-const { createApolloFetch } = require("apollo-fetch");
 const { WebSocketLink } = require("apollo-link-ws");
 const { SubscriptionClient } = require("subscriptions-transport-ws");
 const { execute, makePromise } = require("apollo-link");
@@ -13,12 +11,7 @@ const {
   stroveLiveshareSubscription,
   liveshareActivity,
 } = require("./utils/queries");
-const {
-  graphqlEndpoint,
-  liveshareActivityEndpoint,
-  websocketEndpoint,
-  idleTimeout,
-} = require("./utils/endpoints");
+const { websocketEndpoint } = require("./utils/endpoints");
 const { handleLiveshareResponse } = require("./utils/handleLiveshareResponse");
 
 const environment = process.env.STROVE_ENVIRONMENT;
@@ -34,30 +27,28 @@ const client = new SubscriptionClient(
 const link = new WebSocketLink(client);
 
 try {
-  const fetch = createApolloFetch({
-    uri: graphqlEndpoint,
-  });
-
-  const stopProjectQueryString = `
-  mutation StopProject ($projectId: ID!) {
-    stopProject(projectId: $projectId)
-  }
-`;
-
-  const stopProjectVariables = {
-    projectId: process.env.STROVE_PROJECT_ID || "123abc",
-  };
-
-  const stopProject = () =>
-    fetch({ query: stopProjectQueryString, variables: stopProjectVariables })
-      .then((res) => console.log(res))
-      .catch((res) => console.log(res));
-
   const liveshareActivityUpdate = (data) => {
     const liveshareActivityOperation = {
       query: liveshareActivity,
       variables: {
         userData: data,
+      },
+    };
+
+    makePromise(execute(link, liveshareActivityOperation))
+      .then()
+      .catch((error) => console.log(`received error ${error}`));
+  };
+
+  const liveshareActivityInit = () => {
+    const projectId = process.env.STROVE_PROJECT_ID || "123abc";
+
+    const liveshareActivityOperation = {
+      query: liveshareActivity,
+      variables: {
+        userData: {
+          projectId,
+        },
       },
     };
 
@@ -80,6 +71,9 @@ try {
     // This line of code will only be executed once when your extension is activated
     console.log("stroveteams extension is active");
 
+    // First call to get cursor positions of other users
+    liveshareActivityInit();
+
     vscode.window.onDidChangeTextEditorSelection(
       ({ textEditor, selections }) => {
         // setTimeout(stopProject, idleTimeout);
@@ -92,9 +86,7 @@ try {
           selections,
         };
 
-        liveshareActivityUpdate(data);
-
-        // throttleLiveshareActivityCall(data);
+        throttleLiveshareActivityCall(data);
       }
     );
 
@@ -123,18 +115,12 @@ try {
     variables: {
       userId: process.env.STROVE_USER_ID || "123",
       projectId: process.env.STROVE_PROJECT_ID || "123abc",
-    }, //optional
-    // operationName: {}, //optional
-    // context: {}, //optional
-    // extensions: {}, //optional
+    },
   };
 
   const liveshareSubscriber = execute(link, stroveLiveshareOperation).subscribe(
     {
       next: (data) => {
-        // console.log(
-        //   `received data: ${JSON.stringify(data.data.stroveLiveshare, null, 2)}`
-        // );
         const {
           data: { stroveLiveshare },
         } = data;
