@@ -22,6 +22,11 @@ const client = new SubscriptionClient(
   websocketEndpoint,
   {
     reconnect: true,
+    connectionParams: () => ({
+      authorization: process.env.STROVE_USER_TOKEN
+        ? `Bearer ${process.env.STROVE_USER_TOKEN}`
+        : "",
+    }),
   },
   ws
 );
@@ -145,41 +150,33 @@ try {
     }
   );
 
-  vscode.window.onDidChangeActiveTextEditor((v) => {
-    console.log("onDidChangeActiveTextEditor", v);
-  });
-
   const focusEditorOperation = {
     query: focusEditorSubscription,
     variables: {
       userId: process.env.STROVE_USER_ID || "123",
       projectId: process.env.STROVE_PROJECT_ID || "123abc",
     },
-    context: {
-      Authorization: `Bearer ${process.env.STROVE_USER_TOKEN}`,
-      "User-Agent": "node",
-    },
   };
 
-  // const focusEditorSubscriber = execute(link, focusEditorOperation).subscribe({
-  //   next: async (data) => {
-  //     const {
-  //       data: { focusEditor },
-  //     } = data;
+  const focusEditorSubscriber = execute(link, focusEditorOperation).subscribe({
+    next: async (data) => {
+      const {
+        data: { focusEditor },
+      } = data;
 
-  //     await handleFocusEditor({ uri: focusEditor });
-  //   },
-  //   error: (error) =>
-  //     console.log(`received error in focusEditorSubscriber ${error}`),
-  //   complete: () => console.log(`complete`),
-  // });
+      handleFocusEditor({ uri: focusEditor });
+    },
+    error: (error) =>
+      console.log(`received error in focusEditorSubscriber ${error}`),
+    complete: () => console.log(`complete`),
+  });
 
   exports.activate = activate;
 
   // this method is called when your extension is deactivated
   function deactivate() {
     liveshareSubscriber.unsubscribe();
-    // focusEditorSubscriber.unsubscribe();
+    focusEditorSubscriber.unsubscribe();
   }
 
   module.exports = {

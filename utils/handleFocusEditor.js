@@ -1,14 +1,12 @@
 const vscode = require("vscode");
 
-const handleFocusEditor = async ({ uri }) => {
+const handleFocusEditor = ({ uri }) => {
   try {
-    console.log("uri", uri);
-    const editorPath = vscode.Uri.file(uri, true);
+    const editorPath = vscode.Uri.file(uri);
 
-    const editor = await vscode.window.showTextDocument(editorPath);
+    vscode.window.showTextDocument(editorPath);
 
-    // vscode.window.activeTextEditor = editor;
-    // vscode.window.visibleTextEditors = [editor];
+    // TextEditor.revealRange
   } catch (e) {
     console.log(`Error in handleFocusEditor: ${e}`);
   }
