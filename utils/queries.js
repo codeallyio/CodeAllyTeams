@@ -41,6 +41,18 @@ mutation($userData: UserActivityInput) {
 
 exports.focusEditorSubscription = `
 subscription($userId: String!, $projectId: String!) {
-    focusEditor(userId: $userId, projectId: $projectId)
+    focusEditor(userId: $userId, projectId: $projectId) {
+        documentPath
+        selections {
+            start {
+                line
+                character
+            }
+            end {
+                line
+                character
+            }
+        }
+    }
 }
 `;
