@@ -6,16 +6,12 @@ const handleFocusEditor = async ({ uri, userPosition }) => {
 
     const editor = await vscode.window.showTextDocument(editorPath);
 
-    const teastPos = {
-      startLine: 100,
-      endLine: 102,
-      startCharacter: 2,
-      endCharacter: 5,
-    };
-
     const range = new vscode.Range(
-      new vscode.Position(userPosition.startLine, userPosition.startCharacter),
-      new vscode.Position(userPosition.endLine, userPosition.endCharacter)
+      new vscode.Position(
+        userPosition.start.line,
+        userPosition.start.character
+      ),
+      new vscode.Position(userPosition.end.line, userPosition.end.character)
     );
 
     editor.revealRange(range, 1);

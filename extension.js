@@ -164,7 +164,10 @@ try {
         data: { focusEditor },
       } = data;
 
-      handleFocusEditor({ uri: focusEditor });
+      handleFocusEditor({
+        uri: focusEditor.documentPath,
+        userPosition: focusEditor.selections,
+      });
     },
     error: (error) =>
       console.log(`received error in focusEditorSubscriber ${error}`),
