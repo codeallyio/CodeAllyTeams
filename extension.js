@@ -10,9 +10,11 @@ const ws = require("ws");
 const {
   stroveLiveshareSubscription,
   liveshareActivity,
+  focusEditorSubscription,
 } = require("./utils/queries");
 const { websocketEndpoint } = require("./utils/endpoints");
 const { handleLiveshareResponse } = require("./utils/handleLiveshareResponse");
+const { handleFocusEditor } = require("./utils/handleFocusEditor");
 
 const environment = process.env.STROVE_ENVIRONMENT;
 
@@ -20,11 +22,24 @@ const client = new SubscriptionClient(
   websocketEndpoint,
   {
     reconnect: true,
+    connectionParams: () => ({
+      authorization: process.env.STROVE_USER_TOKEN
+        ? `Bearer ${process.env.STROVE_USER_TOKEN}`
+        : "",
+    }),
   },
   ws
 );
 
 const link = new WebSocketLink(client);
+
+///
+// context = {
+//   headers: {
+//     Authorization: `Bearer ${user.githubToken}`,
+//     'User-Agent': 'node',
+//   },
+// }
 
 try {
   const liveshareActivityUpdate = (data) => {
@@ -72,7 +87,9 @@ try {
     console.log("stroveteams extension is active");
 
     // First call to get cursor positions of other users
-    liveshareActivityInit();
+    // It doesn't seem to work - my assumption:
+    // it gets called before subscription is set up and the info gets lost, hence setTimeout
+    setTimeout(liveshareActivityInit, 1000);
 
     vscode.window.onDidChangeTextEditorSelection(
       ({ textEditor, selections }) => {
@@ -127,16 +144,42 @@ try {
 
         handleLiveshareResponse(stroveLiveshare);
       },
-      error: (error) => console.log(`received error ${error}`),
+      error: (error) =>
+        console.log(`received error in liveshareSubscriber ${error}`),
       complete: () => console.log(`complete`),
     }
   );
+
+  const focusEditorOperation = {
+    query: focusEditorSubscription,
+    variables: {
+      userId: process.env.STROVE_USER_ID || "123",
+      projectId: process.env.STROVE_PROJECT_ID || "123abc",
+    },
+  };
+
+  const focusEditorSubscriber = execute(link, focusEditorOperation).subscribe({
+    next: async (data) => {
+      const {
+        data: { focusEditor },
+      } = data;
+
+      handleFocusEditor({
+        uri: focusEditor.documentPath,
+        userPosition: focusEditor.selections,
+      });
+    },
+    error: (error) =>
+      console.log(`received error in focusEditorSubscriber ${error}`),
+    complete: () => console.log(`complete`),
+  });
 
   exports.activate = activate;
 
   // this method is called when your extension is deactivated
   function deactivate() {
     liveshareSubscriber.unsubscribe();
+    focusEditorSubscriber.unsubscribe();
   }
 
   module.exports = {

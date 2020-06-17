@@ -38,3 +38,21 @@ mutation($userData: UserActivityInput) {
     liveshareActivity (userData: $userData)
 }
 `;
+
+exports.focusEditorSubscription = `
+subscription($userId: String!, $projectId: String!) {
+    focusEditor(userId: $userId, projectId: $projectId) {
+        documentPath
+        selections {
+            start {
+                line
+                character
+            }
+            end {
+                line
+                character
+            }
+        }
+    }
+}
+`;
