@@ -13,8 +13,8 @@ const decorate = ({ decorationArray, decorationType }) => {
 
 const createDecorationType = ({ userData }) =>
   vscode.window.createTextEditorDecorationType({
-    border: `1px solid rgba(${userData.color}, 1)`,
-    backgroundColor: `rgba(${userData.color}, 0.3)`,
+    border: `1px solid hsla(${userData.color}, 80%, 70%, 1)`,
+    backgroundColor: `hsla(${userData.color}, 80%, 70%, 0.3)`,
     // after: {
     //   height: "15px",
     //   width: "15px",
@@ -35,7 +35,7 @@ const createUserNameDecorationType = ({ userData }) =>
       //   "https://avatars1.githubusercontent.com/u/14284341?v=4"
       // ),
       fontWeight: "900",
-      color: `rgba(${userData.color}, 1)`,
+      color: `hsla(${userData.color}, 80%, 70%, 1)`,
       contentText: ` ${userData.fullName}`,
     },
   });
