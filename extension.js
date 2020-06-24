@@ -6,6 +6,7 @@ const { WebSocketLink } = require("apollo-link-ws");
 const { SubscriptionClient } = require("subscriptions-transport-ws");
 const { execute, makePromise } = require("apollo-link");
 const ws = require("ws");
+const Sentry = require("@sentry/node");
 
 const {
   stroveLiveshareSubscription,
@@ -33,13 +34,10 @@ const client = new SubscriptionClient(
 
 const link = new WebSocketLink(client);
 
-///
-// context = {
-//   headers: {
-//     Authorization: `Bearer ${user.githubToken}`,
-//     'User-Agent': 'node',
-//   },
-// }
+Sentry.init({
+  dsn:
+    "https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294",
+});
 
 try {
   const liveshareActivityUpdate = (data) => {
