@@ -39,47 +39,57 @@ Sentry.init({
     "https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294",
 });
 
-try {
-  const liveshareActivityUpdate = (data) => {
-    const liveshareActivityOperation = {
-      query: liveshareActivity,
-      variables: {
-        userData: data,
-      },
-    };
-
-    makePromise(execute(link, liveshareActivityOperation))
-      .then()
-      .catch((error) => console.log(`received error ${error}`));
+const liveshareActivityUpdate = (data) => {
+  const liveshareActivityOperation = {
+    query: liveshareActivity,
+    variables: {
+      userData: data,
+    },
   };
 
-  const liveshareActivityInit = () => {
-    const projectId = process.env.STROVE_PROJECT_ID || "123abc";
+  makePromise(execute(link, liveshareActivityOperation))
+    .then()
+    .catch((error) => {
+      console.log(`received error in focusEditorSubscriber ${error}`);
+      Sentry.captureMessage(
+        `Error happened in focusEditorSubscriber. Original error message: ${error}`
+      );
+    });
+};
 
-    const liveshareActivityOperation = {
-      query: liveshareActivity,
-      variables: {
-        userData: {
-          projectId,
-        },
+const liveshareActivityInit = () => {
+  const projectId = process.env.STROVE_PROJECT_ID || "123abc";
+
+  const liveshareActivityOperation = {
+    query: liveshareActivity,
+    variables: {
+      userData: {
+        projectId,
       },
-    };
-
-    makePromise(execute(link, liveshareActivityOperation))
-      .then()
-      .catch((error) => console.log(`received error ${error}`));
+    },
   };
 
-  const throttleLiveshareActivityCall = throttle(liveshareActivityUpdate, 100, {
-    leading: true,
-  });
+  makePromise(execute(link, liveshareActivityOperation))
+    .then()
+    .catch((error) => {
+      console.log(`received error in focusEditorSubscriber ${error}`);
+      Sentry.captureMessage(
+        `Error happened in focusEditorSubscriber. Original error message: ${error}`
+      );
+    });
+};
 
-  // this method is called when your extension is activated
-  // your extension is activated the very first time the command is executed
-  /**
-   * @param {vscode.ExtensionContext} context
-   */
-  function activate(context) {
+const throttleLiveshareActivityCall = throttle(liveshareActivityUpdate, 100, {
+  leading: true,
+});
+
+// this method is called when your extension is activated
+// your extension is activated the very first time the command is executed
+/**
+ * @param {vscode.ExtensionContext} context
+ */
+function activate(context) {
+  try {
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
     console.log("stroveteams extension is active");
@@ -123,71 +133,77 @@ try {
       terminal.sendText(process.env.STROVE_INIT_COMMAND || "yarn start");
     }
     terminal.show();
+  } catch (error) {
+    console.log(`received error in activate ${error}`);
+    Sentry.captureMessage(
+      `Error happened in activate. Original error message: ${error}`
+    );
   }
-
-  const stroveLiveshareOperation = {
-    query: stroveLiveshareSubscription,
-    variables: {
-      userId: process.env.STROVE_USER_ID || "123",
-      projectId: process.env.STROVE_PROJECT_ID || "123abc",
-    },
-  };
-
-  const liveshareSubscriber = execute(link, stroveLiveshareOperation).subscribe(
-    {
-      next: (data) => {
-        const {
-          data: { stroveLiveshare },
-        } = data;
-
-        handleLiveshareResponse(stroveLiveshare);
-      },
-      error: (error) =>
-        console.log(`received error in liveshareSubscriber ${error}`),
-      complete: () => console.log(`complete`),
-    }
-  );
-
-  const focusEditorOperation = {
-    query: focusEditorSubscription,
-    variables: {
-      userId: process.env.STROVE_USER_ID || "123",
-      projectId: process.env.STROVE_PROJECT_ID || "123abc",
-    },
-  };
-
-  const focusEditorSubscriber = execute(link, focusEditorOperation).subscribe({
-    next: async (data) => {
-      const {
-        data: { focusEditor },
-      } = data;
-
-      handleFocusEditor({
-        uri: focusEditor.documentPath,
-        userPosition: focusEditor.selections,
-      });
-    },
-    error: (error) =>
-      console.log(`received error in focusEditorSubscriber ${error}`),
-    complete: () => console.log(`complete`),
-  });
-
-  exports.activate = activate;
-
-  // this method is called when your extension is deactivated
-  function deactivate() {
-    liveshareSubscriber.unsubscribe();
-    focusEditorSubscriber.unsubscribe();
-  }
-
-  module.exports = {
-    activate,
-    deactivate,
-  };
-} catch (e) {
-  console.log(e);
-  module.exports = {
-    activate: () => {},
-    deactivate: () => {},
-  };
 }
+
+const stroveLiveshareOperation = {
+  query: stroveLiveshareSubscription,
+  variables: {
+    userId: process.env.STROVE_USER_ID || "123",
+    projectId: process.env.STROVE_PROJECT_ID || "123abc",
+  },
+};
+
+const liveshareSubscriber = execute(link, stroveLiveshareOperation).subscribe({
+  next: (data) => {
+    const {
+      data: { stroveLiveshare },
+    } = data;
+
+    handleLiveshareResponse(stroveLiveshare);
+  },
+  error: (error) => {
+    console.log(`received error in liveshareSubscriber ${error}`);
+    Sentry.captureMessage(
+      `Error happened in liveshareSubscriber. Original error message: ${error}`
+    );
+  },
+  complete: () => console.log(`complete`),
+});
+
+const focusEditorOperation = {
+  query: focusEditorSubscription,
+  variables: {
+    userId: process.env.STROVE_USER_ID || "123",
+    projectId: process.env.STROVE_PROJECT_ID || "123abc",
+  },
+};
+
+const focusEditorSubscriber = execute(link, focusEditorOperation).subscribe({
+  next: async (data) => {
+    const {
+      data: { focusEditor },
+    } = data;
+
+    handleFocusEditor({
+      uri: focusEditor.documentPath,
+      userPosition: focusEditor.selections,
+    });
+  },
+  error: (error) => {
+    console.log(`received error in focusEditorSubscriber ${error}`);
+    Sentry.captureMessage(
+      `Error happened in focusEditorSubscriber. Original error message: ${error}`
+    );
+  },
+  complete: () => console.log(`complete`),
+});
+
+// this method is called when your extension is deactivated
+function deactivate() {
+  liveshareSubscriber.unsubscribe();
+  focusEditorSubscriber.unsubscribe();
+}
+
+exports.activate = activate;
+exports.deactivate = deactivate;
+
+module.exports = {
+  activate,
+  deactivate,
+};
