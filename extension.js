@@ -50,9 +50,13 @@ const liveshareActivityUpdate = (data) => {
   makePromise(execute(link, liveshareActivityOperation))
     .then()
     .catch((error) => {
-      console.log(`received error in focusEditorSubscriber ${error}`);
+      console.log(
+        `received error in focusEditorSubscriber ${JSON.stringify(error)}`
+      );
       Sentry.captureMessage(
-        `Error happened in focusEditorSubscriber. Original error message: ${error}`
+        `Error happened in focusEditorSubscriber. Original error message: ${JSON.stringify(
+          error
+        )}`
       );
     });
 };
@@ -72,9 +76,13 @@ const liveshareActivityInit = () => {
   makePromise(execute(link, liveshareActivityOperation))
     .then()
     .catch((error) => {
-      console.log(`received error in focusEditorSubscriber ${error}`);
+      console.log(
+        `received error in focusEditorSubscriber ${JSON.stringify(error)}`
+      );
       Sentry.captureMessage(
-        `Error happened in focusEditorSubscriber. Original error message: ${error}`
+        `Error happened in focusEditorSubscriber. Original error message: ${JSON.stringify(
+          error
+        )}`
       );
     });
 };
@@ -158,9 +166,13 @@ const liveshareSubscriber = execute(link, stroveLiveshareOperation).subscribe({
     handleLiveshareResponse(stroveLiveshare);
   },
   error: (error) => {
-    console.log(`received error in liveshareSubscriber ${error}`);
+    console.log(
+      `received error in liveshareSubscriber ${JSON.stringify(error)}`
+    );
     Sentry.captureMessage(
-      `Error happened in liveshareSubscriber. Original error message: ${error}`
+      `Error happened in liveshareSubscriber. Original error message: ${JSON.stringify(
+        error
+      )}`
     );
   },
   complete: () => console.log(`complete`),
@@ -186,9 +198,13 @@ const focusEditorSubscriber = execute(link, focusEditorOperation).subscribe({
     });
   },
   error: (error) => {
-    console.log(`received error in focusEditorSubscriber ${error}`);
+    console.log(
+      `received error in focusEditorSubscriber ${JSON.stringify(error)}`
+    );
     Sentry.captureMessage(
-      `Error happened in focusEditorSubscriber. Original error message: ${error}`
+      `Error happened in focusEditorSubscriber. Original error message: ${JSON.stringify(
+        error
+      )}`
     );
   },
   complete: () => console.log(`complete`),
