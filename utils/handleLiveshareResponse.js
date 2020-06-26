@@ -64,7 +64,11 @@ const handleLiveshareResponse = (userDataArray) => {
 
       const editor = vscode.window.activeTextEditor;
       const isEditorPathTheSameAsUsers =
-        editor?._documentData?._uri?.path === userData?.documentPath;
+        userData &&
+        editor &&
+        editor._documentData &&
+        editor._documentData._uri &&
+        editor._documentData._uri.path === userData.documentPath;
 
       if (isEditorPathTheSameAsUsers) {
         const codeDecorationType = createDecorationType({
