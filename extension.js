@@ -181,7 +181,6 @@ const liveshareSubscriber = execute(link, stroveLiveshareOperation).subscribe({
 const focusEditorOperation = {
   query: focusEditorSubscription,
   variables: {
-    userId: process.env.STROVE_USER_ID || "123",
     projectId: process.env.STROVE_PROJECT_ID || "123abc",
   },
 };

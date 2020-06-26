@@ -40,8 +40,8 @@ mutation($userData: UserActivityInput) {
 `;
 
 exports.focusEditorSubscription = `
-subscription($userId: String!, $projectId: String!) {
-    focusEditor(userId: $userId, projectId: $projectId) {
+subscription($projectId: String!) {
+    focusEditor(projectId: $projectId) {
         documentPath
         selections {
             start {
