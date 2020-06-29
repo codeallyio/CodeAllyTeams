@@ -39,6 +39,8 @@ Sentry.init({
     "https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294",
 });
 
+let initPing;
+
 const liveshareActivityUpdate = (data) => {
   const liveshareActivityOperation = {
     query: liveshareActivity,
@@ -105,7 +107,8 @@ function activate(context) {
     // First call to get cursor positions of other users
     // It doesn't seem to work - my assumption:
     // it gets called before subscription is set up and the info gets lost, hence setTimeout
-    setTimeout(liveshareActivityInit, 1000);
+    // setTimeout(liveshareActivityInit, 1000);
+    initPing = setInterval(liveshareActivityInit, 1000);
 
     vscode.window.onDidChangeTextEditorSelection(
       ({ textEditor, selections }) => {
@@ -162,6 +165,11 @@ const liveshareSubscriber = execute(link, stroveLiveshareOperation).subscribe({
     const {
       data: { stroveLiveshare },
     } = data;
+
+    if (initPing) {
+      clearInterval(initPing);
+      initPing = false;
+    }
 
     handleLiveshareResponse(stroveLiveshare);
   },
