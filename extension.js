@@ -64,13 +64,14 @@ const liveshareActivityUpdate = (data) => {
 };
 
 const liveshareActivityInit = () => {
-  const projectId = process.env.STROVE_PROJECT_ID || "123abc";
-
   const liveshareActivityOperation = {
     query: liveshareActivity,
     variables: {
       userData: {
-        projectId,
+        projectId: process.env.STROVE_PROJECT_ID || "123abc",
+        userId: process.env.STROVE_USER_ID || "123",
+        fullName: process.env.STROVE_USER_FULL_NAME,
+        photoUrl: process.env.STROVE_PHOTO_URL,
       },
     },
   };
