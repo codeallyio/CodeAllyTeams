@@ -80,53 +80,55 @@ const handleLiveshareResponse = (userDataArray) => {
           userData,
         });
 
-        const lastLine = userData["selections"][0]["end"]["line"];
-        const lastLineLastCharacterPosition =
-          editor._documentData._lines[lastLine].length;
+        if (userData && userData["selections"]) {
+          const lastLine = userData["selections"][0]["end"]["line"];
+          const lastLineLastCharacterPosition =
+            editor._documentData._lines[lastLine].length;
 
-        decorationTypes = [
-          ...decorationTypes,
-          codeDecorationType,
-          userNameDecorationType,
-        ];
+          decorationTypes = [
+            ...decorationTypes,
+            codeDecorationType,
+            userNameDecorationType,
+          ];
 
-        /* Decorate code */
-        decorate({
-          decorationArray: [
-            {
-              range: new vscode.Range(
-                new vscode.Position(
-                  userData["selections"][0]["start"]["line"],
-                  userData["selections"][0]["start"]["character"]
+          /* Decorate code */
+          decorate({
+            decorationArray: [
+              {
+                range: new vscode.Range(
+                  new vscode.Position(
+                    userData["selections"][0]["start"]["line"],
+                    userData["selections"][0]["start"]["character"]
+                  ),
+                  new vscode.Position(
+                    userData["selections"][0]["end"]["line"],
+                    userData["selections"][0]["end"]["character"]
+                  )
                 ),
-                new vscode.Position(
-                  userData["selections"][0]["end"]["line"],
-                  userData["selections"][0]["end"]["character"]
-                )
-              ),
-            },
-          ],
-          decorationType: codeDecorationType,
-        });
+              },
+            ],
+            decorationType: codeDecorationType,
+          });
 
-        /* Append user name at the end */
-        decorate({
-          decorationArray: [
-            {
-              range: new vscode.Range(
-                new vscode.Position(
-                  userData["selections"][0]["end"]["line"],
-                  lastLineLastCharacterPosition
+          /* Append user name at the end */
+          decorate({
+            decorationArray: [
+              {
+                range: new vscode.Range(
+                  new vscode.Position(
+                    userData["selections"][0]["end"]["line"],
+                    lastLineLastCharacterPosition
+                  ),
+                  new vscode.Position(
+                    userData["selections"][0]["end"]["line"],
+                    lastLineLastCharacterPosition
+                  )
                 ),
-                new vscode.Position(
-                  userData["selections"][0]["end"]["line"],
-                  lastLineLastCharacterPosition
-                )
-              ),
-            },
-          ],
-          decorationType: userNameDecorationType,
-        });
+              },
+            ],
+            decorationType: userNameDecorationType,
+          });
+        }
       }
     }
   });
