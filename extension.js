@@ -35,6 +35,12 @@ const client = new SubscriptionClient(
 const link = new WebSocketLink(client);
 
 Sentry.init({
+  beforeSend(event) {
+    if (environment === "production") {
+      return event;
+    }
+    return null;
+  },
   dsn:
     "https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294",
 });
@@ -182,6 +188,15 @@ const liveshareSubscriber = execute(link, stroveLiveshareOperation).subscribe({
     if (initPing) {
       clearInterval(initPing);
       initPing = false;
+
+      const userData = stroveLiveshare.find((userData) => {
+        if (userData.documentPath && userData.documentPath > 0) return true;
+      });
+
+      handleFocusEditor({
+        uri: userData.documentPath,
+        userPosition: userData.selections,
+      });
     }
 
     handleLiveshareResponse(stroveLiveshare);
