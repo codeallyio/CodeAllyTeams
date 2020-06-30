@@ -127,6 +127,18 @@ function activate(context) {
       }
     );
 
+    vscode.window.onDidChangeActiveTextEditor((textEditor) => {
+      const data = {
+        projectId: process.env.STROVE_PROJECT_ID || "123abc",
+        userId: process.env.STROVE_USER_ID || "123",
+        fullName: process.env.STROVE_USER_FULL_NAME,
+        photoUrl: process.env.STROVE_PHOTO_URL,
+        documentPath: textEditor._documentData._uri.path,
+      };
+
+      liveshareActivityUpdate(data);
+    });
+
     let terminal;
     const terminals = vscode.window.terminals;
 
