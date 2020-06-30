@@ -193,10 +193,11 @@ const liveshareSubscriber = execute(link, stroveLiveshareOperation).subscribe({
         if (userData.documentPath && userData.documentPath > 0) return true;
       });
 
-      handleFocusEditor({
-        uri: userData.documentPath,
-        userPosition: userData.selections,
-      });
+      if (userData)
+        handleFocusEditor({
+          uri: userData.documentPath,
+          userPosition: userData.selections,
+        });
     }
 
     handleLiveshareResponse(stroveLiveshare);
