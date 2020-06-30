@@ -13,8 +13,8 @@ const decorate = ({ decorationArray, decorationType }) => {
 
 const createDecorationType = ({ userData }) =>
   vscode.window.createTextEditorDecorationType({
-    border: `1px solid rgba(${userData.color}, 1)`,
-    backgroundColor: `rgba(${userData.color}, 0.3)`,
+    border: `1px solid hsla(${userData.color}, 80%, 70%, 1)`,
+    backgroundColor: `hsla(${userData.color}, 80%, 70%, 0.3)`,
     // after: {
     //   height: "15px",
     //   width: "15px",
@@ -35,7 +35,7 @@ const createUserNameDecorationType = ({ userData }) =>
       //   "https://avatars1.githubusercontent.com/u/14284341?v=4"
       // ),
       fontWeight: "900",
-      color: `rgba(${userData.color}, 1)`,
+      color: `hsla(${userData.color}, 80%, 70%, 1)`,
       contentText: ` ${userData.fullName}`,
     },
   });
@@ -64,6 +64,10 @@ const handleLiveshareResponse = (userDataArray) => {
 
       const editor = vscode.window.activeTextEditor;
       const isEditorPathTheSameAsUsers =
+        userData &&
+        editor &&
+        editor._documentData &&
+        editor._documentData._uri &&
         editor._documentData._uri.path === userData.documentPath;
 
       if (isEditorPathTheSameAsUsers) {
@@ -76,53 +80,55 @@ const handleLiveshareResponse = (userDataArray) => {
           userData,
         });
 
-        const lastLine = userData["selections"][0]["end"]["line"];
-        const lastLineLastCharacterPosition =
-          editor._documentData._lines[lastLine].length;
+        if (userData && userData["selections"]) {
+          const lastLine = userData["selections"][0]["end"]["line"];
+          const lastLineLastCharacterPosition =
+            editor._documentData._lines[lastLine].length;
 
-        decorationTypes = [
-          ...decorationTypes,
-          codeDecorationType,
-          userNameDecorationType,
-        ];
+          decorationTypes = [
+            ...decorationTypes,
+            codeDecorationType,
+            userNameDecorationType,
+          ];
 
-        /* Decorate code */
-        decorate({
-          decorationArray: [
-            {
-              range: new vscode.Range(
-                new vscode.Position(
-                  userData["selections"][0]["start"]["line"],
-                  userData["selections"][0]["start"]["character"]
+          /* Decorate code */
+          decorate({
+            decorationArray: [
+              {
+                range: new vscode.Range(
+                  new vscode.Position(
+                    userData["selections"][0]["start"]["line"],
+                    userData["selections"][0]["start"]["character"]
+                  ),
+                  new vscode.Position(
+                    userData["selections"][0]["end"]["line"],
+                    userData["selections"][0]["end"]["character"]
+                  )
                 ),
-                new vscode.Position(
-                  userData["selections"][0]["end"]["line"],
-                  userData["selections"][0]["end"]["character"]
-                )
-              ),
-            },
-          ],
-          decorationType: codeDecorationType,
-        });
+              },
+            ],
+            decorationType: codeDecorationType,
+          });
 
-        /* Append user name at the end */
-        decorate({
-          decorationArray: [
-            {
-              range: new vscode.Range(
-                new vscode.Position(
-                  userData["selections"][0]["end"]["line"],
-                  lastLineLastCharacterPosition
+          /* Append user name at the end */
+          decorate({
+            decorationArray: [
+              {
+                range: new vscode.Range(
+                  new vscode.Position(
+                    userData["selections"][0]["end"]["line"],
+                    lastLineLastCharacterPosition
+                  ),
+                  new vscode.Position(
+                    userData["selections"][0]["end"]["line"],
+                    lastLineLastCharacterPosition
+                  )
                 ),
-                new vscode.Position(
-                  userData["selections"][0]["end"]["line"],
-                  lastLineLastCharacterPosition
-                )
-              ),
-            },
-          ],
-          decorationType: userNameDecorationType,
-        });
+              },
+            ],
+            decorationType: userNameDecorationType,
+          });
+        }
       }
     }
   });
