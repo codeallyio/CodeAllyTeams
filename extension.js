@@ -139,8 +139,11 @@ function activate(context) {
         userId: process.env.STROVE_USER_ID || "123",
         fullName: process.env.STROVE_USER_FULL_NAME,
         photoUrl: process.env.STROVE_PHOTO_URL,
-        documentPath: textEditor._documentData._uri.path,
       };
+
+      if (textEditor) {
+        data.documentPath = textEditor._documentData._uri.path;
+      }
 
       liveshareActivityUpdate(data);
     });
