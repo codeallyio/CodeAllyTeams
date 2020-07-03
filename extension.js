@@ -59,10 +59,10 @@ const liveshareActivityUpdate = (data) => {
     .then()
     .catch((error) => {
       console.log(
-        `received error in focusEditorSubscriber ${JSON.stringify(error)}`
+        `received error in liveshareActivityUpdate ${JSON.stringify(error)}`
       );
       Sentry.captureMessage(
-        `Error happened in focusEditorSubscriber. Original error message: ${JSON.stringify(
+        `Error happened in liveshareActivityUpdate. Original error message: ${JSON.stringify(
           error
         )}`
       );
@@ -86,10 +86,10 @@ const liveshareActivityInit = () => {
     .then()
     .catch((error) => {
       console.log(
-        `received error in focusEditorSubscriber ${JSON.stringify(error)}`
+        `received error in liveshareActivityInit ${JSON.stringify(error)}`
       );
       Sentry.captureMessage(
-        `Error happened in focusEditorSubscriber. Original error message: ${JSON.stringify(
+        `Error happened in liveshareActivityInit. Original error message: ${JSON.stringify(
           error
         )}`
       );
