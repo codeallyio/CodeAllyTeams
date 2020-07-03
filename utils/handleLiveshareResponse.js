@@ -1,6 +1,18 @@
 const vscode = require("vscode");
+const Sentry = require("@sentry/node");
 
 const environment = process.env.STROVE_ENVIRONMENT;
+
+Sentry.init({
+  beforeSend(event) {
+    if (environment === "production") {
+      return event;
+    }
+    return null;
+  },
+  dsn:
+    "https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294",
+});
 
 let liveshareActivity = {};
 let decorationTypes = [];
@@ -80,8 +92,26 @@ const handleLiveshareResponse = (userDataArray) => {
           userData,
         });
 
-        if (userData && userData["selections"]) {
-          const lastLine = userData["selections"][0]["end"]["line"];
+        let lastLine;
+
+        if (
+          userData &&
+          userData["selections"] &&
+          userData["selections"][0] &&
+          userData["selections"][0]["end"]
+        ) {
+          lastLine = userData["selections"][0]["end"]["line"];
+        }
+
+        if (
+          userData &&
+          userData["selections"] &&
+          lastLine &&
+          editor &&
+          editor._documentData &&
+          editor._documentData._lines &&
+          editor._documentData._lines[lastLine]
+        ) {
           const lastLineLastCharacterPosition =
             editor._documentData._lines[lastLine].length;
 
@@ -128,6 +158,12 @@ const handleLiveshareResponse = (userDataArray) => {
             ],
             decorationType: userNameDecorationType,
           });
+        } else {
+          Sentry.captureMessage(
+            `Error happened in handleLiveshareResponse. userData: ${JSON.stringify(
+              userData
+            )}; editor._documentData: ${JSON.stringify(editor._documentData)}`
+          );
         }
       }
     }
