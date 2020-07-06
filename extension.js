@@ -43,7 +43,6 @@ Sentry.init({
   },
   dsn:
     "https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294",
-  integrations: [new Sentry.Integrations.ExtraErrorData({ depth: 10 })],
   maxValueLength: 1000,
 });
 
