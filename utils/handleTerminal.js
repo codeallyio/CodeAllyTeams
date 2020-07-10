@@ -1,20 +1,61 @@
 const vscode = require("vscode");
-const util = require("util");
-// const exec = util.promisify(require("child_process").exec);
-const exec = require("child_process").exec;
+const child_process = require("child_process");
+const fs = require("fs");
 
-// const testTerminal = (context) => {
-//   const terminal = vscode.window.createTerminal({
-//     name: `My Extension REPL`,
-//   });
-//   terminal.show();
-// };
+// Create emitter for pseudoterminal
+const writeEmitter = new vscode.EventEmitter();
+
+// Create Interface
+const terminal = {
+  terminalProcess: child_process.spawn("/bin/bash"),
+  logger: (output) => {
+    let data = "";
+    if (output.data) data += ": " + output.data.toString();
+    console.log(output.type + data);
+  },
+  send: (data) => {
+    terminal.terminalProcess.stdin.write(data + "\n");
+  },
+  // Test it later as it doesn't work on mac but appears to be working on Ubuntu
+  cwd: () => {
+    let cwd = fs.readlinkSync("/proc/" + terminal.terminalProcess.pid + "/cwd");
+    terminal.logger({ type: "cwd", data: cwd });
+  },
+};
+
+// Handle Data
+terminal.terminalProcess.stdout.on("data", (buffer) => {
+  writeEmitter.fire(`\r\n${buffer}\r\n\n`);
+  terminal.logger({ type: "data", data: buffer });
+});
+
+// Handle Error
+terminal.terminalProcess.stderr.on("data", (buffer) => {
+  terminal.logger({ type: "error", data: buffer });
+});
+
+// Handle Closure
+terminal.terminalProcess.on("close", () => {
+  terminal.logger({ type: "closure", data: null });
+});
+
+//   testingTerminal.send("echo Hello World!");
+
+//   // testingTerminal.cwd();
+//   testingTerminal.send("pwd");
+
+//   await testingTerminal.send(
+//     "cd /Users/mac/Desktop/SiliSky/api/siliskyApi && yarn"
+//   );
+
+//   testingTerminal.send("pwd");
+
+//   console.log(testingTerminal.terminal);
 
 const testTerminal = (context) => {
   console.log("before try");
   try {
     console.log("in try");
-    const writeEmitter = new vscode.EventEmitter();
     let line = "";
     const pty = {
       onDidWrite: writeEmitter.event,
@@ -27,23 +68,8 @@ const testTerminal = (context) => {
         try {
           if (data === "\r") {
             // Enter
-            writeEmitter.fire(`\r\necho: "${colorText(line)}"\r\n\n`);
-            // const response = await exec(
-            //   `${line}`,
-            //   { shell: true },
-            //   (_, stdout) => console.log(stdout)
-            // );
-
-            // const { stdout, stderr } = response;
-            // console.log(stdout);
-            // console.log(JSON.stringify(stdout));
-
-            // writeEmitter.fire(stdout);
-            // writeEmitter.fire("dickbutt");
-
-            // writeEmitter.fire(
-            //   `\r${JSON.stringify(stdout || "") || stderr}\r\n\n`
-            // );
+            writeEmitter.fire(`\r\n\r\n\n`);
+            terminal.send(line + "");
 
             line = "";
             return;
@@ -69,13 +95,13 @@ const testTerminal = (context) => {
       },
       //   handleInput: (data) => writeEmitter.fire(data),
     };
-    const terminal = vscode.window.createTerminal({
+    const displayTerminal = vscode.window.createTerminal({
       name: `My Extension REPL`,
       pty,
     });
-    terminal.show();
+    displayTerminal.show();
 
-    console.log(terminal);
+    console.log(displayTerminal);
     // context.subscriptions.push(
     //   vscode.commands.registerCommand("extensionTerminalSample.clear", () => {
     //     writeEmitter.fire("\x1b[2J\x1b[3J\x1b[;H");
