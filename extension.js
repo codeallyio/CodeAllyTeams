@@ -7,12 +7,6 @@ const { SubscriptionClient } = require("subscriptions-transport-ws");
 const { execute, makePromise } = require("apollo-link");
 const ws = require("ws");
 const Sentry = require("@sentry/node");
-const util = require("util");
-const exec = util.promisify(require("child_process").exec);
-
-const fs = require("fs");
-const child_process = require("child_process");
-
 const {
   stroveLiveshareSubscription,
   liveshareActivity,
@@ -177,64 +171,6 @@ async function activate(context) {
     console.log("before");
     testTerminal(context);
     console.log("after");
-
-    // const response = await exec("ls && pwd", { shell: true });
-
-    // const { stdout, stderr } = response;
-
-    // console.log("stdout: ", stdout);
-    // console.log("stderr: ", stderr);
-
-    console.log(terminal);
-
-    // Create Interface
-    const testingTerminal = {
-      terminal: child_process.spawn("/bin/bash"),
-      handler: console.log,
-      send: (data) => {
-        testingTerminal.terminal.stdin.write(data + "\n");
-      },
-      // cwd: () => {
-      //   let cwd = fs.readlinkSync(
-      //     "/proc/" + testingTerminal.terminal.pid + "/cwd"
-      //   );
-      //   testingTerminal.handler({ type: "cwd", data: cwd });
-      // },
-    };
-
-    // Handle Data
-    testingTerminal.terminal.stdout.on("data", (buffer) => {
-      testingTerminal.handler({ type: "data", data: buffer });
-    });
-
-    // Handle Error
-    testingTerminal.terminal.stderr.on("data", (buffer) => {
-      testingTerminal.handler({ type: "error", data: buffer });
-    });
-
-    // Handle Closure
-    testingTerminal.terminal.on("close", () => {
-      testingTerminal.handler({ type: "closure", data: null });
-    });
-
-    testingTerminal.handler = (output) => {
-      let data = "";
-      if (output.data) data += ": " + output.data.toString();
-      console.log(output.type + data);
-    };
-
-    testingTerminal.send("echo Hello World!");
-
-    // testingTerminal.cwd();
-    testingTerminal.send("pwd");
-
-    await testingTerminal.send(
-      "cd /Users/mac/Desktop/SiliSky/api/siliskyApi && yarn"
-    );
-
-    testingTerminal.send("pwd");
-
-    console.log(testingTerminal.terminal);
   } catch (error) {
     console.log(`received error in activate ${error}`);
     Sentry.captureMessage(
