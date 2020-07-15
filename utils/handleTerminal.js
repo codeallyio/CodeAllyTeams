@@ -2,12 +2,13 @@ const vscode = require("vscode");
 const child_process = require("child_process");
 const fs = require("fs");
 
-// Create emitter for pseudoterminal
+// Create emitters for pseudoterminal
 const writeEmitter = new vscode.EventEmitter();
+const dimensionsEmitter = new vscode.EventEmitter();
 
 // Create Interface
 const terminal = {
-  terminalProcess: child_process.spawn("/bin/bash"),
+  terminalProcess: child_process.spawn("/bin/sh"),
   logger: (output) => {
     let data = "";
     if (output.data) data += ": " + output.data.toString();
@@ -25,7 +26,13 @@ const terminal = {
 
 // Handle Data
 terminal.terminalProcess.stdout.on("data", (buffer) => {
-  writeEmitter.fire(`\r\n${buffer}\r\n\n`);
+  //   console.log(buffer.toString("utf-8").);
+  let test = buffer.toString("utf-8");
+  //   writeEmitter.fire(`\r\n${buffer}\r\n\n`);
+  //   writeEmitter.fire(`${buffer}`);
+  test = test.split("\t");
+  console.log(test);
+  test.forEach((t) => writeEmitter.fire(`\r\n${t}\r\n\n`));
   terminal.logger({ type: "data", data: buffer });
 });
 
@@ -52,17 +59,23 @@ terminal.terminalProcess.on("close", () => {
 
 //   console.log(testingTerminal.terminal);
 
-const testTerminal = (context) => {
+const testTerminal = async (context) => {
   console.log("before try");
   try {
     console.log("in try");
     let line = "";
     const pty = {
       onDidWrite: writeEmitter.event,
-      open: () =>
-        writeEmitter.fire("Type and press enter to echo the text\r\n\r\n"),
+      open: () => {
+        writeEmitter.fire("Type and press enter to echo the text\r\n\r\n");
+        dimensionsEmitter.fire({
+          columns: 1,
+          rows: 1,
+        });
+        console.log("open fired");
+      },
       close: () => {
-        /* noop*/
+        /* noop */
       },
       handleInput: async (data) => {
         try {
@@ -100,6 +113,7 @@ const testTerminal = (context) => {
       pty,
     });
     displayTerminal.show();
+    // displayTerminal.setDimensions({ columns: 2, rows: 5 });
 
     console.log(displayTerminal);
     // context.subscriptions.push(
