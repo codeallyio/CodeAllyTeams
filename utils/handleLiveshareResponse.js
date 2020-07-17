@@ -161,11 +161,16 @@ const handleLiveshareResponse = (userDataArray) => {
             decorationType: userNameDecorationType,
           });
         } else {
-          Sentry.captureMessage(
-            `Error happened in handleLiveshareResponse. userData: ${JSON.stringify(
-              userData
-            )}; editor._documentData: ${JSON.stringify(editor._documentData)}`
-          );
+          Sentry.withScope((scope) => {
+            scope.setExtras({
+              data: {
+                editor: editor._documentData,
+                userData: userData,
+              },
+              location: "handleLiveshareResponse",
+            });
+            Sentry.captureMessage("Incomplete data provided");
+          });
         }
       }
     }
