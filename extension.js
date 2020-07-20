@@ -43,6 +43,8 @@ Sentry.init({
   },
   dsn:
     "https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294",
+  maxValueLength: 1000,
+  normalizeDepth: 10,
 });
 
 let initPing;
@@ -61,11 +63,13 @@ const liveshareActivityUpdate = (data) => {
       console.log(
         `received error in liveshareActivityUpdate ${JSON.stringify(error)}`
       );
-      Sentry.captureMessage(
-        `Error happened in liveshareActivityUpdate. Original error message: ${JSON.stringify(
-          error
-        )}`
-      );
+      Sentry.withScope((scope) => {
+        scope.setExtras({
+          data: liveshareActivityOperation,
+          location: "liveshareActivityUpdate",
+        });
+        Sentry.captureException(error);
+      });
     });
 };
 
@@ -88,11 +92,14 @@ const liveshareActivityInit = () => {
       console.log(
         `received error in liveshareActivityInit ${JSON.stringify(error)}`
       );
-      Sentry.captureMessage(
-        `Error happened in liveshareActivityInit. Original error message: ${JSON.stringify(
-          error
-        )}`
-      );
+
+      Sentry.withScope((scope) => {
+        scope.setExtras({
+          data: liveshareActivityOperation,
+          location: "liveshareActivityInit",
+        });
+        Sentry.captureException(error);
+      });
     });
 };
 
@@ -168,9 +175,13 @@ function activate(context) {
     terminal.show();
   } catch (error) {
     console.log(`received error in activate ${error}`);
-    Sentry.captureMessage(
-      `Error happened in activate. Original error message: ${error}`
-    );
+
+    Sentry.withScope((scope) => {
+      scope.setExtras({
+        location: "activate",
+      });
+      Sentry.captureException(error);
+    });
   }
 }
 
@@ -209,11 +220,14 @@ const liveshareSubscriber = execute(link, stroveLiveshareOperation).subscribe({
     console.log(
       `received error in liveshareSubscriber ${JSON.stringify(error)}`
     );
-    Sentry.captureMessage(
-      `Error happened in liveshareSubscriber. Original error message: ${JSON.stringify(
-        error
-      )}`
-    );
+
+    Sentry.withScope((scope) => {
+      scope.setExtras({
+        data: stroveLiveshareOperation,
+        location: "liveshareSubscriber",
+      });
+      Sentry.captureException(error);
+    });
   },
   complete: () => console.log(`complete`),
 });
@@ -240,11 +254,14 @@ const focusEditorSubscriber = execute(link, focusEditorOperation).subscribe({
     console.log(
       `received error in focusEditorSubscriber ${JSON.stringify(error)}`
     );
-    Sentry.captureMessage(
-      `Error happened in focusEditorSubscriber. Original error message: ${JSON.stringify(
-        error
-      )}`
-    );
+
+    Sentry.withScope((scope) => {
+      scope.setExtras({
+        data: focusEditorOperation,
+        location: "focusEditorSubscriber",
+      });
+      Sentry.captureException(error);
+    });
   },
   complete: () => console.log(`complete`),
 });

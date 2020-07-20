@@ -12,6 +12,8 @@ Sentry.init({
   },
   dsn:
     "https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294",
+  maxValueLength: 1000,
+  normalizeDepth: 10,
 });
 
 let liveshareActivity = {};
@@ -159,11 +161,16 @@ const handleLiveshareResponse = (userDataArray) => {
             decorationType: userNameDecorationType,
           });
         } else {
-          Sentry.captureMessage(
-            `Error happened in handleLiveshareResponse. userData: ${JSON.stringify(
-              userData
-            )}; editor._documentData: ${JSON.stringify(editor._documentData)}`
-          );
+          Sentry.withScope((scope) => {
+            scope.setExtras({
+              data: {
+                editor: editor._documentData,
+                userData: userData,
+              },
+              location: "handleLiveshareResponse",
+            });
+            Sentry.captureMessage("Incomplete data provided");
+          });
         }
       }
     }
