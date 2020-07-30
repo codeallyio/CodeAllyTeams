@@ -87,7 +87,10 @@ terminal.initEvents();
 //   console.log(testingTerminal.terminal);
 
 const testTerminal = async (context) => {
+  const arrows = ["\u001b[C", "\u001b[B", "\u001b[D", "\u001b[A"];
+  console.log("\x57");
   console.log("before try");
+  // Get hex codes from here if necessary: https://www.codetable.net/Group/arrows  -  may be usefull for ubuntu
   try {
     console.log("in try");
     let line = "";
@@ -106,6 +109,7 @@ const testTerminal = async (context) => {
       },
       handleInput: async (data) => {
         try {
+          console.log(JSON.stringify(data));
           if (data === "\r") {
             // Enter
             writeEmitter.fire(`\r\n\r\n`);
@@ -125,6 +129,9 @@ const testTerminal = async (context) => {
             // Delete character
             writeEmitter.fire("\x1b[P");
             return;
+          }
+          if (arrows.includes(data)) {
+            writeEmitter.fire("yo");
           }
           // if (data && typeof data === "string" && data.match(/[A-Z][a-z][0-9]/g))
           line += data;
