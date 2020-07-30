@@ -22,29 +22,56 @@ const terminal = {
     let cwd = fs.readlinkSync("/proc/" + terminal.terminalProcess.pid + "/cwd");
     terminal.logger({ type: "cwd", data: cwd });
   },
+  initEvents: () => {
+    terminal.terminalProcess.stdout.on("data", (buffer) => {
+      let response = buffer.toString("utf-8");
+      response = response.split(/[\r\n\t]+/g);
+      response.forEach((t) => writeEmitter.fire(`${t}\r\n`));
+      terminal.logger({ type: "data", data: buffer });
+    });
+
+    // Handle Error
+    terminal.terminalProcess.stderr.on("data", (buffer) => {
+      let response = buffer.toString("utf-8");
+      response = response.split(/[\r\n\t]+/g);
+      response.forEach((t) => writeEmitter.fire(`${t}\r\n`));
+      terminal.logger({ type: "error", data: buffer });
+    });
+
+    // Handle Closure
+    terminal.terminalProcess.on("close", () => {
+      writeEmitter.fire(`Terminal process stopped!\r\n\r\n`);
+      terminal.terminalProcess = child_process.spawn("/bin/sh");
+      terminal.initEvents();
+      terminal.logger({ type: "closure", data: null });
+    });
+  },
 };
 
-// Handle Data
-terminal.terminalProcess.stdout.on("data", (buffer) => {
-  //   console.log(buffer.toString("utf-8").);
-  let test = buffer.toString("utf-8");
-  //   writeEmitter.fire(`\r\n${buffer}\r\n\n`);
-  //   writeEmitter.fire(`${buffer}`);
-  test = test.split("\t");
-  console.log(test);
-  test.forEach((t) => writeEmitter.fire(`\r\n${t}\r\n\n`));
-  terminal.logger({ type: "data", data: buffer });
-});
+terminal.initEvents();
 
-// Handle Error
-terminal.terminalProcess.stderr.on("data", (buffer) => {
-  terminal.logger({ type: "error", data: buffer });
-});
+// // Handle Data
+// terminal.terminalProcess.stdout.on("data", (buffer) => {
+//   let response = buffer.toString("utf-8");
+//   response = response.split(/[\r\n\t]+/g);
+//   response.forEach((t) => writeEmitter.fire(`${t}\r\n`));
+//   terminal.logger({ type: "data", data: buffer });
+// });
 
-// Handle Closure
-terminal.terminalProcess.on("close", () => {
-  terminal.logger({ type: "closure", data: null });
-});
+// // Handle Error
+// terminal.terminalProcess.stderr.on("data", (buffer) => {
+//   let response = buffer.toString("utf-8");
+//   response = response.split(/[\r\n\t]+/g);
+//   response.forEach((t) => writeEmitter.fire(`${t}\r\n`));
+//   terminal.logger({ type: "error", data: buffer });
+// });
+
+// // Handle Closure
+// terminal.terminalProcess.on("close", () => {
+//   writeEmitter.fire(`Terminal process stopped!\r\n`);
+//   terminal.terminalProcess = child_process.spawn("/bin/sh");
+//   terminal.logger({ type: "closure", data: null });
+// });
 
 //   testingTerminal.send("echo Hello World!");
 
@@ -81,7 +108,7 @@ const testTerminal = async (context) => {
         try {
           if (data === "\r") {
             // Enter
-            writeEmitter.fire(`\r\n\r\n\n`);
+            writeEmitter.fire(`\r\n\r\n`);
             terminal.send(line + "");
 
             line = "";
