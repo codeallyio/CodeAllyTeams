@@ -12,6 +12,7 @@ const {
 const { handleLiveshareResponse } = require("./utils/handleLiveshareResponse");
 const { handleFocusEditor } = require("./utils/handleFocusEditor");
 const { testTerminal } = require("./utils/handleTerminal");
+const { receiveTerminal } = require("./utils/receiveTerminal");
 const { websocketLink } = require("./utils/websocketLink");
 
 const environment = process.env.STROVE_ENVIRONMENT;

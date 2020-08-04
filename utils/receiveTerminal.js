@@ -39,7 +39,7 @@ const receiveTerminal = async () => {
           data: { receiveTerminal },
         } = data;
 
-        writeEmitter.fire(`${receiveTerminal}\r\n`);
+        writeEmitter.fire(`${receiveTerminal}\r\n\r\n`);
       },
       error: (error) => {
         console.log(
