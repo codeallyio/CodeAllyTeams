@@ -11,7 +11,7 @@ const {
 } = require("./utils/queries");
 const { handleLiveshareResponse } = require("./utils/handleLiveshareResponse");
 const { handleFocusEditor } = require("./utils/handleFocusEditor");
-const { testTerminal } = require("./utils/handleTerminal");
+const { broadcastTerminal } = require("./utils/broadcastTerminal");
 const { receiveTerminal } = require("./utils/receiveTerminal");
 const { websocketLink } = require("./utils/websocketLink");
 
@@ -158,10 +158,9 @@ async function activate(context) {
     }
     terminal.show();
 
-    if (userType === "guest") {
-      console.log("before, userType: guest");
-      testTerminal(context);
-      console.log("after");
+    // if (userType === "guest") {
+    if (true) {
+      broadcastTerminal();
     } else {
       receiveTerminal();
     }
