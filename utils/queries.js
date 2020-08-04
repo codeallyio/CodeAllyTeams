@@ -56,3 +56,15 @@ subscription($projectId: String!) {
     }
 }
 `;
+
+exports.receiveTerminalSubscription = `
+subscription($projectId: String!) {
+    receiveTerminal(projectId: $projectId)
+}
+`;
+
+exports.broadcastTerminal = `
+mutation($command: String!, $projectId: String!) {
+    broadcastTerminal(command: $command, projectId: $projectId)
+}
+`;
