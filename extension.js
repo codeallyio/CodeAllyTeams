@@ -2,37 +2,20 @@
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require("vscode");
 const throttle = require("lodash.throttle");
-const { WebSocketLink } = require("apollo-link-ws");
-const { SubscriptionClient } = require("subscriptions-transport-ws");
 const { execute, makePromise } = require("apollo-link");
-const ws = require("ws");
 const Sentry = require("@sentry/node");
 const {
   stroveLiveshareSubscription,
   liveshareActivity,
   focusEditorSubscription,
 } = require("./utils/queries");
-const { websocketEndpoint } = require("./utils/endpoints");
 const { handleLiveshareResponse } = require("./utils/handleLiveshareResponse");
 const { handleFocusEditor } = require("./utils/handleFocusEditor");
 const { testTerminal } = require("./utils/handleTerminal");
+const { websocketLink } = require("./utils/websocketLink");
 
 const environment = process.env.STROVE_ENVIRONMENT;
-
-const client = new SubscriptionClient(
-  websocketEndpoint,
-  {
-    reconnect: true,
-    connectionParams: () => ({
-      authorization: process.env.STROVE_USER_TOKEN
-        ? `Bearer ${process.env.STROVE_USER_TOKEN}`
-        : "",
-    }),
-  },
-  ws
-);
-
-const link = new WebSocketLink(client);
+const userType = process.env.USER_TYPE;
 
 Sentry.init({
   beforeSend(event) {
@@ -57,7 +40,7 @@ const liveshareActivityUpdate = (data) => {
     },
   };
 
-  makePromise(execute(link, liveshareActivityOperation))
+  makePromise(execute(websocketLink, liveshareActivityOperation))
     .then()
     .catch((error) => {
       console.log(
@@ -86,7 +69,7 @@ const liveshareActivityInit = () => {
     },
   };
 
-  makePromise(execute(link, liveshareActivityOperation))
+  makePromise(execute(websocketLink, liveshareActivityOperation))
     .then()
     .catch((error) => {
       console.log(
@@ -174,9 +157,13 @@ async function activate(context) {
     }
     terminal.show();
 
-    console.log("before");
-    testTerminal(context);
-    console.log("after");
+    if (userType === "guest") {
+      console.log("before, userType: guest");
+      testTerminal(context);
+      console.log("after");
+    } else {
+      receiveTerminal();
+    }
   } catch (error) {
     console.log(`received error in activate ${error}`);
 
@@ -197,7 +184,10 @@ const stroveLiveshareOperation = {
   },
 };
 
-const liveshareSubscriber = execute(link, stroveLiveshareOperation).subscribe({
+const liveshareSubscriber = execute(
+  websocketLink,
+  stroveLiveshareOperation
+).subscribe({
   next: (data) => {
     const {
       data: { stroveLiveshare },
@@ -243,7 +233,10 @@ const focusEditorOperation = {
   },
 };
 
-const focusEditorSubscriber = execute(link, focusEditorOperation).subscribe({
+const focusEditorSubscriber = execute(
+  websocketLink,
+  focusEditorOperation
+).subscribe({
   next: async (data) => {
     const {
       data: { focusEditor },
