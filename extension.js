@@ -160,7 +160,7 @@ async function activate(context) {
 
     if (userType === "guest") {
       broadcastTerminal();
-    } else {
+    } else if (userType === "hiring") {
       receiveTerminal();
     }
   } catch (error) {
