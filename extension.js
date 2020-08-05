@@ -158,8 +158,7 @@ async function activate(context) {
     }
     terminal.show();
 
-    // if (userType === "guest") {
-    if (true) {
+    if (userType === "guest") {
       broadcastTerminal();
     } else {
       receiveTerminal();
