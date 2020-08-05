@@ -16,7 +16,7 @@ const { receiveTerminal } = require("./utils/receiveTerminal");
 const { websocketLink } = require("./utils/websocketLink");
 
 const environment = process.env.STROVE_ENVIRONMENT;
-const userType = process.env.USER_TYPE;
+const userType = process.env.STROVE_USER_TYPE;
 
 Sentry.init({
   beforeSend(event) {
