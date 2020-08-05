@@ -63,7 +63,7 @@ subscription($projectId: String!) {
 }
 `;
 
-exports.broadcastTerminal = `
+exports.broadcastTerminalMutation = `
 mutation($command: String!, $projectId: String!) {
     broadcastTerminal(command: $command, projectId: $projectId)
 }

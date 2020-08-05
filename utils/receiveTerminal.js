@@ -83,10 +83,10 @@ const receiveTerminal = async () => {
     console.log("error in receiveTerminal: ", e);
     Sentry.withScope((scope) => {
       scope.setExtras({
-        data: {},
+        data: { error: e },
         location: "receiveTerminal",
       });
-      Sentry.captureMessage("Unknown error!");
+      Sentry.captureMessage("Unexpected error!");
     });
   }
 };
