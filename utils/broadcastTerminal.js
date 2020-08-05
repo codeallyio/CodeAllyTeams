@@ -122,46 +122,42 @@ const broadcastTerminal = async () => {
       },
       handleInput: async (data) => {
         try {
-          if (data === "\r") {
-            // Enter
-            writeEmitter.fire(`\r\n\r\n`);
-            if (line && line.toString().length > 0) {
-              terminal.send(line + "");
-              sendCommand(line);
-            }
+          switch (data) {
+            case "\r":
+              // Enter
+              writeEmitter.fire(`\r\n\r\n`);
+              if (line && line.toString().length > 0) {
+                terminal.send(line + "");
+                sendCommand(line);
+              }
 
-            line = "";
-            return;
+              line = "";
+              break;
+            case "\x7f":
+              // Backspace
+              if (line.length === 0) {
+                return;
+              }
+              line = line.substr(0, line.length - 1);
+              // Move cursor backward
+              writeEmitter.fire("\x1b[D");
+              // Delete character
+              writeEmitter.fire("\x1b[P");
+              break;
+            case "\u001b[A":
+            case "\u001b[B":
+              // Necessary to disable up/down arrows
+              break;
+            case "\u001b[C":
+              writeEmitter.fire("\x1b[C");
+              break;
+            case "\u001b[D":
+              writeEmitter.fire("\x1b[D");
+              break;
+            default:
+              line += data;
+              writeEmitter.fire(data);
           }
-          if (data === "\x7f") {
-            // Backspace
-            if (line.length === 0) {
-              return;
-            }
-            line = line.substr(0, line.length - 1);
-            // Move cursor backward
-            writeEmitter.fire("\x1b[D");
-            // Delete character
-            writeEmitter.fire("\x1b[P");
-            return;
-          }
-          if (data === "\u001b[A" || data === "\u001b[B") {
-            return;
-          }
-          if (data === "\u001b[C") {
-            writeEmitter.fire("\x1b[C");
-            return;
-          }
-          if (data === "\u001b[D") {
-            writeEmitter.fire("\x1b[D");
-            return;
-          }
-
-          // console.log(JSON.stringify(data));
-          console.log("line", JSON.stringify(line));
-          line += data;
-          console.log("line += data", JSON.stringify(line));
-          writeEmitter.fire(data);
         } catch (e) {
           console.log("error in handleTerminal -> handleInput: ", e);
           Sentry.withScope((scope) => {
