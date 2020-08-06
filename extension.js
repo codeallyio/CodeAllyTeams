@@ -2,37 +2,21 @@
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require("vscode");
 const throttle = require("lodash.throttle");
-const { WebSocketLink } = require("apollo-link-ws");
-const { SubscriptionClient } = require("subscriptions-transport-ws");
 const { execute, makePromise } = require("apollo-link");
-const ws = require("ws");
 const Sentry = require("@sentry/node");
-
 const {
   stroveLiveshareSubscription,
   liveshareActivity,
   focusEditorSubscription,
 } = require("./utils/queries");
-const { websocketEndpoint } = require("./utils/endpoints");
 const { handleLiveshareResponse } = require("./utils/handleLiveshareResponse");
 const { handleFocusEditor } = require("./utils/handleFocusEditor");
+const { broadcastTerminal } = require("./utils/broadcastTerminal");
+const { receiveTerminal } = require("./utils/receiveTerminal");
+const { websocketLink } = require("./utils/websocketLink");
 
 const environment = process.env.STROVE_ENVIRONMENT;
-
-const client = new SubscriptionClient(
-  websocketEndpoint,
-  {
-    reconnect: true,
-    connectionParams: () => ({
-      authorization: process.env.STROVE_USER_TOKEN
-        ? `Bearer ${process.env.STROVE_USER_TOKEN}`
-        : "",
-    }),
-  },
-  ws
-);
-
-const link = new WebSocketLink(client);
+const userType = process.env.STROVE_USER_TYPE;
 
 Sentry.init({
   beforeSend(event) {
@@ -57,7 +41,7 @@ const liveshareActivityUpdate = (data) => {
     },
   };
 
-  makePromise(execute(link, liveshareActivityOperation))
+  makePromise(execute(websocketLink, liveshareActivityOperation))
     .then()
     .catch((error) => {
       console.log(
@@ -86,7 +70,7 @@ const liveshareActivityInit = () => {
     },
   };
 
-  makePromise(execute(link, liveshareActivityOperation))
+  makePromise(execute(websocketLink, liveshareActivityOperation))
     .then()
     .catch((error) => {
       console.log(
@@ -112,7 +96,7 @@ const throttleLiveshareActivityCall = throttle(liveshareActivityUpdate, 100, {
 /**
  * @param {vscode.ExtensionContext} context
  */
-function activate(context) {
+async function activate(context) {
   try {
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
@@ -173,6 +157,12 @@ function activate(context) {
       terminal.sendText(process.env.STROVE_INIT_COMMAND || "yarn start");
     }
     terminal.show();
+
+    if (userType === "guest") {
+      broadcastTerminal();
+    } else if (userType === "hiring") {
+      receiveTerminal();
+    }
   } catch (error) {
     console.log(`received error in activate ${error}`);
 
@@ -193,7 +183,10 @@ const stroveLiveshareOperation = {
   },
 };
 
-const liveshareSubscriber = execute(link, stroveLiveshareOperation).subscribe({
+const liveshareSubscriber = execute(
+  websocketLink,
+  stroveLiveshareOperation
+).subscribe({
   next: (data) => {
     const {
       data: { stroveLiveshare },
@@ -239,7 +232,10 @@ const focusEditorOperation = {
   },
 };
 
-const focusEditorSubscriber = execute(link, focusEditorOperation).subscribe({
+const focusEditorSubscriber = execute(
+  websocketLink,
+  focusEditorOperation
+).subscribe({
   next: async (data) => {
     const {
       data: { focusEditor },
