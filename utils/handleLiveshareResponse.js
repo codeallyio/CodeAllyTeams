@@ -108,11 +108,12 @@ const handleLiveshareResponse = (userDataArray) => {
         if (
           userData &&
           userData["selections"] &&
-          lastLine &&
+          (lastLine || lastLine === 0) &&
           editor &&
           editor._documentData &&
           editor._documentData._lines &&
-          editor._documentData._lines[lastLine]
+          (editor._documentData._lines[lastLine] ||
+            editor._documentData._lines[lastLine] === "")
         ) {
           const lastLineLastCharacterPosition =
             editor._documentData._lines[lastLine].length;
