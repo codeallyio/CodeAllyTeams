@@ -49,6 +49,7 @@ const terminal = {
   cwd: () => {
     let cwd = fs.readlinkSync("/proc/" + terminal.process.pid + "/cwd");
     terminal.logger({ type: "cwd", data: cwd });
+    return cwd;
   },
   initEvents: () => {
     // Handle Data
