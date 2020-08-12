@@ -59,12 +59,8 @@ const terminal = {
       writeEmitter.fire(
         response.length > 1 ? response.join("\r\n") : response[0]
       );
-      const locationString = writeLocation();
-      sendCommand(
-        response.length > 1
-          ? locationString + response.join("\r\n")
-          : locationString + response[0]
-      );
+      writeLocation();
+      sendCommand(response.length > 1 ? response.join("\r\n") : response[0]);
       terminal.logger({ type: "data", data: buffer });
     });
 
@@ -75,12 +71,8 @@ const terminal = {
       writeEmitter.fire(
         response.length > 1 ? response.join("\r\n") : response[0]
       );
-      const locationString = writeLocation();
-      sendCommand(
-        response.length > 1
-          ? locationString + response.join("\r\n")
-          : locationString + response[0]
-      );
+      writeLocation();
+      sendCommand(response.length > 1 ? response.join("\r\n") : response[0]);
       terminal.logger({ type: "error", data: buffer });
     });
 
@@ -99,7 +91,7 @@ const sendCommand = async (command) => {
       query: broadcastTerminalMutation,
       variables: {
         projectId: process.env.STROVE_PROJECT_ID || "123abc",
-        command,
+        command: checkLocation() + command,
       },
     };
 
@@ -131,6 +123,7 @@ const sendCommand = async (command) => {
 const broadcastTerminal = async () => {
   // const arrows = ["\u001b[C", "\u001b[B", "\u001b[D", "\u001b[A"];
   // Get hex codes from here if necessary: https://www.codetable.net/Group/arrows  -  may be usefull for ubuntu
+  // But those codes work for sure: https://www.novell.com/documentation/extend5/Docs/help/Composer/books/TelnetAppendixB.html
   try {
     terminal.initEvents();
     let line = "";
@@ -175,7 +168,9 @@ const broadcastTerminal = async () => {
               break;
             case "\u001b[A":
             case "\u001b[B":
-              // Necessary to disable up/down arrows
+            case "\u0009":
+            case "\u001bOP\u0009":
+              // Necessary to disable up/down arrows and tab (it breaks backspace button)
               break;
             case "\u001b[C":
               writeEmitter.fire("\x1b[C");
