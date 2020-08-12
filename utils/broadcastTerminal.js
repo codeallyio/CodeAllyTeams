@@ -189,8 +189,9 @@ const broadcastTerminal = async () => {
               writeEmitter.fire("\x1b[D");
               break;
             case "\u0003":
-              writeEmitter.fire("^C");
-              terminal.process.disconnect();
+              writeEmitter.fire("^C\r\n");
+              writeLocation();
+              terminal.process.kill();
               break;
             default:
               line += data;
