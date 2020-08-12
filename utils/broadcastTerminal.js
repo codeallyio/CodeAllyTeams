@@ -154,10 +154,10 @@ const broadcastTerminal = async () => {
                 terminal.send(line + "");
                 sendCommand(line);
               }
-              // const location = checkLocation();
-              // if (location !== CURRENT_LOCATION) {
-              writeLocation();
-              // }
+              const location = checkLocation();
+              if (location !== CURRENT_LOCATION || line === "") {
+                writeLocation();
+              }
 
               line = "";
               break;
