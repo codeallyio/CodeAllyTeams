@@ -56,6 +56,7 @@ const terminal = {
     terminal.process.stdout.on("data", (buffer) => {
       let response = buffer.toString("utf-8");
       response = response.split(/[\r\n\t]+/g);
+      if (response.length > 2) response.pop();
       writeEmitter.fire(
         response.length > 1 ? response.join("\r\n") : response[0]
       );
@@ -68,6 +69,7 @@ const terminal = {
     terminal.process.stderr.on("data", (buffer) => {
       let response = buffer.toString("utf-8");
       response = response.split(/[\r\n\t]+/g);
+      if (response.length > 2) response.pop();
       writeEmitter.fire(
         response.length > 1 ? response.join("\r\n") : response[0]
       );
@@ -87,17 +89,17 @@ const terminal = {
 
 const sendCommand = async (command) => {
   try {
-    const location = checkLocation();
+    // const location = checkLocation();
 
-    const locationString = `${USER_COLOR + "strove@" + fullName}:${
-      LOCATION_COLOR + `~/${location}` + NC
-    }$ `;
+    // const locationString = `${USER_COLOR + "strove@" + fullName}:${
+    //   LOCATION_COLOR + `~/${location}` + NC
+    // }$ `;
 
     const broadcastTerminalOperation = {
       query: broadcastTerminalMutation,
       variables: {
         projectId: process.env.STROVE_PROJECT_ID || "123abc",
-        command: locationString + command,
+        command: command,
       },
     };
 
@@ -139,6 +141,7 @@ const broadcastTerminal = async () => {
         writeEmitter.fire(
           "This terminal's window is being shared.\r\nPlease be sure to use it for any task related commands.\r\n"
         );
+        sendCommand(getLocationString());
         writeLocation();
       },
       close: () => {
@@ -152,11 +155,12 @@ const broadcastTerminal = async () => {
               writeEmitter.fire(`\r\n`);
               if (line && line.toString().length > 0) {
                 terminal.send(line + "");
-                sendCommand(line);
+                sendCommand(getLocationString() + line);
               }
               const location = checkLocation();
               if (location !== CURRENT_LOCATION || line === "") {
                 writeLocation();
+                sendCommand(getLocationString());
               }
 
               line = "";
@@ -183,6 +187,9 @@ const broadcastTerminal = async () => {
               break;
             case "\u001b[D":
               writeEmitter.fire("\x1b[D");
+              break;
+            case "\u0003":
+              writeEmitter.fire("^C");
               break;
             default:
               line += data;
@@ -236,6 +243,16 @@ const checkLocation = () => {
   const locationString = terminal.cwd();
   const locationArray = locationString.split("/");
   return locationArray[locationArray.length - 1];
+};
+
+const getLocationString = () => {
+  const location = checkLocation();
+
+  const locationString = `${USER_COLOR + "strove@" + fullName}:${
+    LOCATION_COLOR + `~/${location}` + NC
+  }$ `;
+
+  return locationString;
 };
 
 module.exports = {
