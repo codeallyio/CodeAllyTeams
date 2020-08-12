@@ -25,6 +25,15 @@ Sentry.init({
   normalizeDepth: 10,
 });
 
+const fullName = process.env.STROVE_USER_FULL_NAME || "Dranet";
+
+const LOCATION_COLOR = "\033[0;34m";
+const USER_COLOR = "\033[0;32m";
+
+const NC = "\033[0m";
+
+let CURRENT_LOCATION = "";
+
 // Create Interface
 const terminal = {
   process: child_process.spawn("/bin/sh"),
@@ -46,8 +55,15 @@ const terminal = {
     terminal.process.stdout.on("data", (buffer) => {
       let response = buffer.toString("utf-8");
       response = response.split(/[\r\n\t]+/g);
-      response.forEach((t) => writeEmitter.fire(`${t}\r\n`));
-      sendCommand(response.length > 1 ? response.join("\r\n") : response[0]);
+      writeEmitter.fire(
+        response.length > 1 ? response.join("\r\n") : response[0]
+      );
+      const locationString = writeLocation();
+      sendCommand(
+        response.length > 1
+          ? locationString + response.join("\r\n")
+          : locationString + response[0]
+      );
       terminal.logger({ type: "data", data: buffer });
     });
 
@@ -55,8 +71,15 @@ const terminal = {
     terminal.process.stderr.on("data", (buffer) => {
       let response = buffer.toString("utf-8");
       response = response.split(/[\r\n\t]+/g);
-      response.forEach((t) => writeEmitter.fire(`${t}\r\n`));
-      sendCommand(response.length > 1 ? response.join("\r\n") : response[0]);
+      writeEmitter.fire(
+        response.length > 1 ? response.join("\r\n") : response[0]
+      );
+      const locationString = writeLocation();
+      sendCommand(
+        response.length > 1
+          ? locationString + response.join("\r\n")
+          : locationString + response[0]
+      );
       terminal.logger({ type: "error", data: buffer });
     });
 
@@ -114,8 +137,9 @@ const broadcastTerminal = async () => {
       onDidWrite: writeEmitter.event,
       open: () => {
         writeEmitter.fire(
-          "This terminal's window is being shared.\r\nPlease be sure to use it for any task related commands.\r\n\r\n"
+          "This terminal's window is being shared.\r\nPlease be sure to use it for any task related commands.\r\n"
         );
+        writeLocation();
       },
       close: () => {
         /* noop */
@@ -125,10 +149,14 @@ const broadcastTerminal = async () => {
           switch (data) {
             case "\r":
               // Enter
-              writeEmitter.fire(`\r\n\r\n`);
+              writeEmitter.fire(`\r\n`);
               if (line && line.toString().length > 0) {
                 terminal.send(line + "");
                 sendCommand(line);
+              }
+              const location = checkLocation();
+              if (location !== CURRENT_LOCATION) {
+                writeLocation();
               }
 
               line = "";
@@ -187,6 +215,25 @@ const broadcastTerminal = async () => {
       Sentry.captureMessage("Unexpected error!");
     });
   }
+};
+
+const writeLocation = (location = checkLocation()) => {
+  CURRENT_LOCATION = location;
+
+  const locationString = `${USER_COLOR + "strove@" + fullName}:${
+    LOCATION_COLOR + `~/${location}` + NC
+  }$ `;
+
+  writeEmitter.fire(locationString);
+
+  return locationString;
+};
+
+const checkLocation = () => {
+  // const locationString = "/home/strove/project/strove.io";
+  const locationString = terminal.cwd();
+  const locationArray = locationString.split("/");
+  return locationArray[locationArray.length - 1];
 };
 
 module.exports = {
