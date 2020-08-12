@@ -56,11 +56,11 @@ const terminal = {
     terminal.process.stdout.on("data", (buffer) => {
       let response = buffer.toString("utf-8");
       response = response.split(/[\r\n\t]+/g);
-      if (response.length > 2) response.pop();
       writeEmitter.fire(
         response.length > 1 ? response.join("\r\n") : response[0]
       );
       writeLocation();
+      if (response.length > 2) response.pop();
       sendCommand(response.length > 1 ? response.join("\r\n") : response[0]);
       terminal.logger({ type: "data", data: buffer });
     });
@@ -69,11 +69,11 @@ const terminal = {
     terminal.process.stderr.on("data", (buffer) => {
       let response = buffer.toString("utf-8");
       response = response.split(/[\r\n\t]+/g);
-      if (response.length > 2) response.pop();
       writeEmitter.fire(
         response.length > 1 ? response.join("\r\n") : response[0]
       );
       writeLocation();
+      if (response.length > 2) response.pop();
       sendCommand(response.length > 1 ? response.join("\r\n") : response[0]);
       terminal.logger({ type: "error", data: buffer });
     });
@@ -190,6 +190,7 @@ const broadcastTerminal = async () => {
               break;
             case "\u0003":
               writeEmitter.fire("^C");
+              terminal.process.disconnect();
               break;
             default:
               line += data;
