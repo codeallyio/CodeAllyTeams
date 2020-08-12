@@ -87,11 +87,17 @@ const terminal = {
 
 const sendCommand = async (command) => {
   try {
+    const location = checkLocation();
+
+    const locationString = `${USER_COLOR + "strove@" + fullName}:${
+      LOCATION_COLOR + `~/${location}` + NC
+    }$ `;
+
     const broadcastTerminalOperation = {
       query: broadcastTerminalMutation,
       variables: {
         projectId: process.env.STROVE_PROJECT_ID || "123abc",
-        command: checkLocation() + command,
+        command: locationString + command,
       },
     };
 
@@ -148,10 +154,10 @@ const broadcastTerminal = async () => {
                 terminal.send(line + "");
                 sendCommand(line);
               }
-              const location = checkLocation();
-              if (location !== CURRENT_LOCATION) {
-                writeLocation();
-              }
+              // const location = checkLocation();
+              // if (location !== CURRENT_LOCATION) {
+              writeLocation();
+              // }
 
               line = "";
               break;
