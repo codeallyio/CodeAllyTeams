@@ -4,6 +4,8 @@ const fs = require("fs");
 const { websocketLink } = require("./websocketLink");
 const { execute, makePromise } = require("apollo-link");
 const Sentry = require("@sentry/node");
+const util = require("util");
+const exec = util.promisify(require("child_process").exec);
 
 const { broadcastTerminalMutation } = require("./queries");
 
@@ -50,6 +52,10 @@ const terminal = {
     let cwd = fs.readlinkSync("/proc/" + terminal.process.pid + "/cwd");
     terminal.logger({ type: "cwd", data: cwd });
     return cwd;
+  },
+  pid: () => {
+    terminal.logger({ type: "pid", data: terminal.process.pid });
+    return terminal.process.pid;
   },
   initEvents: () => {
     // Handle Data
@@ -191,7 +197,8 @@ const broadcastTerminal = async () => {
             case "\u0003":
               writeEmitter.fire("^C\r\n");
               writeLocation();
-              terminal.process.kill();
+              const { stdout } = await exec(`pgrep -P ${terminal.pid()}`);
+              await exec(`kill -2 ${stdout}`);
               break;
             default:
               line += data;
