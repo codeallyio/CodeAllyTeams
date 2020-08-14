@@ -27,7 +27,7 @@ Sentry.init({
   normalizeDepth: 10,
 });
 
-const fullName = process.env.STROVE_USER_FULL_NAME || "Dranet";
+const fullName = process.env.STROVE_USER_FULL_NAME || "Strove.io";
 
 const LOCATION_COLOR = "\033[0;34m";
 const USER_COLOR = "\033[0;32m";
@@ -238,9 +238,9 @@ const broadcastTerminal = async () => {
 const writeLocation = (location = checkLocation()) => {
   CURRENT_LOCATION = location;
 
-  const locationString = `${USER_COLOR + "strove@" + fullName}:${
-    LOCATION_COLOR + `~/${location}` + NC
-  }$ `;
+  const locationString = `${
+    USER_COLOR + "strove@" + fullName.replace(/\s+/g, "_")
+  }:${LOCATION_COLOR + `~/${location}` + NC}$ `;
 
   writeEmitter.fire(locationString);
 
