@@ -4,6 +4,8 @@ const fs = require("fs");
 const { websocketLink } = require("./websocketLink");
 const { execute, makePromise } = require("apollo-link");
 const Sentry = require("@sentry/node");
+const util = require("util");
+const exec = util.promisify(require("child_process").exec);
 
 const { broadcastTerminalMutation } = require("./queries");
 
@@ -25,6 +27,15 @@ Sentry.init({
   normalizeDepth: 10,
 });
 
+const fullName = process.env.STROVE_USER_FULL_NAME || "Strove.io";
+
+const LOCATION_COLOR = "\033[0;34m";
+const USER_COLOR = "\033[0;32m";
+
+const NC = "\033[0m";
+
+let CURRENT_LOCATION = "";
+
 // Create Interface
 const terminal = {
   process: child_process.spawn("/bin/sh"),
@@ -40,13 +51,22 @@ const terminal = {
   cwd: () => {
     let cwd = fs.readlinkSync("/proc/" + terminal.process.pid + "/cwd");
     terminal.logger({ type: "cwd", data: cwd });
+    return cwd;
+  },
+  pid: () => {
+    terminal.logger({ type: "pid", data: terminal.process.pid });
+    return terminal.process.pid;
   },
   initEvents: () => {
     // Handle Data
     terminal.process.stdout.on("data", (buffer) => {
       let response = buffer.toString("utf-8");
       response = response.split(/[\r\n\t]+/g);
-      response.forEach((t) => writeEmitter.fire(`${t}\r\n`));
+      writeEmitter.fire(
+        response.length > 1 ? response.join("\r\n") : response[0]
+      );
+      writeLocation();
+      if (response.length > 2) response.pop();
       sendCommand(response.length > 1 ? response.join("\r\n") : response[0]);
       terminal.logger({ type: "data", data: buffer });
     });
@@ -55,7 +75,11 @@ const terminal = {
     terminal.process.stderr.on("data", (buffer) => {
       let response = buffer.toString("utf-8");
       response = response.split(/[\r\n\t]+/g);
-      response.forEach((t) => writeEmitter.fire(`${t}\r\n`));
+      writeEmitter.fire(
+        response.length > 1 ? response.join("\r\n") : response[0]
+      );
+      writeLocation();
+      if (response.length > 2) response.pop();
       sendCommand(response.length > 1 ? response.join("\r\n") : response[0]);
       terminal.logger({ type: "error", data: buffer });
     });
@@ -71,11 +95,17 @@ const terminal = {
 
 const sendCommand = async (command) => {
   try {
+    // const location = checkLocation();
+
+    // const locationString = `${USER_COLOR + "strove@" + fullName}:${
+    //   LOCATION_COLOR + `~/${location}` + NC
+    // }$ `;
+
     const broadcastTerminalOperation = {
       query: broadcastTerminalMutation,
       variables: {
         projectId: process.env.STROVE_PROJECT_ID || "123abc",
-        command,
+        command: command,
       },
     };
 
@@ -107,6 +137,7 @@ const sendCommand = async (command) => {
 const broadcastTerminal = async () => {
   // const arrows = ["\u001b[C", "\u001b[B", "\u001b[D", "\u001b[A"];
   // Get hex codes from here if necessary: https://www.codetable.net/Group/arrows  -  may be usefull for ubuntu
+  // But those codes work for sure: https://www.novell.com/documentation/extend5/Docs/help/Composer/books/TelnetAppendixB.html
   try {
     terminal.initEvents();
     let line = "";
@@ -114,8 +145,10 @@ const broadcastTerminal = async () => {
       onDidWrite: writeEmitter.event,
       open: () => {
         writeEmitter.fire(
-          "This terminal's window is being shared.\r\nPlease be sure to use it for any task related commands.\r\n\r\n"
+          "This terminal's window is being shared.\r\nPlease be sure to use it for any task related commands.\r\n"
         );
+        sendCommand(getLocationString());
+        writeLocation();
       },
       close: () => {
         /* noop */
@@ -125,10 +158,15 @@ const broadcastTerminal = async () => {
           switch (data) {
             case "\r":
               // Enter
-              writeEmitter.fire(`\r\n\r\n`);
+              writeEmitter.fire(`\r\n`);
               if (line && line.toString().length > 0) {
                 terminal.send(line + "");
-                sendCommand(line);
+                sendCommand(getLocationString() + line);
+              }
+              const location = checkLocation();
+              if (location !== CURRENT_LOCATION || line === "") {
+                writeLocation();
+                sendCommand(getLocationString());
               }
 
               line = "";
@@ -146,13 +184,21 @@ const broadcastTerminal = async () => {
               break;
             case "\u001b[A":
             case "\u001b[B":
-              // Necessary to disable up/down arrows
+            case "\u0009":
+            case "\u001bOP\u0009":
+              // Necessary to disable up/down arrows and tab (it breaks backspace button)
               break;
             case "\u001b[C":
               writeEmitter.fire("\x1b[C");
               break;
             case "\u001b[D":
               writeEmitter.fire("\x1b[D");
+              break;
+            case "\u0003":
+              writeEmitter.fire("^C\r\n");
+              writeLocation();
+              const { stdout } = await exec(`pgrep -P ${terminal.pid()}`);
+              await exec(`kill -2 ${stdout}`);
               break;
             default:
               line += data;
@@ -187,6 +233,35 @@ const broadcastTerminal = async () => {
       Sentry.captureMessage("Unexpected error!");
     });
   }
+};
+
+const writeLocation = (location = checkLocation()) => {
+  CURRENT_LOCATION = location;
+
+  const locationString = `${
+    USER_COLOR + "strove@" + fullName.replace(/\s+/g, "_")
+  }:${LOCATION_COLOR + `~/${location}` + NC}$ `;
+
+  writeEmitter.fire(locationString);
+
+  return locationString;
+};
+
+const checkLocation = () => {
+  // const locationString = "/home/strove/project/strove.io";
+  const locationString = terminal.cwd();
+  const locationArray = locationString.split("/");
+  return locationArray[locationArray.length - 1];
+};
+
+const getLocationString = () => {
+  const location = checkLocation();
+
+  const locationString = `${USER_COLOR + "strove@" + fullName}:${
+    LOCATION_COLOR + `~/${location}` + NC
+  }$ `;
+
+  return locationString;
 };
 
 module.exports = {

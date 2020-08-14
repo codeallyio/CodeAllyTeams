@@ -39,7 +39,7 @@ const receiveTerminal = async () => {
           data: { receiveTerminal },
         } = data;
 
-        writeEmitter.fire(`${receiveTerminal}\r\n\r\n`);
+        writeEmitter.fire(`${receiveTerminal}\r\n`);
       },
       error: (error) => {
         console.log(
@@ -61,7 +61,7 @@ const receiveTerminal = async () => {
       onDidWrite: writeEmitter.event,
       open: () => {
         writeEmitter.fire(
-          `Welcome to strove!\n\rHere's preview of a candidate's terminal:\n\r\n\r`
+          `Welcome to strove!\n\rHere's preview of a candidate's terminal:\n\r`
         );
       },
       close: () => {
