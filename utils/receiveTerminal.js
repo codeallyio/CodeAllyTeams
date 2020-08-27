@@ -1,10 +1,11 @@
 const vscode = require("vscode");
-const writeEmitter = new vscode.EventEmitter();
 const Sentry = require("@sentry/node");
 const { execute } = require("apollo-link");
 
 const { websocketLink } = require("./websocketLink");
 const { receiveTerminalSubscription } = require("./queries");
+
+const writeEmitter = new vscode.EventEmitter();
 
 const environment = process.env.STROVE_ENVIRONMENT;
 
@@ -23,6 +24,8 @@ Sentry.init({
 
 const receiveTerminal = async () => {
   try {
+    let pty;
+
     const receiveTerminalOperation = {
       query: receiveTerminalSubscription,
       variables: {
@@ -34,10 +37,19 @@ const receiveTerminal = async () => {
       websocketLink,
       receiveTerminalOperation
     ).subscribe({
-      next: (data) => {
+      next: async (data) => {
         const {
           data: { receiveTerminal },
         } = data;
+
+        if (receiveTerminal === "strove_receive_init_ping") {
+          const receivingTerminal = vscode.window.createTerminal({
+            name: `Candidate's preview`,
+            pty,
+          });
+
+          await receivingTerminal.show();
+        }
 
         writeEmitter.fire(`${receiveTerminal}\r\n`);
       },
@@ -57,7 +69,7 @@ const receiveTerminal = async () => {
       complete: () => console.log(`complete`),
     });
 
-    const pty = {
+    pty = {
       onDidWrite: writeEmitter.event,
       open: () => {
         writeEmitter.fire(
@@ -72,13 +84,6 @@ const receiveTerminal = async () => {
         return;
       },
     };
-
-    const receivingTerminal = vscode.window.createTerminal({
-      name: `Candidate's preview`,
-      pty,
-    });
-
-    receivingTerminal.show();
   } catch (e) {
     console.log("error in receiveTerminal: ", e);
     Sentry.withScope((scope) => {
