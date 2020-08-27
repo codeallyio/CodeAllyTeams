@@ -9,8 +9,6 @@ const writeEmitter = new vscode.EventEmitter();
 
 const environment = process.env.STROVE_ENVIRONMENT;
 
-let isTerminalVisible = false;
-
 Sentry.init({
   beforeSend(event) {
     if (environment === "production") {
@@ -44,15 +42,13 @@ const receiveTerminal = async () => {
           data: { receiveTerminal },
         } = data;
 
-        if (!isTerminalVisible) {
+        if (receiveTerminal === "strove_receive_init_ping") {
           const receivingTerminal = vscode.window.createTerminal({
             name: `Candidate's preview`,
             pty,
           });
 
           await receivingTerminal.show();
-
-          isTerminalVisible = true;
         }
 
         writeEmitter.fire(`${receiveTerminal}\r\n`);
