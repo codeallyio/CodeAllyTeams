@@ -51,6 +51,8 @@ const receiveTerminal = async () => {
           });
 
           receivingTerminal.show();
+
+          isTerminalVisible = true;
         }
 
         writeEmitter.fire(`${receiveTerminal}\r\n`);
