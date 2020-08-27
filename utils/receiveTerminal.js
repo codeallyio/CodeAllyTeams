@@ -39,7 +39,7 @@ const receiveTerminal = async () => {
       websocketLink,
       receiveTerminalOperation
     ).subscribe({
-      next: (data) => {
+      next: async (data) => {
         const {
           data: { receiveTerminal },
         } = data;
@@ -50,7 +50,7 @@ const receiveTerminal = async () => {
             pty,
           });
 
-          receivingTerminal.show();
+          await receivingTerminal.show();
 
           isTerminalVisible = true;
         }
