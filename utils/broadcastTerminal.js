@@ -36,6 +36,8 @@ const NC = "\033[0m";
 
 let CURRENT_LOCATION = "";
 
+let TERMINAL_OPEN = false;
+
 // Create Interface
 const terminal = {
   process: child_process.spawn("/bin/sh"),
@@ -144,6 +146,7 @@ const broadcastTerminal = async () => {
     const pty = {
       onDidWrite: writeEmitter.event,
       open: () => {
+        TERMINAL_OPEN = true;
         writeEmitter.fire(
           "This terminal's window is being shared.\r\nPlease be sure to use it for any task related commands.\r\n"
         );
@@ -152,6 +155,7 @@ const broadcastTerminal = async () => {
       },
       close: () => {
         /* noop */
+        TERMINAL_OPEN = false;
       },
       handleInput: async (data) => {
         try {
@@ -217,12 +221,19 @@ const broadcastTerminal = async () => {
       },
     };
 
-    const displayTerminal = vscode.window.createTerminal({
+    const displayTerminal = await vscode.window.createTerminal({
       name: `Shared terminal`,
       pty,
     });
 
-    displayTerminal.show();
+    while (!TERMINAL_OPEN) {
+      displayTerminal.show();
+      await new Promise((resolve) =>
+        setTimeout(() => {
+          resolve();
+        }, 500)
+      );
+    }
   } catch (e) {
     console.log("error in handleTerminal: ", e);
     Sentry.withScope((scope) => {
