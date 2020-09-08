@@ -14,10 +14,10 @@ let STARTING_TERMINAL = false;
 
 Sentry.init({
   beforeSend(event) {
-    // if (environment === "production") {
-    return event;
-    // }
-    // return null;
+    if (environment === "production") {
+      return event;
+    }
+    return null;
   },
   dsn:
     "https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294",
@@ -35,35 +35,26 @@ const readTerminal = async () => {
         projectId: process.env.STROVE_PROJECT_ID || "123abc",
       },
     };
-    Sentry.captureMessage("3");
+
     receiveTerminalSubscriber = execute(
       websocketLink,
       receiveTerminalOperation
     ).subscribe({
       next: async (data) => {
-        Sentry.captureMessage("4");
         try {
           const {
             data: { receiveTerminal },
           } = data;
-          Sentry.captureMessage(
-            `5 ${
-              receiveTerminal === "strove_receive_init_ping" &&
-              !STARTING_TERMINAL
-            }`
-          );
+
           if (
             receiveTerminal === "strove_receive_init_ping" &&
             !STARTING_TERMINAL
           ) {
-            Sentry.captureMessage(`6`);
             STARTING_TERMINAL = true;
 
             terminal = vscode.window.createTerminal("Candidate's preview");
 
             let whileCounter = 0;
-
-            Sentry.captureMessage("Tu pioter, zignoruj");
 
             while (STARTING_TERMINAL) {
               let response;
@@ -122,7 +113,6 @@ const readTerminal = async () => {
       },
       complete: () => console.log(`complete`),
     });
-    Sentry.captureMessage("7");
   } catch (e) {
     console.log("error in readTerminal: ", e);
     Sentry.withScope((scope) => {

@@ -11,8 +11,6 @@ const {
 } = require("./utils/queries");
 const { handleLiveshareResponse } = require("./utils/handleLiveshareResponse");
 const { handleFocusEditor } = require("./utils/handleFocusEditor");
-const { broadcastTerminal } = require("./utils/broadcastTerminal");
-const { receiveTerminal } = require("./utils/receiveTerminal");
 const { websocketLink } = require("./utils/websocketLink");
 const {
   readTerminal,
@@ -24,10 +22,10 @@ const userType = process.env.STROVE_USER_TYPE;
 
 Sentry.init({
   beforeSend(event) {
-    // if (environment === "production") {
-    return event;
-    // }
-    // return null;
+    if (environment === "production") {
+      return event;
+    }
+    return null;
   },
   dsn:
     "https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294",
@@ -175,16 +173,8 @@ async function activate(context) {
       redirectedTerminal.sendText("clear");
 
       await redirectedTerminal.show();
-    } else if (true) {
-      // receiveTerminal();
+    } else if (userType === "hiring") {
       readTerminal();
-      // const getTerminal = vscode.window.createTerminal("Candidate's preview");
-
-      // await getTerminal.sendText("touch /home/strove/.local/output.txt");
-
-      // await getTerminal.sendText("tail -q -f /home/strove/.local/output.txt");
-
-      // await getTerminal.show();
     }
   } catch (error) {
     console.log(`received error in activate ${error}`);
