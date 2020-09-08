@@ -175,7 +175,7 @@ async function activate(context) {
       redirectedTerminal.sendText("clear");
 
       await redirectedTerminal.show();
-    } else if (userType === "hiring") {
+    } else if (true) {
       // receiveTerminal();
       readTerminal();
     }
