@@ -52,7 +52,10 @@ const readTerminal = async () => {
               !STARTING_TERMINAL
             }`
           );
-          if (receiveTerminal === "strove_receive_init_ping") {
+          if (
+            receiveTerminal === "strove_receive_init_ping" &&
+            !STARTING_TERMINAL
+          ) {
             Sentry.captureMessage(`6`);
             STARTING_TERMINAL = true;
 
