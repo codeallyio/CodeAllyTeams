@@ -172,6 +172,8 @@ async function activate(context) {
         "script -q -f /home/strove/.local/output.txt"
       );
 
+      redirectedTerminal.sendText("clear");
+
       await redirectedTerminal.show();
     } else if (userType === "hiring") {
       // receiveTerminal();
