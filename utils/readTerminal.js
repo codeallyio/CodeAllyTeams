@@ -41,77 +41,64 @@ const readTerminal = async () => {
       receiveTerminalOperation
     ).subscribe({
       next: async (data) => {
-        const {
-          data: { receiveTerminal },
-        } = data;
+        try {
+          const {
+            data: { receiveTerminal },
+          } = data;
 
-        if (receiveTerminal === "strove_receive_init_ping") {
-          readTerminal = vscode.window.createTerminal("Candidate's preview");
+          if (
+            receiveTerminal === "strove_receive_init_ping" &&
+            !STARTING_TERMINAL
+          ) {
+            STARTING_TERMINAL = true;
 
-          await readTerminal.sendText(
-            "touch /home/strove/.local/output.txt && tail -q -f /home/strove/.local/output.txt"
-          );
+            readTerminal = vscode.window.createTerminal("Candidate's preview");
 
-          await readTerminal.show();
+            let whileCounter = 0;
+
+            Sentry.captureMessage("Tu pioter, zignoruj");
+
+            while (STARTING_TERMINAL) {
+              let response;
+              try {
+                response = await exec(
+                  `find /home/strove/.local -maxdepth 2 -name "output.txt" -print -quit`
+                );
+              } catch (e) {
+                response = null;
+                Sentry.captureMessage(`First error: ${e}`);
+              }
+
+              whileCounter++;
+
+              await new Promise((resolve) =>
+                setTimeout(() => {
+                  resolve();
+                }, 500)
+              );
+
+              if (response && response.stdout) {
+                await readTerminal.sendText(
+                  "tail -q -f /home/strove/.local/output.txt"
+                );
+
+                await readTerminal.show();
+
+                STARTING_TERMINAL = false;
+              } else if (whileCounter >= 20) {
+                await readTerminal.sendText(
+                  `echo "Error happened with terminal sharing. Try refreshing."`
+                );
+
+                await readTerminal.show();
+
+                STARTING_TERMINAL = false;
+              }
+            }
+          }
+        } catch (e) {
+          Sentry.captureMessage(`Second error: ${e}`);
         }
-        // try {
-        //   const {
-        //     data: { receiveTerminal },
-        //   } = data;
-
-        //   if (
-        //     receiveTerminal === "strove_receive_init_ping" &&
-        //     !STARTING_TERMINAL
-        //   ) {
-        //     STARTING_TERMINAL = true;
-
-        //     readTerminal = vscode.window.createTerminal("Candidate's preview");
-
-        //     let whileCounter = 0;
-
-        //     Sentry.captureMessage("Tu pioter, zignoruj");
-
-        //     while (STARTING_TERMINAL) {
-        //       let response;
-        //       try {
-        //         response = await exec(
-        //           `find /home/strove/.local -maxdepth 2 -name "output.txt" -print -quit`
-        //         );
-        //       } catch (e) {
-        //         response = null;
-        //         Sentry.captureMessage(`First error: ${e}`);
-        //       }
-
-        //       whileCounter++;
-
-        //       await new Promise((resolve) =>
-        //         setTimeout(() => {
-        //           resolve();
-        //         }, 500)
-        //       );
-
-        //       if (response && response.stdout) {
-        //         await readTerminal.sendText(
-        //           "tail -q -f /home/strove/.local/output.txt"
-        //         );
-
-        //         await readTerminal.show();
-
-        //         STARTING_TERMINAL = false;
-        //       } else if (whileCounter >= 20) {
-        //         await readTerminal.sendText(
-        //           `echo "Error happened with terminal sharing. Try refreshing."`
-        //         );
-
-        //         await readTerminal.show();
-
-        //         STARTING_TERMINAL = false;
-        //       }
-        //     }
-        //   }
-        // } catch (e) {
-        //   Sentry.captureMessage(`Second error: ${e}`);
-        // }
       },
       error: (error) => {
         console.log(
