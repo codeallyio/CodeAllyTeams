@@ -27,9 +27,8 @@ Sentry.init({
 
 const readTerminal = async () => {
   try {
-    Sentry.captureMessage("Tu inny pioter, tez zignoruj");
     let terminal = null;
-    Sentry.captureMessage("2");
+
     const receiveTerminalOperation = {
       query: receiveTerminalSubscription,
       variables: {
