@@ -56,9 +56,14 @@ const readTerminal = async () => {
           let whileCounter = 0;
 
           while (STARTING_TERMINAL) {
-            const response = await exec(
-              `find /home/strove/.local -maxdepth 2 -name "output.txt" -print -quit`
-            );
+            let response;
+            try {
+              response = await exec(
+                `find /home/strove/.local -maxdepth 2 -name "output.txt" -print -quit`
+              );
+            } catch (e) {
+              response = null;
+            }
 
             whileCounter++;
 
@@ -78,7 +83,7 @@ const readTerminal = async () => {
               STARTING_TERMINAL = false;
             } else if (whileCounter >= 20) {
               await readTerminal.sendText(
-                `echo "Error happened with terminal sharing. Try refreshing!"`
+                `echo "Error happened with terminal sharing. Try refreshing."`
               );
 
               await readTerminal.show();
