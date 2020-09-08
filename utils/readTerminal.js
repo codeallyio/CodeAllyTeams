@@ -28,32 +28,39 @@ Sentry.init({
 const readTerminal = async () => {
   try {
     Sentry.captureMessage("Tu inny pioter, tez zignoruj");
-    let readTerminal = null;
-
+    let terminal = null;
+    Sentry.captureMessage("2");
     const receiveTerminalOperation = {
       query: receiveTerminalSubscription,
       variables: {
         projectId: process.env.STROVE_PROJECT_ID || "123abc",
       },
     };
-
+    Sentry.captureMessage("3");
     receiveTerminalSubscriber = execute(
       websocketLink,
       receiveTerminalOperation
     ).subscribe({
       next: async (data) => {
+        Sentry.captureMessage("4");
         try {
           const {
             data: { receiveTerminal },
           } = data;
-
+          Sentry.captureMessage(
+            `5 ${
+              receiveTerminal === "strove_receive_init_ping" &&
+              !STARTING_TERMINAL
+            }`
+          );
           if (
             receiveTerminal === "strove_receive_init_ping" &&
             !STARTING_TERMINAL
           ) {
+            Sentry.captureMessage(`6`);
             STARTING_TERMINAL = true;
 
-            readTerminal = vscode.window.createTerminal("Candidate's preview");
+            terminal = vscode.window.createTerminal("Candidate's preview");
 
             let whileCounter = 0;
 
@@ -79,19 +86,19 @@ const readTerminal = async () => {
               );
 
               if (response && response.stdout) {
-                await readTerminal.sendText(
+                await terminal.sendText(
                   "tail -q -f /home/strove/.local/output.txt"
                 );
 
-                await readTerminal.show();
+                await terminal.show();
 
                 STARTING_TERMINAL = false;
               } else if (whileCounter >= 20) {
-                await readTerminal.sendText(
+                await terminal.sendText(
                   `echo "Error happened with terminal sharing. Try refreshing."`
                 );
 
-                await readTerminal.show();
+                await terminal.show();
 
                 STARTING_TERMINAL = false;
               }
@@ -116,6 +123,7 @@ const readTerminal = async () => {
       },
       complete: () => console.log(`complete`),
     });
+    Sentry.captureMessage("7");
   } catch (e) {
     console.log("error in readTerminal: ", e);
     Sentry.withScope((scope) => {
