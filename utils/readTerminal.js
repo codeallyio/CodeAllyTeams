@@ -14,10 +14,10 @@ let STARTING_TERMINAL = false;
 
 Sentry.init({
   beforeSend(event) {
-    if (environment === "production") {
-      return event;
-    }
-    return null;
+    // if (environment === "production") {
+    return event;
+    // }
+    // return null;
   },
   dsn:
     "https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294",
@@ -41,56 +41,63 @@ const readTerminal = async () => {
       receiveTerminalOperation
     ).subscribe({
       next: async (data) => {
-        const {
-          data: { receiveTerminal },
-        } = data;
+        try {
+          const {
+            data: { receiveTerminal },
+          } = data;
 
-        if (
-          receiveTerminal === "strove_receive_init_ping" &&
-          !STARTING_TERMINAL
-        ) {
-          STARTING_TERMINAL = true;
+          if (
+            receiveTerminal === "strove_receive_init_ping" &&
+            !STARTING_TERMINAL
+          ) {
+            STARTING_TERMINAL = true;
 
-          readTerminal = vscode.window.createTerminal("Candidate's preview");
+            readTerminal = vscode.window.createTerminal("Candidate's preview");
 
-          let whileCounter = 0;
+            let whileCounter = 0;
 
-          while (STARTING_TERMINAL) {
-            let response;
-            try {
-              response = await exec(
-                `find /home/strove/.local -maxdepth 2 -name "output.txt" -print -quit`
-              );
-            } catch (e) {
-              response = null;
-            }
+            Sentry.captureMessage("Tu pioter, zignoruj");
 
-            whileCounter++;
+            while (STARTING_TERMINAL) {
+              let response;
+              try {
+                response = await exec(
+                  `find /home/strove/.local -maxdepth 2 -name "output.txt" -print -quit`
+                );
+              } catch (e) {
+                response = null;
+                Sentry.captureMessage(`First error: ${e}`);
+              }
 
-            await new Promise((resolve) =>
-              setTimeout(() => {
-                resolve();
-              }, 500)
-            );
+              whileCounter++;
 
-            if (response && response.stdout) {
-              await readTerminal.sendText(
-                "tail -q -f /home/strove/.local/output.txt"
-              );
-
-              await readTerminal.show();
-
-              STARTING_TERMINAL = false;
-            } else if (whileCounter >= 20) {
-              await readTerminal.sendText(
-                `echo "Error happened with terminal sharing. Try refreshing."`
+              await new Promise((resolve) =>
+                setTimeout(() => {
+                  resolve();
+                }, 500)
               );
 
-              await readTerminal.show();
+              if (response && response.stdout) {
+                await readTerminal.sendText(
+                  "tail -q -f /home/strove/.local/output.txt"
+                );
 
-              STARTING_TERMINAL = false;
+                await readTerminal.show();
+
+                STARTING_TERMINAL = false;
+              } else if (whileCounter >= 20) {
+                await readTerminal.sendText(
+                  `echo "Error happened with terminal sharing. Try refreshing."`
+                );
+
+                await readTerminal.show();
+
+                STARTING_TERMINAL = false;
+              }
             }
           }
+        } catch (e) {
+          Sentry.captureMessage(`Second error: ${e}`);
         }
       },
       error: (error) => {
