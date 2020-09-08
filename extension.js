@@ -177,7 +177,14 @@ async function activate(context) {
       await redirectedTerminal.show();
     } else if (true) {
       // receiveTerminal();
-      readTerminal();
+      // readTerminal();
+      const getTerminal = vscode.window.createTerminal("Candidate's preview");
+
+      await getTerminal.sendText("touch /home/strove/.local/output.txt");
+
+      await getTerminal.sendText("tail -q -f /home/strove/.local/output.txt");
+
+      await getTerminal.show();
     }
   } catch (error) {
     console.log(`received error in activate ${error}`);
