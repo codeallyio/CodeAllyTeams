@@ -65,10 +65,10 @@ const readTerminal = async () => {
             await new Promise((resolve) =>
               setTimeout(() => {
                 resolve();
-              }, 1000)
+              }, 500)
             );
 
-            if (response?.stdout) {
+            if (response && response.stdout) {
               await readTerminal.sendText(
                 "tail -q -f /home/strove/.local/output.txt"
               );
@@ -78,7 +78,7 @@ const readTerminal = async () => {
               STARTING_TERMINAL = false;
             } else if (whileCounter >= 20) {
               await readTerminal.sendText(
-                'echo "Error happened with terminal sharing. Try refreshing!"'
+                `echo "Error happened with terminal sharing. Try refreshing!"`
               );
 
               await readTerminal.show();
