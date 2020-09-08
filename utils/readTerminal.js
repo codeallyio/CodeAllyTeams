@@ -10,7 +10,6 @@ const { receiveTerminalSubscription } = require("./queries");
 const environment = process.env.STROVE_ENVIRONMENT;
 
 let receiveTerminalSubscriber = null;
-let SEARCH_COUNTER = 0;
 let STARTING_TERMINAL = false;
 
 Sentry.init({
@@ -52,25 +51,40 @@ const readTerminal = async () => {
         ) {
           STARTING_TERMINAL = true;
 
-          const ready = await checkFile();
+          readTerminal = vscode.window.createTerminal("Candidate's preview");
 
-          if (ready) {
-            readTerminal = vscode.window.createTerminal("Candidate's preview");
+          let whileCounter = 0;
 
-            await readTerminal.sendText(
-              "tail -q -f /home/strove/.local/output.txt"
+          while (STARTING_TERMINAL) {
+            const response = await exec(
+              `find /home/strove/.local -maxdepth 2 -name "output.txt" -print -quit`
             );
 
-            // Just a test
-            // await new Promise((resolve) =>
-            //   setTimeout(() => {
-            //     resolve();
-            //   }, 1000)
-            // );
+            whileCounter++;
 
-            await readTerminal.show();
+            await new Promise((resolve) =>
+              setTimeout(() => {
+                resolve();
+              }, 500)
+            );
 
-            STARTING_TERMINAL = false;
+            if (response?.stdout) {
+              await readTerminal.sendText(
+                "tail -q -f /home/strove/.local/output.txt"
+              );
+
+              await readTerminal.show();
+
+              STARTING_TERMINAL = false;
+            } else if (whileCounter >= 20) {
+              await readTerminal.sendText(
+                'echo "Error happened with terminal sharing. Try refreshing!"'
+              );
+
+              await readTerminal.show();
+
+              STARTING_TERMINAL = false;
+            }
           }
         }
       },
@@ -98,52 +112,6 @@ const readTerminal = async () => {
       });
       Sentry.captureMessage("Unexpected error!");
     });
-  }
-};
-
-// This function makes sure that there is a file to trail
-// It also retires up to 10 times if something goes wrong
-const checkFile = async () => {
-  try {
-    let fileFound = false;
-    let searchFlag = true;
-    let whileCounter = 0;
-
-    while (searchFlag) {
-      const response = await exec(
-        `find /home/strove/.local -maxdepth 2 -name "output.txt" -print -quit`
-      );
-
-      if (response?.stdout) {
-        fileFound = true;
-        searchFlag = false;
-      } else if (whileCounter >= 20) {
-        fileFound = false;
-        searchFlag = false;
-      }
-
-      whileCounter++;
-
-      await new Promise((resolve) =>
-        setTimeout(() => {
-          resolve();
-        }, 500)
-      );
-    }
-
-    return fileFound;
-  } catch (e) {
-    if (SEARCH_COUNTER >= 10) return false;
-    SEARCH_COUNTER++;
-    console.log("error in checkFile: ", e);
-    Sentry.withScope((scope) => {
-      scope.setExtras({
-        data: { error: e },
-        location: "readTerminal -> checkFile",
-      });
-      Sentry.captureMessage("Unexpected error!");
-    });
-    return checkFile();
   }
 };
 
