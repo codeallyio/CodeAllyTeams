@@ -65,7 +65,7 @@ const readTerminal = async () => {
             await new Promise((resolve) =>
               setTimeout(() => {
                 resolve();
-              }, 500)
+              }, 1000)
             );
 
             if (response?.stdout) {
