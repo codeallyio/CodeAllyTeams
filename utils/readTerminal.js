@@ -11,6 +11,7 @@ const environment = process.env.STROVE_ENVIRONMENT;
 
 let receiveTerminalSubscriber = null;
 let STARTING_TERMINAL = false;
+let TERMINAL_ACTIVE = false;
 
 Sentry.init({
   beforeSend(event) {
@@ -48,7 +49,8 @@ const readTerminal = async () => {
 
           if (
             receiveTerminal === "strove_receive_init_ping" &&
-            !STARTING_TERMINAL
+            !STARTING_TERMINAL &&
+            !TERMINAL_ACTIVE
           ) {
             STARTING_TERMINAL = true;
 
@@ -83,6 +85,7 @@ const readTerminal = async () => {
                 await terminal.show();
 
                 STARTING_TERMINAL = false;
+                TERMINAL_ACTIVE = true;
               } else if (whileCounter >= 20) {
                 await terminal.sendText(
                   `echo "Error happened with terminal sharing. Try refreshing."`
