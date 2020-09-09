@@ -11,9 +11,11 @@ const {
 } = require("./utils/queries");
 const { handleLiveshareResponse } = require("./utils/handleLiveshareResponse");
 const { handleFocusEditor } = require("./utils/handleFocusEditor");
-const { broadcastTerminal } = require("./utils/broadcastTerminal");
-const { receiveTerminal } = require("./utils/receiveTerminal");
 const { websocketLink } = require("./utils/websocketLink");
+const {
+  readTerminal,
+  receiveTerminalSubscriber,
+} = require("./utils/readTerminal");
 
 const environment = process.env.STROVE_ENVIRONMENT;
 const userType = process.env.STROVE_USER_TYPE;
@@ -156,12 +158,23 @@ async function activate(context) {
     if (environment === "local" || !environment) {
       terminal.sendText(process.env.STROVE_INIT_COMMAND || "yarn start");
     }
-    terminal.show();
+    await terminal.show();
 
     if (userType === "guest") {
-      broadcastTerminal();
+      //   broadcastTerminal();
+      const redirectedTerminal = vscode.window.createTerminal(
+        "Shared terminal"
+      );
+
+      redirectedTerminal.sendText(
+        "script -q -f /home/strove/.local/output.txt"
+      );
+
+      redirectedTerminal.sendText("clear");
+
+      await redirectedTerminal.show();
     } else if (userType === "hiring") {
-      receiveTerminal();
+      readTerminal();
     }
   } catch (error) {
     console.log(`received error in activate ${error}`);
@@ -266,6 +279,7 @@ const focusEditorSubscriber = execute(
 function deactivate() {
   liveshareSubscriber.unsubscribe();
   focusEditorSubscriber.unsubscribe();
+  receiveTerminalSubscriber.unsubscribe();
 }
 
 exports.activate = activate;
