@@ -98,7 +98,19 @@ const readTerminal = async () => {
             }
           }
         } catch (e) {
-          Sentry.captureMessage(`Second error: ${e}`);
+          console.log(
+            `received error in readTerminal -> receiveTerminalSubscriber -> next ${JSON.stringify(
+              e
+            )}`
+          );
+
+          Sentry.withScope((scope) => {
+            scope.setExtras({
+              data: receiveTerminalOperation,
+              location: "readTerminal -> receiveTerminalSubscriber -> next",
+            });
+            Sentry.captureException(e);
+          });
         }
       },
       error: (error) => {
