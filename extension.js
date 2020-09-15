@@ -16,6 +16,10 @@ const {
   readTerminal,
   receiveTerminalSubscriber,
 } = require("./utils/readTerminal");
+const {
+  manageTerminalSharing,
+  manageTerminalSubscriber,
+} = require("./utils/manageTerminalSharing");
 
 const environment = process.env.STROVE_ENVIRONMENT;
 const userType = process.env.STROVE_USER_TYPE;
@@ -175,6 +179,8 @@ async function activate(context) {
       await redirectedTerminal.show();
     } else if (userType === "hiring") {
       readTerminal();
+    } else {
+      manageTerminalSharing();
     }
   } catch (error) {
     console.log(`received error in activate ${error}`);
@@ -280,6 +286,7 @@ function deactivate() {
   liveshareSubscriber.unsubscribe();
   focusEditorSubscriber.unsubscribe();
   receiveTerminalSubscriber.unsubscribe();
+  manageTerminalSubscriber.unsubscribe();
 }
 
 exports.activate = activate;
