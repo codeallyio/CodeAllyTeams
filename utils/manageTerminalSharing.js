@@ -68,7 +68,7 @@ const manageTerminalSharing = () => {
             `${memberName}'s preview`
           );
 
-          if (response && response.stdout) {
+          if (response && !response.stderr) {
             await terminal.sendText(
               `tail -q -f /home/strove/.local/output_id_${memberId}.txt`
             );
