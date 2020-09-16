@@ -26,10 +26,10 @@ const userType = process.env.STROVE_USER_TYPE;
 
 Sentry.init({
   beforeSend(event) {
-    // if (environment === "production") {
-    return event;
-    // }
-    // return null;
+    if (environment === "production") {
+      return event;
+    }
+    return null;
   },
   dsn:
     "https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294",
