@@ -41,6 +41,8 @@ const manageTerminalSharing = () => {
 
   redirectedTerminal.sendText("clear");
 
+  redirectedTerminal.show();
+
   // Start terminal if ping arrives
   manageTerminalSubscriber = execute(
     websocketLink,
