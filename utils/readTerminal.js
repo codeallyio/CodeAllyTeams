@@ -88,7 +88,7 @@ const readTerminal = async () => {
                 TERMINAL_ACTIVE = true;
               } else if (whileCounter >= 20) {
                 await terminal.sendText(
-                  `echo "Error happened with terminal sharing. Try refreshing."`
+                  `echo "Error happened during terminal sharing. Try refreshing."`
                 );
 
                 await terminal.show();
