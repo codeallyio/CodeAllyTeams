@@ -32,16 +32,16 @@ const receiveTerminalOperation = {
 let manageTerminalSubscriber = null;
 
 const manageTerminalSharing = () => {
-  // Start braodcasting terminal for everyone
-  const redirectedTerminal = vscode.window.createTerminal("Shared terminal");
+  // Create new terminal with test results
+//   const redirectedTerminal = vscode.window.createTerminal("Test output");
 
-  redirectedTerminal.sendText(
-    `script -q -f /home/strove/.local/output_id_${userId}.txt`
-  );
+//   redirectedTerminal.sendText(
+//     `script -q -f /home/strove/.local/output_id_${userId}.txt`
+//   );
 
-  redirectedTerminal.sendText("clear");
+//   redirectedTerminal.sendText("clear");
 
-  redirectedTerminal.show();
+//   redirectedTerminal.show();
 
   // Start terminal if ping arrives
   manageTerminalSubscriber = execute(
@@ -51,26 +51,26 @@ const manageTerminalSharing = () => {
     next: async (data) => {
       try {
         const {
-          data: { receiveTerminal },
+          data: { automaticTest },
         } = data;
 
         if (
-          receiveTerminal &&
-          receiveTerminal.includes("strove_dev_terminal_init")
+            automaticTest &&
+            automaticTest.includes("strove_receive_automatic_test_ping")
         ) {
-          const [, , , , memberId, memberName] = receiveTerminal.split("_");
+          const [, , , , memberId, memberName] = automaticTest.split("_");
 
           const response = await exec(
-            `touch /home/strove/.local/output_id_${memberId}.txt`
+            `touch /home/strove/.local/testOutput_id_${memberId}.txt`
           );
 
           const terminal = vscode.window.createTerminal(
-            `${memberName}'s preview`
+            `${memberName}'s test output`
           );
 
           if (response && !response.stderr) {
             await terminal.sendText(
-              `tail -q -f /home/strove/.local/output_id_${memberId}.txt`
+              `tail -q -f /home/strove/.local/testOutput_id_${memberId}.txt`
             );
 
             await terminal.show();
