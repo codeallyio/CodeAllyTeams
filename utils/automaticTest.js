@@ -31,17 +31,17 @@ const receiveTerminalOperation = {
 
 let manageTerminalSubscriber = null;
 
-const manageTerminalSharing = () => {
+const startAutomaticTest = () => {
   // Create new terminal with test results
-//   const redirectedTerminal = vscode.window.createTerminal("Test output");
+  const redirectedTerminal = vscode.window.createTerminal("Test output");
 
-//   redirectedTerminal.sendText(
-//     `script -q -f /home/strove/.local/output_id_${userId}.txt`
-//   );
+  redirectedTerminal.sendText(
+    `script -q -f /home/strove/.local/output_id_${userId}.txt`
+  );
 
-//   redirectedTerminal.sendText("clear");
+  redirectedTerminal.sendText("clear");
 
-//   redirectedTerminal.show();
+  redirectedTerminal.show();
 
   // Start terminal if ping arrives
   manageTerminalSubscriber = execute(
@@ -55,8 +55,8 @@ const manageTerminalSharing = () => {
         } = data;
 
         if (
-            automaticTest &&
-            automaticTest.includes("strove_receive_automatic_test_ping")
+          automaticTest &&
+          automaticTest.command.includes("strove_receive_automatic_test_ping")
         ) {
           const [, , , , memberId, memberName] = automaticTest.split("_");
 
@@ -117,6 +117,6 @@ const manageTerminalSharing = () => {
 };
 
 module.exports = {
-  manageTerminalSharing,
+  startAutomaticTest,
   manageTerminalSubscriber,
 };

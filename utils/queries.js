@@ -68,3 +68,14 @@ mutation($command: String!, $projectId: String!) {
     broadcastTerminal(command: $command, projectId: $projectId)
 }
 `;
+
+exports.receiveAutomaticTestSubscription = `
+subscription($projectId: String!) {
+    automaticTest(projectId: $projectId) {
+            projectId
+            userId
+            command
+            testStartCommand    
+    }
+}
+`;
