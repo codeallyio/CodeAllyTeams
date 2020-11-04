@@ -20,6 +20,10 @@ const {
   manageTerminalSharing,
   manageTerminalSubscriber,
 } = require("./utils/manageTerminalSharing");
+const {
+  startAutomaticTest,
+  autoTestTerminalSubscriber,
+} = require("./utils/automaticTest");
 
 const environment = process.env.STROVE_ENVIRONMENT;
 const userType = process.env.STROVE_USER_TYPE;
@@ -287,6 +291,7 @@ function deactivate() {
   focusEditorSubscriber.unsubscribe();
   receiveTerminalSubscriber.unsubscribe();
   manageTerminalSubscriber.unsubscribe();
+  autoTestTerminalSubscriber.unsubscribe();
 }
 
 exports.activate = activate;

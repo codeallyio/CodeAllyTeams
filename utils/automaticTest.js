@@ -29,7 +29,7 @@ const receiveTerminalOperation = {
   },
 };
 
-let manageTerminalSubscriber = null;
+let autoTestTerminalSubscriber = null;
 
 const startAutomaticTest = () => {
   // Create new terminal with test results
@@ -44,7 +44,7 @@ const startAutomaticTest = () => {
   //   redirectedTerminal.show();
 
   // Start terminal if ping arrives
-  manageTerminalSubscriber = execute(
+  autoTestTerminalSubscriber = execute(
     websocketLink,
     receiveTerminalOperation
   ).subscribe({
@@ -74,23 +74,23 @@ const startAutomaticTest = () => {
           //     `touch /home/strove/.local/testOutput_id_${memberId}.txt`
           //   );
 
-        //   if (response && !response.stderr) {
-        //     await terminal.sendText(
-        //       `tail -q -f /home/strove/.local/testOutput_id_${memberId}.txt`
-        //     );
+          //   if (response && !response.stderr) {
+          //     await terminal.sendText(
+          //       `tail -q -f /home/strove/.local/testOutput_id_${memberId}.txt`
+          //     );
 
-        //     await terminal.show();
-        //   } else {
-        //     await terminal.sendText(
-        //       `echo "Error happened with terminal. Try again."`
-        //     );
+          //     await terminal.show();
+          //   } else {
+          //     await terminal.sendText(
+          //       `echo "Error happened with terminal. Try again."`
+          //     );
 
-        //     await terminal.show();
-        //   }
+          //     await terminal.show();
+          //   }
         }
       } catch (e) {
         console.log(
-          `received error in manageTerminalSharing -> manageTerminalSubscriber -> next ${JSON.stringify(
+          `received error in startAutomaticTest -> autoTestTerminalSubscriber -> next ${JSON.stringify(
             e
           )}`
         );
@@ -99,7 +99,7 @@ const startAutomaticTest = () => {
           scope.setExtras({
             data: receiveTerminalOperation,
             location:
-              "manageTerminalSharing -> manageTerminalSubscriber -> next",
+              "startAutomaticTest -> autoTestTerminalSubscriber -> next",
           });
           Sentry.captureException(e);
         });
@@ -107,13 +107,13 @@ const startAutomaticTest = () => {
     },
     error: (error) => {
       console.log(
-        `received error in manageTerminalSubscriber ${JSON.stringify(error)}`
+        `received error in autoTestTerminalSubscriber ${JSON.stringify(error)}`
       );
 
       Sentry.withScope((scope) => {
         scope.setExtras({
           data: receiveTerminalOperation,
-          location: "manageTerminalSharing -> manageTerminalSubscriber",
+          location: "startAutomaticTest -> autoTestTerminalSubscriber",
         });
         Sentry.captureException(error);
       });
@@ -124,5 +124,5 @@ const startAutomaticTest = () => {
 
 module.exports = {
   startAutomaticTest,
-  manageTerminalSubscriber,
+  autoTestTerminalSubscriber,
 };
