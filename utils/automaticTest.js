@@ -2,7 +2,7 @@ const vscode = require("vscode");
 const Sentry = require("@sentry/node");
 const { execute } = require("apollo-link");
 const { websocketLink } = require("./websocketLink");
-const { receiveTerminalSubscription } = require("./queries");
+const { receiveAutomaticTestSubscription } = require("./queries");
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 
@@ -23,7 +23,7 @@ Sentry.init({
 });
 
 const receiveTerminalOperation = {
-  query: receiveTerminalSubscription,
+  query: receiveAutomaticTestSubscription,
   variables: {
     projectId: process.env.STROVE_PROJECT_ID || "123abc",
   },
@@ -33,15 +33,15 @@ let manageTerminalSubscriber = null;
 
 const startAutomaticTest = () => {
   // Create new terminal with test results
-  const redirectedTerminal = vscode.window.createTerminal("Test output");
+  //   const redirectedTerminal = vscode.window.createTerminal("Test output");
 
-  redirectedTerminal.sendText(
-    `script -q -f /home/strove/.local/output_id_${userId}.txt`
-  );
+  //   redirectedTerminal.sendText(
+  //     `script -q -f /home/strove/.local/output_id_${userId}.txt`
+  //   );
 
-  redirectedTerminal.sendText("clear");
+  //   redirectedTerminal.sendText("clear");
 
-  redirectedTerminal.show();
+  //   redirectedTerminal.show();
 
   // Start terminal if ping arrives
   manageTerminalSubscriber = execute(
@@ -60,27 +60,33 @@ const startAutomaticTest = () => {
         ) {
           const [, , , , memberId, memberName] = automaticTest.split("_");
 
-          const response = await exec(
-            `touch /home/strove/.local/testOutput_id_${memberId}.txt`
-          );
+          const terminal = vscode.window.createTerminal("Test output");
 
-          const terminal = vscode.window.createTerminal(
-            `${memberName}'s test output`
-          );
+          // Send test command start to the terminal
+          terminal.sendText(`${testStartCommand}`);
 
-          if (response && !response.stderr) {
-            await terminal.sendText(
-              `tail -q -f /home/strove/.local/testOutput_id_${memberId}.txt`
-            );
+          // terminal.sendText("clear");
 
-            await terminal.show();
-          } else {
-            await terminal.sendText(
-              `echo "Error happened with terminal sharing. Try again."`
-            );
+          terminal.show();
 
-            await terminal.show();
-          }
+          // Create Output file
+          //   const response = await exec(
+          //     `touch /home/strove/.local/testOutput_id_${memberId}.txt`
+          //   );
+
+        //   if (response && !response.stderr) {
+        //     await terminal.sendText(
+        //       `tail -q -f /home/strove/.local/testOutput_id_${memberId}.txt`
+        //     );
+
+        //     await terminal.show();
+        //   } else {
+        //     await terminal.sendText(
+        //       `echo "Error happened with terminal. Try again."`
+        //     );
+
+        //     await terminal.show();
+        //   }
         }
       } catch (e) {
         console.log(
