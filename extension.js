@@ -152,6 +152,8 @@ async function activate(context) {
     let terminal;
     const terminals = vscode.window.terminals;
 
+    startAutomaticTest();
+
     if (terminals.length) {
       terminal = vscode.window.terminals[0];
     } else {
@@ -169,6 +171,9 @@ async function activate(context) {
     await terminal.show();
 
     if (userType === "guest") {
+      // Listen for startTest button
+      // startAutomaticTest();
+
       //   broadcastTerminal();
       const redirectedTerminal = vscode.window.createTerminal(
         "Shared terminal"

@@ -58,14 +58,10 @@ const startAutomaticTest = () => {
           automaticTest &&
           automaticTest.command.includes("strove_receive_automatic_test_ping")
         ) {
-          const [, , , , memberId, memberName] = automaticTest.split("_");
-
           const terminal = vscode.window.createTerminal("Test output");
 
           // Send test command start to the terminal
-          terminal.sendText(`${testStartCommand}`);
-
-          // terminal.sendText("clear");
+          const response = terminal.sendText(`${testStartCommand}`);
 
           terminal.show();
 
