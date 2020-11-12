@@ -63,11 +63,14 @@ subscription($projectId: String!) {
 }
 `;
 
-exports.broadcastTerminalMutation = `
-mutation($command: String!, $projectId: String!) {
-    broadcastTerminal(command: $command, projectId: $projectId)
+exports.setProjectDataMutation = `
+mutation($projectId: String!, $testOutput: String) {
+    setProjectData(projectId: $projectId, testOutput: $testOutput) {
+        name
+    }
 }
 `;
+
 
 exports.receiveAutomaticTestSubscription = `
 subscription($projectId: String!) {

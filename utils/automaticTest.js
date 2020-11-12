@@ -32,17 +32,6 @@ const receiveTerminalOperation = {
 let autoTestTerminalSubscriber = null;
 
 const startAutomaticTest = () => {
-  // Create new terminal with test results
-  //   const redirectedTerminal = vscode.window.createTerminal("Test output");
-
-  //   redirectedTerminal.sendText(
-  //     `script -q -f /home/strove/.local/output_id_${userId}.txt`
-  //   );
-
-  //   redirectedTerminal.sendText("clear");
-
-  //   redirectedTerminal.show();
-
   // Start terminal if ping arrives
   autoTestTerminalSubscriber = execute(
     websocketLink,
@@ -58,31 +47,49 @@ const startAutomaticTest = () => {
           automaticTest &&
           automaticTest.command.includes("strove_receive_automatic_test_ping")
         ) {
-          const terminal = vscode.window.createTerminal("Test output");
+          let testOutput = ''
 
+          const terminal = {
+            process: child_process.spawn("/bin/sh"),
+            send: () => {
+              // CHANGE !!!
+              terminal.process.stdin.write(`~/home/strove/project/${nazwaFolderu} $$ ${automaticTest.testStartCommand}`);
+            },
+            initEvents: () => {
+              // Handle Data
+              terminal.process.stdout.on("data", (buffer) => {
+                testOutput += buffer.toString("utf-8");
+                // response = response.split(/[\r\n\t]+/g);
+                // writeEmitter.fire(
+                //   response.length > 1 ? response.join("\r\n") : response[0]
+                // );
+                // delete empty string
+                // if (response.length > 2) response.pop();
+                // sendCommand(response.length > 1 ? response.join("\r\n") : response[0]);
+                // terminal.logger({ type: "data", data: buffer });
+              });
+          
+              // Handle Closure
+              terminal.process.on("close", (exitCode) => {
+  
+              if (exitCode === 0) {
+                if (!!testOutput.match(/Test Passed!!!/g)) {
+                  sendOutput('Test Passed.')
+                }
+                else {
+                  sendOutput('Test Failed.')
+                }
+              } else {
+                sendOutput('Test Failed.')
+              }
+              });
+            },
+          };
+
+          const outputTerminal = vscode.window.createTerminal("Test output");
           // Send test command start to the terminal
-          const response = terminal.sendText(`${automaticTest.testStartCommand}`);
-
-          terminal.show();
-
-          // Create Output file
-          //   const response = await exec(
-          //     `touch /home/strove/.local/testOutput_id_${memberId}.txt`
-          //   );
-
-          //   if (response && !response.stderr) {
-          //     await terminal.sendText(
-          //       `tail -q -f /home/strove/.local/testOutput_id_${memberId}.txt`
-          //     );
-
-          //     await terminal.show();
-          //   } else {
-          //     await terminal.sendText(
-          //       `echo "Error happened with terminal. Try again."`
-          //     );
-
-          //     await terminal.show();
-          //   }
+          outputTerminal.sendText(`${automaticTest.testStartCommand}`);
+          outputTerminal.show();
         }
       } catch (e) {
         console.log(
@@ -118,7 +125,42 @@ const startAutomaticTest = () => {
   });
 };
 
+const sendOutput = async (output) => {
+  try {
+    const setProjectDataMutation = {
+      query: setProjectData,
+      variables: {
+        projectId: process.env.STROVE_PROJECT_ID || "123abc",
+        testResolve: output,
+      },
+    };
+
+    makePromise(execute(websocketLink, setProjectDataMutation))
+      .then()
+      .catch((error) => {
+        console.log(`received error in sendOutput ${JSON.stringify(error)}`);
+
+        Sentry.withScope((scope) => {
+          scope.setExtras({
+            data: setProjectDataMutation,
+            location: "sendOutput -> mutation",
+          });
+          Sentry.captureException(error);
+        });
+      });
+  } catch (e) {
+    console.log("error in sendOutput: ", e);
+    Sentry.withScope((scope) => {
+      scope.setExtras({
+        data: { error: e },
+        location: "sendOutput",
+      });
+      Sentry.captureMessage("Unexpected error!");
+    });
+  }
+};
+
 module.exports = {
   startAutomaticTest,
-  autoTestTerminalSubscriber,
+  autoTestTerminalSubscriber
 };
