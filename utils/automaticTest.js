@@ -61,7 +61,7 @@ const startAutomaticTest = () => {
           const terminal = vscode.window.createTerminal("Test output");
 
           // Send test command start to the terminal
-          const response = terminal.sendText(`${testStartCommand}`);
+          const response = terminal.sendText(`${automaticTest.testStartCommand}`);
 
           terminal.show();
 
