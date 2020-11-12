@@ -21,6 +21,10 @@ const {
   manageTerminalSubscriber,
 } = require("./utils/manageTerminalSharing");
 const { startDebugging, sendLog } = require("./utils/debugger");
+const {
+  startAutomaticTest,
+  autoTestTerminalSubscriber,
+} = require("./utils/automaticTest");
 
 const environment = process.env.STROVE_ENVIRONMENT;
 const userType = process.env.STROVE_USER_TYPE;
@@ -152,6 +156,8 @@ async function activate(context) {
     let terminal;
     const terminals = vscode.window.terminals;
 
+    startAutomaticTest();
+
     if (terminals.length) {
       terminal = vscode.window.terminals[0];
     } else {
@@ -169,6 +175,9 @@ async function activate(context) {
     await terminal.show();
 
     if (userType === "guest") {
+      // Listen for startTest button
+      // startAutomaticTest();
+
       //   broadcastTerminal();
       const redirectedTerminal = vscode.window.createTerminal(
         "Shared terminal"
@@ -291,6 +300,7 @@ function deactivate() {
   focusEditorSubscriber.unsubscribe();
   receiveTerminalSubscriber.unsubscribe();
   manageTerminalSubscriber.unsubscribe();
+  autoTestTerminalSubscriber.unsubscribe();
 }
 
 exports.activate = activate;
