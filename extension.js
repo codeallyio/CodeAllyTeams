@@ -20,6 +20,7 @@ const {
   manageTerminalSharing,
   manageTerminalSubscriber,
 } = require("./utils/manageTerminalSharing");
+const { startDebugging, sendLog } = require("./utils/debugger");
 const {
   startAutomaticTest,
   autoTestTerminalSubscriber,
@@ -108,6 +109,9 @@ const throttleLiveshareActivityCall = throttle(liveshareActivityUpdate, 100, {
  */
 async function activate(context) {
   try {
+    // Example usage:
+    // sendLog("proba mikrofonu");
+    if (environment !== "production") await startDebugging();
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
     console.log("stroveteams extension is active");
