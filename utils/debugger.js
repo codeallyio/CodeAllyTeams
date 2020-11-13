@@ -3,7 +3,7 @@ const writeEmitter = new vscode.EventEmitter();
 
 let debugMode = false;
 
-const startDebugging = async () => {
+const startDebugging = () => {
   const pty = {
     onDidWrite: writeEmitter.event,
     open: () => {
@@ -13,20 +13,20 @@ const startDebugging = async () => {
       debugMode = true;
     },
     close: () => {
-      debugMode - false;
+      debugMode = false;
     },
-    handleInput: async () => {
+    handleInput: () => {
       // disabling inputs
       return;
     },
   };
 
-  const debugTerminal = await vscode.window.createTerminal({
+  const debugTerminal = vscode.window.createTerminal({
     name: `stroveTeams debugger`,
     pty,
   });
 
-  await debugTerminal.show();
+  debugTerminal.show();
 };
 
 const sendLog = (log) => {
