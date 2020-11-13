@@ -1,13 +1,14 @@
 const vscode = require("vscode");
 const Sentry = require("@sentry/node");
-const { execute } = require("apollo-link");
+const { execute, makePromise } = require("apollo-link");
 const { websocketLink } = require("./websocketLink");
-const { receiveAutomaticTestSubscription } = require("./queries");
+const { receiveAutomaticTestSubscription, setProjectData } = require("./queries");
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
+const child_process = require("child_process");
+const { sendLog } = require("./debugger")
 
 const environment = process.env.STROVE_ENVIRONMENT;
-const userId = process.env.STROVE_USER_ID || "123";
 
 Sentry.init({
   beforeSend(event) {
@@ -30,6 +31,7 @@ const receiveTerminalOperation = {
 };
 
 let autoTestTerminalSubscriber = null;
+let terminal
 
 const startAutomaticTest = () => {
   // Start terminal if ping arrives
@@ -49,24 +51,15 @@ const startAutomaticTest = () => {
         ) {
           let testOutput = ''
 
-          const terminal = {
+           terminal = {
             process: child_process.spawn("/bin/sh"),
             send: () => {
-              // CHANGE !!!
-              terminal.process.stdin.write(`cd ~/home/strove/project/${automaticTest.folderName} $$ ${automaticTest.testStartCommand}`);
+              terminal.process.stdin.write(`cd ~/home/strove/project/${automaticTest.folderName} && ${automaticTest.testStartCommand}`);
             },
             initEvents: () => {
               // Handle Data
               terminal.process.stdout.on("data", (buffer) => {
                 testOutput += buffer.toString("utf-8");
-                // response = response.split(/[\r\n\t]+/g);
-                // writeEmitter.fire(
-                //   response.length > 1 ? response.join("\r\n") : response[0]
-                // );
-                // delete empty string
-                // if (response.length > 2) response.pop();
-                // sendCommand(response.length > 1 ? response.join("\r\n") : response[0]);
-                // terminal.logger({ type: "data", data: buffer });
               });
           
               // Handle Closure
@@ -74,12 +67,6 @@ const startAutomaticTest = () => {
   
               if (exitCode === 0) {
                 sendOutput('Test Passed.')
-                // if (!!testOutput.match(/Test Passed!!!/g)) {
-                //   sendOutput('Test Passed.')
-                // }
-                // else {
-                //   sendOutput('Test Failed.')
-                // }
               } else {
                 sendOutput('Test Failed.')
               }
@@ -87,9 +74,12 @@ const startAutomaticTest = () => {
             },
           };
 
+          terminal.initEvents()
+          terminal.send()
+
           const outputTerminal = vscode.window.createTerminal("Test output");
           // Send test command start to the terminal
-          outputTerminal.sendText(`${automaticTest.testStartCommand}`);
+          outputTerminal.sendText(`cd ${automaticTest.folderName} && ${automaticTest.testStartCommand}`);
           outputTerminal.show();
         }
       } catch (e) {
