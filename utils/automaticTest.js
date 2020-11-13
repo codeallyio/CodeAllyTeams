@@ -53,7 +53,7 @@ const startAutomaticTest = () => {
             process: child_process.spawn("/bin/sh"),
             send: () => {
               // CHANGE !!!
-              terminal.process.stdin.write(`~/home/strove/project/${nazwaFolderu} $$ ${automaticTest.testStartCommand}`);
+              terminal.process.stdin.write(`cd ~/home/strove/project/${automaticTest.folderName} $$ ${automaticTest.testStartCommand}`);
             },
             initEvents: () => {
               // Handle Data
@@ -73,12 +73,13 @@ const startAutomaticTest = () => {
               terminal.process.on("close", (exitCode) => {
   
               if (exitCode === 0) {
-                if (!!testOutput.match(/Test Passed!!!/g)) {
-                  sendOutput('Test Passed.')
-                }
-                else {
-                  sendOutput('Test Failed.')
-                }
+                sendOutput('Test Passed.')
+                // if (!!testOutput.match(/Test Passed!!!/g)) {
+                //   sendOutput('Test Passed.')
+                // }
+                // else {
+                //   sendOutput('Test Failed.')
+                // }
               } else {
                 sendOutput('Test Failed.')
               }

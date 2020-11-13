@@ -77,6 +77,7 @@ subscription($projectId: String!) {
     automaticTest(projectId: $projectId) {
             projectId
             userId
+            folderName
             command
             testStartCommand    
     }
