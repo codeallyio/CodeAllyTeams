@@ -32,7 +32,9 @@ const startDebugging = () => {
 const sendLog = (log) => {
   setTimeout(() => {
     if (debugMode) {
-      const stringifiedLog = JSON.stringify(log);
+      const stringifiedLog = JSON.stringify(log, (key, value) =>
+        value instanceof Error ? value.message : value
+      );
 
       writeEmitter.fire(stringifiedLog);
       writeEmitter.fire(`\n\r`);
