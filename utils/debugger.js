@@ -13,7 +13,7 @@ const startDebugging = async () => {
       debugMode = true;
     },
     close: () => {
-      debugMode - false;
+      debugMode = false;
     },
     handleInput: async () => {
       // disabling inputs
