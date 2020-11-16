@@ -2,9 +2,7 @@ const vscode = require("vscode");
 const Sentry = require("@sentry/node");
 const { execute, makePromise } = require("apollo-link");
 const { websocketLink } = require("./websocketLink");
-const { receiveAutomaticTestSubscription, setProjectData } = require("./queries");
-const util = require("util");
-const exec = util.promisify(require("child_process").exec);
+const { receiveAutomaticTestSubscription, setProjectDataMutation } = require("./queries");
 const child_process = require("child_process");
 const { sendLog } = require("./debugger")
 
@@ -49,22 +47,28 @@ const startAutomaticTest = () => {
           automaticTest &&
           automaticTest.command.includes("strove_receive_automatic_test_ping")
         ) {
-          let testOutput = ''
-
            terminal = {
-            process: child_process.spawn("/bin/sh"),
+            process: child_process.spawn("/bin/bash"),
             send: () => {
-              terminal.process.stdin.write(`cd ~/home/strove/project/${automaticTest.folderName} && ${automaticTest.testStartCommand}`);
+              // Important to end process with ; exit\n
+              sendLog(`cd ~/home/strove/project/${automaticTest.folderName} && ${automaticTest.testStartCommand} ; exit\n`)
+              terminal.process.stdin.write(`cd ~/home/strove/project/${automaticTest.folderName} && ${automaticTest.testStartCommand} ; exit\n`);
             },
             initEvents: () => {
               // Handle Data
               terminal.process.stdout.on("data", (buffer) => {
-                testOutput += buffer.toString("utf-8");
+                sendLog(`startAutomaticTest - STDOUT: ${buffer.toString("utf-8")}`)
+              });
+
+              terminal.process.stderr.on("data", (buffer) => {
+                sendLog(`startAutomaticTest - STDERR: ${buffer.toString("utf-8")}`)
               });
           
               // Handle Closure
-              terminal.process.on("close", (exitCode) => {
-  
+              terminal.process.on("exit", (exitCode) => {
+
+              sendLog(`startAutomaticTest - exit: ${exitCode}`)
+
               if (exitCode === 0) {
                 sendOutput('Test Passed.')
               } else {
@@ -83,6 +87,10 @@ const startAutomaticTest = () => {
           outputTerminal.show();
         }
       } catch (e) {
+        sendLog(`startAutomaticTest - tryCatch: ${JSON.stringify(
+          e
+        )}`)
+
         console.log(
           `received error in startAutomaticTest -> autoTestTerminalSubscriber -> next ${JSON.stringify(
             e
@@ -100,6 +108,7 @@ const startAutomaticTest = () => {
       }
     },
     error: (error) => {
+      sendLog(`startAutomaticTest - error: ${JSON.stringify(error)}`)
       console.log(
         `received error in autoTestTerminalSubscriber ${JSON.stringify(error)}`
       );
@@ -118,28 +127,31 @@ const startAutomaticTest = () => {
 
 const sendOutput = async (output) => {
   try {
-    const setProjectDataMutation = {
-      query: setProjectData,
+    const setProjectData = {
+      query: setProjectDataMutation,
       variables: {
         projectId: process.env.STROVE_PROJECT_ID || "123abc",
-        testResolve: output,
+        testOutput: output,
       },
     };
 
-    makePromise(execute(websocketLink, setProjectDataMutation))
+    sendLog(`sendOutput - variables: ${setProjectData.variables}`)
+
+    makePromise(execute(websocketLink, setProjectData))
       .then()
       .catch((error) => {
         console.log(`received error in sendOutput ${JSON.stringify(error)}`);
 
         Sentry.withScope((scope) => {
           scope.setExtras({
-            data: setProjectDataMutation,
+            data: setProjectData,
             location: "sendOutput -> mutation",
           });
           Sentry.captureException(error);
         });
       });
   } catch (e) {
+    sendLog(`sendOutput - tryCatch: ${e}`)
     console.log("error in sendOutput: ", e);
     Sentry.withScope((scope) => {
       scope.setExtras({
