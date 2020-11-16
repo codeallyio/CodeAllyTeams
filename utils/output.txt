@@ -1,0 +1,2 @@
+[2K[1G[33mwarning[39m package.json: No license field
+[2K[1G[31merror[39m Command "pawel" not found.
