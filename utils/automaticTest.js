@@ -66,17 +66,27 @@ const startAutomaticTest = () => {
             initEvents: () => {
               // Handle Data
               testProcess.process.stdout.on("data", (buffer) => {
-                sendLog(
-                  `startAutomaticTest - STDOUT: ${buffer.toString("utf-8")}`
+                let response = buffer.toString("utf-8");
+
+                sendLog(`startAutomaticTest - STDOUT: ${response}`);
+
+                response = response.split(/[\r\n\t]+/g);
+                terminalWriter.fire(
+                  response.length > 1 ? response.join("\r\n") : response[0]
                 );
-                terminalWriter.fire(`${buffer.toString("utf-8")}\n\r`);
               });
 
               testProcess.process.stderr.on("data", (buffer) => {
+                let response = buffer.toString("utf-8");
+
                 sendLog(
                   `startAutomaticTest - STDERR: ${buffer.toString("utf-8")}`
                 );
-                terminalWriter.fire(`${buffer.toString("utf-8")}\n\r`);
+
+                response = response.split(/[\r\n\t]+/g);
+                terminalWriter.fire(
+                  response.length > 1 ? response.join("\r\n") : response[0]
+                );
               });
 
               // Handle Closure
