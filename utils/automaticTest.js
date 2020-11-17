@@ -69,14 +69,14 @@ const startAutomaticTest = () => {
                 sendLog(
                   `startAutomaticTest - STDOUT: ${buffer.toString("utf-8")}`
                 );
-                terminalWriter.write(`${buffer.toString("utf-8")}\n\r`);
+                terminalWriter.fire(`${buffer.toString("utf-8")}\n\r`);
               });
 
               testProcess.process.stderr.on("data", (buffer) => {
                 sendLog(
                   `startAutomaticTest - STDERR: ${buffer.toString("utf-8")}`
                 );
-                terminalWriter.write(`${buffer.toString("utf-8")}\n\r`);
+                terminalWriter.fire(`${buffer.toString("utf-8")}\n\r`);
               });
 
               // Handle Closure
