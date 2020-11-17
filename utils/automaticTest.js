@@ -32,6 +32,7 @@ const receiveTerminalOperation = {
 };
 
 let autoTestTerminalSubscriber = null;
+let testRunningFlag = false;
 let testProcess;
 
 const startAutomaticTest = () => {
@@ -48,7 +49,10 @@ const startAutomaticTest = () => {
 
         if (
           automaticTest &&
-          automaticTest.command.includes("strove_receive_automatic_test_ping")
+          automaticTest.command.includes(
+            "strove_receive_automatic_test_ping"
+          ) &&
+          !testRunningFlag
         ) {
           const terminalWriter = await startTestTerminal();
 
@@ -59,6 +63,10 @@ const startAutomaticTest = () => {
               sendLog(
                 `cd ~/project/${automaticTest.folderName} && ${automaticTest.testStartCommand} ; exit\n`
               );
+
+              // Locking the ability to run the test again before previous instance finishes
+              testRunningFlag = true;
+
               testProcess.process.stdin.write(
                 `cd ~/project/${automaticTest.folderName} && ${automaticTest.testStartCommand} ; exit\n`
               );
@@ -98,6 +106,8 @@ const startAutomaticTest = () => {
                 } else {
                   sendOutput("Test Failed.");
                 }
+
+                testRunningFlag = false;
               });
             },
           };
