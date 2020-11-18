@@ -51,8 +51,8 @@ const startAutomaticTest = () => {
             process: child_process.spawn("/bin/bash"),
             send: () => {
               // Important to end process with ; exit\n
-              sendLog(`cd ~/project/${automaticTest.folderName} && ${automaticTest.testStartCommand} ; exit\n`)
-              terminal.process.stdin.write(`cd ~/project/${automaticTest.folderName} && ${automaticTest.testStartCommand} ; exit\n`);
+              sendLog(`cd ${automaticTest.folderName} && ${automaticTest.testStartCommand} ; exit\n`)
+              terminal.process.stdin.write(`cd ${automaticTest.folderName} && ${automaticTest.testStartCommand} ; exit\n`);
             },
             initEvents: () => {
               // Handle Data
