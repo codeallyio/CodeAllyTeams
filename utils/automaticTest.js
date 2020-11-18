@@ -2,9 +2,12 @@ const vscode = require("vscode");
 const Sentry = require("@sentry/node");
 const { execute, makePromise } = require("apollo-link");
 const { websocketLink } = require("./websocketLink");
-const { receiveAutomaticTestSubscription, setProjectDataMutation } = require("./queries");
+const {
+  receiveAutomaticTestSubscription,
+  setProjectDataMutation,
+} = require("./queries");
 const child_process = require("child_process");
-const { sendLog } = require("./debugger")
+const { sendLog } = require("./debugger");
 
 const environment = process.env.STROVE_ENVIRONMENT;
 
@@ -29,7 +32,8 @@ const receiveTerminalOperation = {
 };
 
 let autoTestTerminalSubscriber = null;
-let terminal
+let testRunningFlag = false;
+let testProcess;
 
 const startAutomaticTest = () => {
   // Start terminal if ping arrives
@@ -45,51 +49,74 @@ const startAutomaticTest = () => {
 
         if (
           automaticTest &&
-          automaticTest.command.includes("strove_receive_automatic_test_ping")
+          automaticTest.command.includes(
+            "strove_receive_automatic_test_ping"
+          ) &&
+          !testRunningFlag
         ) {
-           terminal = {
+          const terminalWriter = await startTestTerminal();
+
+          testProcess = {
             process: child_process.spawn("/bin/bash"),
             send: () => {
               // Important to end process with ; exit\n
-              sendLog(`cd ${automaticTest.folderName} && ${automaticTest.testStartCommand} ; exit\n`)
-              terminal.process.stdin.write(`cd ${automaticTest.folderName} && ${automaticTest.testStartCommand} ; exit\n`);
+              sendLog(
+                `cd ${automaticTest.folderName} && ${automaticTest.testStartCommand} ; exit\n`
+              );
+
+              // Locking the ability to run the test again before previous instance finishes
+              testRunningFlag = true;
+
+              testProcess.process.stdin.write(
+                `cd ${automaticTest.folderName} && ${automaticTest.testStartCommand} ; exit\n`
+              );
             },
             initEvents: () => {
               // Handle Data
-              terminal.process.stdout.on("data", (buffer) => {
-                sendLog(`startAutomaticTest - STDOUT: ${buffer.toString("utf-8")}`)
+              testProcess.process.stdout.on("data", (buffer) => {
+                let response = buffer.toString("utf-8");
+
+                sendLog(`startAutomaticTest - STDOUT: ${response}`);
+
+                response = response.split(/[\r\n\t]+/g);
+                terminalWriter.fire(
+                  response.length > 1 ? response.join("\r\n") : response[0]
+                );
               });
 
-              terminal.process.stderr.on("data", (buffer) => {
-                sendLog(`startAutomaticTest - STDERR: ${buffer.toString("utf-8")}`)
+              testProcess.process.stderr.on("data", (buffer) => {
+                let response = buffer.toString("utf-8");
+
+                sendLog(
+                  `startAutomaticTest - STDERR: ${buffer.toString("utf-8")}`
+                );
+
+                response = response.split(/[\r\n\t]+/g);
+                terminalWriter.fire(
+                  response.length > 1 ? response.join("\r\n") : response[0]
+                );
               });
-          
+
               // Handle Closure
-              terminal.process.on("exit", (exitCode) => {
+              testProcess.process.on("exit", (exitCode) => {
+                sendLog(`startAutomaticTest - exit: ${exitCode}`);
 
-              sendLog(`startAutomaticTest - exit: ${exitCode}`)
+                if (exitCode === 0) {
+                  sendOutput("Test Passed.");
+                } else {
+                  sendOutput("Test Failed.");
+                }
 
-              if (exitCode === 0) {
-                sendOutput('Test Passed.')
-              } else {
-                sendOutput('Test Failed.')
-              }
+                testRunningFlag = false;
               });
             },
           };
 
-          terminal.initEvents()
-          terminal.send()
-
-          const outputTerminal = vscode.window.createTerminal("Test output");
-          // Send test command start to the terminal
-          outputTerminal.sendText(`cd ${automaticTest.folderName} && ${automaticTest.testStartCommand}`);
-          outputTerminal.show();
+          testProcess.initEvents();
+          testProcess.send();
         }
       } catch (e) {
-        sendLog(`startAutomaticTest - tryCatch: ${JSON.stringify(
-          e
-        )}`)
+        sendLog(`startAutomaticTest - tryCatch: ${JSON.stringify(e)}`);
 
         console.log(
           `received error in startAutomaticTest -> autoTestTerminalSubscriber -> next ${JSON.stringify(
@@ -108,7 +135,7 @@ const startAutomaticTest = () => {
       }
     },
     error: (error) => {
-      sendLog(`startAutomaticTest - error: ${JSON.stringify(error)}`)
+      sendLog(`startAutomaticTest - error: ${JSON.stringify(error)}`);
       console.log(
         `received error in autoTestTerminalSubscriber ${JSON.stringify(error)}`
       );
@@ -135,7 +162,7 @@ const sendOutput = async (output) => {
       },
     };
 
-    sendLog(`sendOutput - variables: ${setProjectData.variables}`)
+    sendLog(`sendOutput - variables: ${setProjectData.variables}`);
 
     makePromise(execute(websocketLink, setProjectData))
       .then()
@@ -151,7 +178,7 @@ const sendOutput = async (output) => {
         });
       });
   } catch (e) {
-    sendLog(`sendOutput - tryCatch: ${e}`)
+    sendLog(`sendOutput - tryCatch: ${e}`);
     console.log("error in sendOutput: ", e);
     Sentry.withScope((scope) => {
       scope.setExtras({
@@ -163,7 +190,42 @@ const sendOutput = async (output) => {
   }
 };
 
+const startTestTerminal = async () => {
+  const writeEmitter = new vscode.EventEmitter();
+
+  const pty = {
+    onDidWrite: writeEmitter.event,
+    open: () => {
+      writeEmitter.fire(`Automatic test results will show below:\n\r\n\r`);
+    },
+    close: () => {
+      // no-op
+      return;
+    },
+    handleInput: () => {
+      // disabling inputs
+      return;
+    },
+  };
+
+  const testsTerminal = vscode.window.createTerminal({
+    name: `Test Results`,
+    pty,
+  });
+
+  await testsTerminal.show();
+
+  // We wait for the terminal to show up
+  await new Promise((resolve) =>
+    setTimeout(() => {
+      resolve();
+    }, 2000)
+  );
+
+  return writeEmitter;
+};
+
 module.exports = {
   startAutomaticTest,
-  autoTestTerminalSubscriber
+  autoTestTerminalSubscriber,
 };
