@@ -157,7 +157,7 @@ const sendOutput = async (output) => {
     const setProjectData = {
       query: setProjectDataMutation,
       variables: {
-        projectId: process.env.STROVE_PROJECT_ID || "123abc",
+        id: process.env.STROVE_PROJECT_ID || "123abc",
         testOutput: output,
       },
     };

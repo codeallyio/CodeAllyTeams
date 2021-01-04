@@ -84,6 +84,11 @@ const readTerminal = async () => {
 
                 await terminal.show();
 
+                // Enter proper text whenslack is working again
+                await terminal.sendText(
+                  'echo -e "\033[4;1mWELCOME TO PAIR PROGRAMMING SESSION! THIS TERMINAL IS READ ONLY!\033[0m"'
+                );
+
                 STARTING_TERMINAL = false;
                 TERMINAL_ACTIVE = true;
               } else if (whileCounter >= 20) {
