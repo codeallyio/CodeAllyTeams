@@ -89,10 +89,11 @@ const readTerminal = async () => {
 
                 await terminal.show();
 
-                // Enter proper text whenslack is working again
-                await terminal.sendText(
-                  'echo -e "\033[4;1mWELCOME TO PAIR PROGRAMMING SESSION! THIS TERMINAL IS READ ONLY!\033[0m"'
-                );
+                // Not working since we already follow candidate's terminal
+                // We would have to display the info for both, which is bad
+                // await terminal.sendText(
+                //   'echo -e "\033[4;1mWELCOME TO PAIR PROGRAMMING SESSION! THIS TERMINAL IS READ ONLY!\033[0m"'
+                // );
 
                 STARTING_TERMINAL = false;
                 TERMINAL_ACTIVE = true;
