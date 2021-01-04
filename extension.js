@@ -174,6 +174,8 @@ async function activate(context) {
     }
     await terminal.show();
 
+    sendLog(userType);
+
     if (userType === "guest") {
       // Listen for startTest button
       // startAutomaticTest();
@@ -191,6 +193,7 @@ async function activate(context) {
 
       await redirectedTerminal.show();
     } else if (userType === "hiring") {
+      sendLog("in hiring");
       readTerminal();
     } else {
       manageTerminalSharing();
