@@ -3,6 +3,7 @@ const Sentry = require("@sentry/node");
 const { execute } = require("apollo-link");
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
+const { sendLog } = require("./debugger");
 
 const { websocketLink } = require("./websocketLink");
 const { receiveTerminalSubscription } = require("./queries");
@@ -30,6 +31,8 @@ const readTerminal = async () => {
   try {
     let terminal = null;
 
+    sendLog("in readTerminal");
+
     const receiveTerminalOperation = {
       query: receiveTerminalSubscription,
       variables: {
@@ -46,6 +49,8 @@ const readTerminal = async () => {
           const {
             data: { receiveTerminal },
           } = data;
+
+          sendLog("ping 1");
 
           if (
             receiveTerminal === "strove_receive_init_ping" &&
@@ -83,6 +88,12 @@ const readTerminal = async () => {
                 );
 
                 await terminal.show();
+
+                // Not working since we already follow candidate's terminal
+                // We would have to display the info for both, which is bad
+                // await terminal.sendText(
+                //   'echo -e "\033[4;1mWELCOME TO PAIR PROGRAMMING SESSION! THIS TERMINAL IS READ ONLY!\033[0m"'
+                // );
 
                 STARTING_TERMINAL = false;
                 TERMINAL_ACTIVE = true;
