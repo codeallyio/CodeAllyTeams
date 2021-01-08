@@ -71,7 +71,6 @@ mutation($projectId: ID!, $testOutput: String) {
 }
 `;
 
-
 exports.receiveAutomaticTestSubscription = `
 subscription($projectId: String!) {
     automaticTest(projectId: $projectId) {

@@ -12,8 +12,8 @@ if (environment === "local" || !environment) {
   endpoint = "https://graphql.strove.io";
   websocketEndpoint = "wss://graphql.strove.io/graphql";
 } else {
-  endpoint = "https://api.strove.io";
-  websocketEndpoint = "wss://api.strove.io/graphql";
+  endpoint = "https://api.codeally.io/graphql";
+  websocketEndpoint = "wss://api.codeally.io/graphql";
 }
 
 const liveshareActivityEndpoint = `${endpoint}/liveshareActivity`;
