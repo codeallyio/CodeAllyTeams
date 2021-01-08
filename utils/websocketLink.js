@@ -1,8 +1,8 @@
-const { WebSocketLink } = require("apollo-link-ws");
-const { SubscriptionClient } = require("subscriptions-transport-ws");
-const ws = require("ws");
+const { WebSocketLink } = require('apollo-link-ws')
+const { SubscriptionClient } = require('subscriptions-transport-ws')
+const ws = require('ws')
 
-const { websocketEndpoint } = require("./endpoints");
+const { websocketEndpoint } = require('./endpoints')
 
 const client = new SubscriptionClient(
   websocketEndpoint,
@@ -11,12 +11,12 @@ const client = new SubscriptionClient(
     connectionParams: () => ({
       authorization: process.env.STROVE_USER_TOKEN
         ? `Bearer ${process.env.STROVE_USER_TOKEN}`
-        : "",
+        : '',
     }),
   },
   ws
-);
+)
 
 module.exports = {
   websocketLink: new WebSocketLink(client),
-};
+}

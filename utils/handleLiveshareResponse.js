@@ -1,29 +1,29 @@
-const vscode = require("vscode");
-const Sentry = require("@sentry/node");
+const vscode = require('vscode')
+const Sentry = require('@sentry/node')
 
-const environment = process.env.STROVE_ENVIRONMENT;
+const environment = process.env.STROVE_ENVIRONMENT
 
 Sentry.init({
   beforeSend(event) {
-    if (environment === "production") {
-      return event;
+    if (environment === 'production') {
+      return event
     }
-    return null;
+    return null
   },
   dsn:
-    "https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294",
+    'https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294',
   maxValueLength: 1000,
   normalizeDepth: 10,
-});
+})
 
-let liveshareActivity = {};
-let decorationTypes = [];
+let liveshareActivity = {}
+let decorationTypes = []
 
 const decorate = ({ decorationArray, decorationType }) => {
-  const editor = vscode.window.activeTextEditor;
+  const editor = vscode.window.activeTextEditor
 
-  editor.setDecorations(decorationType, decorationArray);
-};
+  editor.setDecorations(decorationType, decorationArray)
+}
 
 const createDecorationType = ({ userData }) =>
   vscode.window.createTextEditorDecorationType({
@@ -38,29 +38,29 @@ const createDecorationType = ({ userData }) =>
     //   color: userData.color,
     //   contentText: userData.fullName,
     // },
-  });
+  })
 
 const createUserNameDecorationType = ({ userData }) =>
   vscode.window.createTextEditorDecorationType({
     after: {
-      margin: "20px",
+      margin: '20px',
       /* This can be used to pass avatar but we need to resize it on the server side first */
       // contentIconPath: vscode.Uri.parse(
       //   "https://avatars1.githubusercontent.com/u/14284341?v=4"
       // ),
-      fontWeight: "900",
+      fontWeight: '900',
       color: `hsla(${userData.color}, 80%, 70%, 1)`,
       contentText: ` ${userData.fullName}`,
     },
-  });
+  })
 
 const handleLiveshareResponse = (userDataArray) => {
-  decorationTypes.forEach((type) => type.dispose());
+  decorationTypes.forEach((type) => type.dispose())
 
   // console.log("userDataArray.length", userDataArray.length);
 
   userDataArray.forEach((userData) => {
-    const userId = userData.userId;
+    const userId = userData.userId
 
     /* Skip decorating editor using users own activity data */
     if (
@@ -74,55 +74,55 @@ const handleLiveshareResponse = (userDataArray) => {
     */
       liveshareActivity[userId] = {
         ...userData,
-      };
+      }
 
-      const editor = vscode.window.activeTextEditor;
+      const editor = vscode.window.activeTextEditor
       const isEditorPathTheSameAsUsers =
         userData &&
         editor &&
         editor._documentData &&
         editor._documentData._uri &&
-        editor._documentData._uri.path === userData.documentPath;
+        editor._documentData._uri.path === userData.documentPath
 
       if (isEditorPathTheSameAsUsers) {
         const codeDecorationType = createDecorationType({
           userData,
-        });
+        })
 
         /* Need to make another decoration just to append user name at the end of the last selected line */
         const userNameDecorationType = createUserNameDecorationType({
           userData,
-        });
+        })
 
-        let lastLine;
+        let lastLine
 
         if (
           userData &&
-          userData["selections"] &&
-          userData["selections"][0] &&
-          userData["selections"][0]["end"]
+          userData['selections'] &&
+          userData['selections'][0] &&
+          userData['selections'][0]['end']
         ) {
-          lastLine = userData["selections"][0]["end"]["line"];
+          lastLine = userData['selections'][0]['end']['line']
         }
 
         if (
           userData &&
-          userData["selections"] &&
+          userData['selections'] &&
           (lastLine || lastLine === 0) &&
           editor &&
           editor._documentData &&
           editor._documentData._lines &&
           (editor._documentData._lines[lastLine] ||
-            editor._documentData._lines[lastLine] === "")
+            editor._documentData._lines[lastLine] === '')
         ) {
           const lastLineLastCharacterPosition =
-            editor._documentData._lines[lastLine].length;
+            editor._documentData._lines[lastLine].length
 
           decorationTypes = [
             ...decorationTypes,
             codeDecorationType,
             userNameDecorationType,
-          ];
+          ]
 
           /* Decorate code */
           decorate({
@@ -130,18 +130,18 @@ const handleLiveshareResponse = (userDataArray) => {
               {
                 range: new vscode.Range(
                   new vscode.Position(
-                    userData["selections"][0]["start"]["line"],
-                    userData["selections"][0]["start"]["character"]
+                    userData['selections'][0]['start']['line'],
+                    userData['selections'][0]['start']['character']
                   ),
                   new vscode.Position(
-                    userData["selections"][0]["end"]["line"],
-                    userData["selections"][0]["end"]["character"]
+                    userData['selections'][0]['end']['line'],
+                    userData['selections'][0]['end']['character']
                   )
                 ),
               },
             ],
             decorationType: codeDecorationType,
-          });
+          })
 
           /* Append user name at the end */
           decorate({
@@ -149,18 +149,18 @@ const handleLiveshareResponse = (userDataArray) => {
               {
                 range: new vscode.Range(
                   new vscode.Position(
-                    userData["selections"][0]["end"]["line"],
+                    userData['selections'][0]['end']['line'],
                     lastLineLastCharacterPosition
                   ),
                   new vscode.Position(
-                    userData["selections"][0]["end"]["line"],
+                    userData['selections'][0]['end']['line'],
                     lastLineLastCharacterPosition
                   )
                 ),
               },
             ],
             decorationType: userNameDecorationType,
-          });
+          })
         } else {
           Sentry.withScope((scope) => {
             scope.setExtras({
@@ -168,16 +168,16 @@ const handleLiveshareResponse = (userDataArray) => {
                 editor: editor._documentData,
                 userData: userData,
               },
-              location: "handleLiveshareResponse",
-            });
-            Sentry.captureMessage("Incomplete data provided");
-          });
+              location: 'handleLiveshareResponse',
+            })
+            Sentry.captureMessage('Incomplete data provided')
+          })
         }
       }
     }
-  });
-};
+  })
+}
 
 module.exports = {
   handleLiveshareResponse,
-};
+}

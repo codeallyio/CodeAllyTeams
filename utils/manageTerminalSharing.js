@@ -1,47 +1,47 @@
-const vscode = require("vscode");
-const Sentry = require("@sentry/node");
-const { execute } = require("apollo-link");
-const { websocketLink } = require("./websocketLink");
-const { receiveTerminalSubscription } = require("./queries");
-const util = require("util");
-const exec = util.promisify(require("child_process").exec);
+const vscode = require('vscode')
+const Sentry = require('@sentry/node')
+const { execute } = require('apollo-link')
+const { websocketLink } = require('./websocketLink')
+const { receiveTerminalSubscription } = require('./queries')
+const util = require('util')
+const exec = util.promisify(require('child_process').exec)
 
-const environment = process.env.STROVE_ENVIRONMENT;
-const userId = process.env.STROVE_USER_ID || "123";
+const environment = process.env.STROVE_ENVIRONMENT
+const userId = process.env.STROVE_USER_ID || '123'
 
 Sentry.init({
   beforeSend(event) {
-    if (environment === "production") {
-      return event;
+    if (environment === 'production') {
+      return event
     }
-    return null;
+    return null
   },
   dsn:
-    "https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294",
+    'https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294',
   maxValueLength: 1000,
   normalizeDepth: 10,
-});
+})
 
 const receiveTerminalOperation = {
   query: receiveTerminalSubscription,
   variables: {
-    projectId: process.env.STROVE_PROJECT_ID || "123abc",
+    projectId: process.env.STROVE_PROJECT_ID || '123abc',
   },
-};
+}
 
-let manageTerminalSubscriber = null;
+let manageTerminalSubscriber = null
 
 const manageTerminalSharing = () => {
   // Start braodcasting terminal for everyone
-  const redirectedTerminal = vscode.window.createTerminal("Shared terminal");
+  const redirectedTerminal = vscode.window.createTerminal('Shared terminal')
 
   redirectedTerminal.sendText(
     `script -q -f /home/strove/.local/output_id_${userId}.txt`
-  );
+  )
 
-  redirectedTerminal.sendText("clear");
+  redirectedTerminal.sendText('clear')
 
-  redirectedTerminal.show();
+  redirectedTerminal.show()
 
   // Start terminal if ping arrives
   manageTerminalSubscriber = execute(
@@ -52,34 +52,34 @@ const manageTerminalSharing = () => {
       try {
         const {
           data: { receiveTerminal },
-        } = data;
+        } = data
 
         if (
           receiveTerminal &&
-          receiveTerminal.includes("strove_dev_terminal_init")
+          receiveTerminal.includes('strove_dev_terminal_init')
         ) {
-          const [, , , , memberId, memberName] = receiveTerminal.split("_");
+          const [, , , , memberId, memberName] = receiveTerminal.split('_')
 
           const response = await exec(
             `touch /home/strove/.local/output_id_${memberId}.txt`
-          );
+          )
 
           const terminal = vscode.window.createTerminal(
             `${memberName}'s preview`
-          );
+          )
 
           if (response && !response.stderr) {
             await terminal.sendText(
               `tail -q -f /home/strove/.local/output_id_${memberId}.txt`
-            );
+            )
 
-            await terminal.show();
+            await terminal.show()
           } else {
             await terminal.sendText(
               `echo "Error happened with terminal sharing. Try again."`
-            );
+            )
 
-            await terminal.show();
+            await terminal.show()
           }
         }
       } catch (e) {
@@ -87,36 +87,36 @@ const manageTerminalSharing = () => {
           `received error in manageTerminalSharing -> manageTerminalSubscriber -> next ${JSON.stringify(
             e
           )}`
-        );
+        )
 
         Sentry.withScope((scope) => {
           scope.setExtras({
             data: receiveTerminalOperation,
             location:
-              "manageTerminalSharing -> manageTerminalSubscriber -> next",
-          });
-          Sentry.captureException(e);
-        });
+              'manageTerminalSharing -> manageTerminalSubscriber -> next',
+          })
+          Sentry.captureException(e)
+        })
       }
     },
     error: (error) => {
       console.log(
         `received error in manageTerminalSubscriber ${JSON.stringify(error)}`
-      );
+      )
 
       Sentry.withScope((scope) => {
         scope.setExtras({
           data: receiveTerminalOperation,
-          location: "manageTerminalSharing -> manageTerminalSubscriber",
-        });
-        Sentry.captureException(error);
-      });
+          location: 'manageTerminalSharing -> manageTerminalSubscriber',
+        })
+        Sentry.captureException(error)
+      })
     },
     complete: () => console.log(`complete`),
-  });
-};
+  })
+}
 
 module.exports = {
   manageTerminalSharing,
   manageTerminalSubscriber,
-};
+}

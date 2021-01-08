@@ -1,48 +1,48 @@
-const vscode = require("vscode");
-const writeEmitter = new vscode.EventEmitter();
+const vscode = require('vscode')
+const writeEmitter = new vscode.EventEmitter()
 
-let debugMode = false;
+let debugMode = false
 
 const startDebugging = () => {
   const pty = {
     onDidWrite: writeEmitter.event,
     open: () => {
       writeEmitter.fire(
-        `Welcome to stroveTeams debugger!\n\rAll defined logs will appear here.\n\r`
-      );
-      debugMode = true;
+        'Welcome to stroveTeams debugger!\n\rAll defined logs will appear here.\n\r'
+      )
+      debugMode = true
     },
     close: () => {
-      debugMode = false;
+      debugMode = false
     },
     handleInput: () => {
       // disabling inputs
-      return;
+      return
     },
-  };
+  }
 
   const debugTerminal = vscode.window.createTerminal({
-    name: `stroveTeams debugger`,
+    name: 'stroveTeams debugger',
     pty,
-  });
+  })
 
-  debugTerminal.show();
-};
+  debugTerminal.show()
+}
 
 const sendLog = (log) => {
   setTimeout(() => {
     if (debugMode) {
       const stringifiedLog = JSON.stringify(log, (key, value) =>
         value instanceof Error ? value.message : value
-      );
+      )
 
-      writeEmitter.fire(stringifiedLog);
-      writeEmitter.fire(`\n\r`);
+      writeEmitter.fire(stringifiedLog)
+      writeEmitter.fire(`\n\r`)
     }
-  }, 5000);
-};
+  }, 5000)
+}
 
 module.exports = {
   startDebugging,
   sendLog,
-};
+}
