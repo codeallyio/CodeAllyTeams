@@ -54,7 +54,7 @@ const startAutomaticTest = () => {
           ) &&
           !testRunningFlag
         ) {
-          const terminalWriter = await startTestTerminal();
+          const terminalWriter = startTestTerminal();
 
           testProcess = {
             process: child_process.spawn("/bin/bash"),
