@@ -32,7 +32,7 @@ const receiveTerminalOperation = {
 let manageTerminalSubscriber = null;
 
 const manageTerminalSharing = () => {
-  // Start braodcasting terminal for everyone
+  // Start broadcasting terminal for everyone
   const redirectedTerminal = vscode.window.createTerminal("Shared terminal");
 
   redirectedTerminal.sendText(

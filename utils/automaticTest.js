@@ -54,66 +54,66 @@ const startAutomaticTest = () => {
           ) &&
           !testRunningFlag
         ) {
-          const terminalWriter = await startTestTerminal();
-
-          testProcess = {
-            process: child_process.spawn("/bin/bash"),
-            send: () => {
-              // Important to end process with ; exit\n
-              sendLog(
-                `cd ${automaticTest.folderName} && ${automaticTest.testStartCommand} ; exit\n`
-              );
-
-              // Locking the ability to run the test again before previous instance finishes
-              testRunningFlag = true;
-
-              testProcess.process.stdin.write(
-                `cd ${automaticTest.folderName} && ${automaticTest.testStartCommand} ; exit\n`
-              );
-            },
-            initEvents: () => {
-              // Handle Data
-              testProcess.process.stdout.on("data", (buffer) => {
-                let response = buffer.toString("utf-8");
-
-                sendLog(`startAutomaticTest - STDOUT: ${response}`);
-
-                response = response.split(/[\r\n\t]+/g);
-                terminalWriter.fire(
-                  response.length > 1 ? response.join("\r\n") : response[0]
-                );
-              });
-
-              testProcess.process.stderr.on("data", (buffer) => {
-                let response = buffer.toString("utf-8");
-
+          startTestTerminal().then((terminalWriter) => {
+            testProcess = {
+              process: child_process.spawn("/bin/bash"),
+              send: () => {
+                // Important to end process with ; exit\n
                 sendLog(
-                  `startAutomaticTest - STDERR: ${buffer.toString("utf-8")}`
+                  `cd ${automaticTest.folderName} && ${automaticTest.testStartCommand} ; exit\n`
                 );
 
-                response = response.split(/[\r\n\t]+/g);
-                terminalWriter.fire(
-                  response.length > 1 ? response.join("\r\n") : response[0]
+                // Locking the ability to run the test again before previous instance finishes
+                testRunningFlag = true;
+
+                testProcess.process.stdin.write(
+                  `cd ${automaticTest.folderName} && ${automaticTest.testStartCommand} ; exit\n`
                 );
-              });
+              },
+              initEvents: () => {
+                // Handle Data
+                testProcess.process.stdout.on("data", (buffer) => {
+                  let response = buffer.toString("utf-8");
 
-              // Handle Closure
-              testProcess.process.on("exit", (exitCode) => {
-                sendLog(`startAutomaticTest - exit: ${exitCode}`);
+                  sendLog(`startAutomaticTest - STDOUT: ${response}`);
 
-                if (exitCode === 0) {
-                  sendOutput("Test Passed.");
-                } else {
-                  sendOutput("Test Failed.");
-                }
+                  response = response.split(/[\r\n\t]+/g);
+                  terminalWriter.fire(
+                    response.length > 1 ? response.join("\r\n") : response[0]
+                  );
+                });
 
-                testRunningFlag = false;
-              });
-            },
-          };
+                testProcess.process.stderr.on("data", (buffer) => {
+                  let response = buffer.toString("utf-8");
 
-          testProcess.initEvents();
-          testProcess.send();
+                  sendLog(
+                    `startAutomaticTest - STDERR: ${buffer.toString("utf-8")}`
+                  );
+
+                  response = response.split(/[\r\n\t]+/g);
+                  terminalWriter.fire(
+                    response.length > 1 ? response.join("\r\n") : response[0]
+                  );
+                });
+
+                // Handle Closure
+                testProcess.process.on("exit", (exitCode) => {
+                  sendLog(`startAutomaticTest - exit: ${exitCode}`);
+
+                  if (exitCode === 0) {
+                    sendOutput("Test Passed.");
+                  } else {
+                    sendOutput("Test Failed.");
+                  }
+
+                  testRunningFlag = false;
+                });
+              },
+            };
+
+            testProcess.initEvents();
+            testProcess.send();
+          });
         }
       } catch (e) {
         sendLog(`startAutomaticTest - tryCatch: ${JSON.stringify(e)}`);
