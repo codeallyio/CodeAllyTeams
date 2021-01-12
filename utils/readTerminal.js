@@ -59,7 +59,7 @@ const readTerminal = async () => {
           ) {
             STARTING_TERMINAL = true;
 
-            terminal = vscode.window.createTerminal("ReadOnly Candidate");
+            terminal = vscode.window.createTerminal("ReadOnly Shared");
 
             let whileCounter = 0;
 
