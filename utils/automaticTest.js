@@ -59,6 +59,8 @@ const startAutomaticTest = () => {
           let webviewPanel;
           let html = "<h1>Automatic test results will be visible below:</h1>";
 
+          let interval;
+
           testProcess = {
             process: child_process.spawn("/bin/bash"),
             send: () => {
@@ -75,6 +77,15 @@ const startAutomaticTest = () => {
               testProcess.process.stdin.write(
                 `cd ${automaticTest.folderName} && ${automaticTest.testStartCommand} ; exit\n`
               );
+
+              interval = setInterval(
+                () =>
+                  reloadWebview({
+                    panel: webviewPanel,
+                    html: `<pre>${html}</pre>`,
+                  }),
+                1000
+              );
             },
             initEvents: () => {
               // Handle Data
@@ -88,11 +99,11 @@ const startAutomaticTest = () => {
                   response.length > 1 ? response.join("\r\n") : response[0];
 
                 // html += `<p>${response}</p>`;
-                html += `${response}`;
-                reloadWebview({
-                  panel: webviewPanel,
-                  html: `<pre>${html}</pre>`,
-                });
+                html += response;
+                // reloadWebview({
+                //   panel: webviewPanel,
+                //   html: `<pre>${html}</pre>`,
+                // });
                 terminalWriter.fire(response);
               });
 
@@ -107,14 +118,18 @@ const startAutomaticTest = () => {
                 response =
                   response.length > 1 ? response.join("\r\n") : response[0];
 
-                html += `<p>${response}</p>`;
-                reloadWebview({ panel: webviewPanel, html });
+                html += response;
+                // reloadWebview({
+                //   panel: webviewPanel,
+                //   html: `<pre>${html}</pre>`,
+                // });
                 terminalWriter.fire(response);
               });
 
               // Handle Closure
               testProcess.process.on("exit", (exitCode) => {
                 sendLog(`startAutomaticTest - exit: ${exitCode}`);
+                clearInterval(interval);
 
                 if (exitCode === 0) {
                   sendOutput("Test Passed.");
