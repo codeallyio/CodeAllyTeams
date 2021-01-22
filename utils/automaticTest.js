@@ -57,7 +57,7 @@ const startAutomaticTest = () => {
         ) {
           const terminalWriter = await startTestTerminal();
           let webviewPanel;
-          let html = "<h1>Automatic test results will show below:</h1>";
+          let html = "<h1>Automatic test results will be visible below:</h1>";
 
           testProcess = {
             process: child_process.spawn("/bin/bash"),
@@ -87,8 +87,12 @@ const startAutomaticTest = () => {
                 response =
                   response.length > 1 ? response.join("\r\n") : response[0];
 
-                html += `<p>${response}</p>`;
-                reloadWebview({ panel: webviewPanel, html });
+                // html += `<p>${response}</p>`;
+                html += `\r\n${response}`;
+                reloadWebview({
+                  panel: webviewPanel,
+                  html: `<pre>${html}</pre>`,
+                });
                 terminalWriter.fire(response);
               });
 
