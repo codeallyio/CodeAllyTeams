@@ -88,7 +88,7 @@ const startAutomaticTest = () => {
                   response.length > 1 ? response.join("\r\n") : response[0];
 
                 // html += `<p>${response}</p>`;
-                html += `\r\n${response}`;
+                html += `${response}`;
                 reloadWebview({
                   panel: webviewPanel,
                   html: `<pre>${html}</pre>`,
