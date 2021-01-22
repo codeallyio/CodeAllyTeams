@@ -137,6 +137,11 @@ const startAutomaticTest = () => {
                   sendOutput("Test Failed.");
                 }
 
+                reloadWebview({
+                  panel: webviewPanel,
+                  html: `<pre>${html}</pre>`,
+                });
+
                 testRunningFlag = false;
               });
             },
