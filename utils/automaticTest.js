@@ -8,6 +8,7 @@ const {
 } = require("./queries");
 const child_process = require("child_process");
 const { sendLog } = require("./debugger");
+const { createWebview, reloadWebview } = require("./webview");
 
 const environment = process.env.STROVE_ENVIRONMENT;
 
@@ -55,6 +56,8 @@ const startAutomaticTest = () => {
           !testRunningFlag
         ) {
           const terminalWriter = await startTestTerminal();
+          let webviewPanel;
+          let html = "<h1>Automatic test results will show below:</h1>";
 
           testProcess = {
             process: child_process.spawn("/bin/bash"),
@@ -66,6 +69,8 @@ const startAutomaticTest = () => {
 
               // Locking the ability to run the test again before previous instance finishes
               testRunningFlag = true;
+
+              webviewPanel = createWebview({ html });
 
               testProcess.process.stdin.write(
                 `cd ${automaticTest.folderName} && ${automaticTest.testStartCommand} ; exit\n`
@@ -79,9 +84,12 @@ const startAutomaticTest = () => {
                 sendLog(`startAutomaticTest - STDOUT: ${response}`);
 
                 response = response.split(/[\r\n\t]+/g);
-                terminalWriter.fire(
-                  response.length > 1 ? response.join("\r\n") : response[0]
-                );
+                response =
+                  response.length > 1 ? response.join("\r\n") : response[0];
+
+                html += `<p>${response}</p>`;
+                reloadWebview({ panel: webviewPanel, html });
+                terminalWriter.fire(response);
               });
 
               testProcess.process.stderr.on("data", (buffer) => {
@@ -92,9 +100,12 @@ const startAutomaticTest = () => {
                 );
 
                 response = response.split(/[\r\n\t]+/g);
-                terminalWriter.fire(
-                  response.length > 1 ? response.join("\r\n") : response[0]
-                );
+                response =
+                  response.length > 1 ? response.join("\r\n") : response[0];
+
+                html += `<p>${response}</p>`;
+                reloadWebview({ panel: webviewPanel, html });
+                terminalWriter.fire(response);
               });
 
               // Handle Closure
