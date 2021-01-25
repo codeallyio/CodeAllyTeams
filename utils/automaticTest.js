@@ -84,7 +84,7 @@ const startAutomaticTest = () => {
                     panel: webviewPanel,
                     html: `<pre>${html}</pre>`,
                   }),
-                1000
+                500
               );
             },
             initEvents: () => {
@@ -133,12 +133,12 @@ const startAutomaticTest = () => {
                 if (process.env.TEST_REPORT_PATH) {
                   reloadWebview({
                     panel: webviewPanel,
-                    html: `<pre>${html}</pre>`,
+                    path: `/home/strove/project/${process.env.TEST_REPORT_PATH}`,
                   });
                 } else {
                   reloadWebview({
                     panel: webviewPanel,
-                    path: `/home/strove/project/${process.env.TEST_REPORT_PATH}`,
+                    html: `<pre>${html}</pre>`,
                   });
                 }
 
