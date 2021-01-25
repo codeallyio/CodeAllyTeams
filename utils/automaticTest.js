@@ -55,7 +55,7 @@ const startAutomaticTest = () => {
           ) &&
           !testRunningFlag
         ) {
-          const terminalWriter = await startTestTerminal();
+          // const terminalWriter = await startTestTerminal();
           let webviewPanel;
           let html = "<h3>Automatic test results will be visible below:</h3>";
 
@@ -100,7 +100,7 @@ const startAutomaticTest = () => {
 
                 html += response;
 
-                terminalWriter.fire(response);
+                // terminalWriter.fire(response);
               });
 
               testProcess.process.stderr.on("data", (buffer) => {
@@ -116,7 +116,7 @@ const startAutomaticTest = () => {
 
                 html += response;
 
-                terminalWriter.fire(response);
+                // terminalWriter.fire(response);
               });
 
               // Handle Closure
