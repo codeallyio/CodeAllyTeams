@@ -84,7 +84,7 @@ const startAutomaticTest = () => {
                     panel: webviewPanel,
                     html: `<pre>${html}</pre>`,
                   }),
-                500
+                1000
               );
             },
             initEvents: () => {
