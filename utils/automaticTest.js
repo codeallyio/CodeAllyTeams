@@ -8,6 +8,7 @@ const {
 } = require("./queries");
 const child_process = require("child_process");
 const { sendLog } = require("./debugger");
+const { createWebview, reloadWebview } = require("./webview");
 
 const environment = process.env.STROVE_ENVIRONMENT;
 
@@ -54,7 +55,11 @@ const startAutomaticTest = () => {
           ) &&
           !testRunningFlag
         ) {
-          const terminalWriter = await startTestTerminal();
+          // const terminalWriter = await startTestTerminal();
+          let webviewPanel;
+          let html = "<h3>Automatic test results will be visible below:</h3>";
+
+          let refreshWebviewInterval;
 
           testProcess = {
             process: child_process.spawn("/bin/bash"),
@@ -67,8 +72,19 @@ const startAutomaticTest = () => {
               // Locking the ability to run the test again before previous instance finishes
               testRunningFlag = true;
 
+              webviewPanel = createWebview({ html });
+
               testProcess.process.stdin.write(
                 `cd ${automaticTest.folderName} && ${automaticTest.testStartCommand} ; exit\n`
+              );
+
+              refreshWebviewInterval = setInterval(
+                () =>
+                  reloadWebview({
+                    panel: webviewPanel,
+                    html: `<pre>${html}</pre>`,
+                  }),
+                500
               );
             },
             initEvents: () => {
@@ -79,9 +95,12 @@ const startAutomaticTest = () => {
                 sendLog(`startAutomaticTest - STDOUT: ${response}`);
 
                 response = response.split(/[\r\n\t]+/g);
-                terminalWriter.fire(
-                  response.length > 1 ? response.join("\r\n") : response[0]
-                );
+                response =
+                  response.length > 1 ? response.join("\r\n") : response[0];
+
+                html += response;
+
+                // terminalWriter.fire(response);
               });
 
               testProcess.process.stderr.on("data", (buffer) => {
@@ -92,19 +111,35 @@ const startAutomaticTest = () => {
                 );
 
                 response = response.split(/[\r\n\t]+/g);
-                terminalWriter.fire(
-                  response.length > 1 ? response.join("\r\n") : response[0]
-                );
+                response =
+                  response.length > 1 ? response.join("\r\n") : response[0];
+
+                html += response;
+
+                // terminalWriter.fire(response);
               });
 
               // Handle Closure
               testProcess.process.on("exit", (exitCode) => {
                 sendLog(`startAutomaticTest - exit: ${exitCode}`);
+                clearInterval(refreshWebviewInterval);
 
                 if (exitCode === 0) {
                   sendOutput("Test Passed.");
                 } else {
                   sendOutput("Test Failed.");
+                }
+
+                if (process.env.TEST_REPORT_PATH) {
+                  reloadWebview({
+                    panel: webviewPanel,
+                    path: `/home/strove/project/${process.env.TEST_REPORT_PATH}`,
+                  });
+                } else {
+                  reloadWebview({
+                    panel: webviewPanel,
+                    html: `<pre>${html}</pre>`,
+                  });
                 }
 
                 testRunningFlag = false;
