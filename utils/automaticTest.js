@@ -59,7 +59,7 @@ const startAutomaticTest = () => {
           let webviewPanel;
           let html = "<h1>Automatic test results will be visible below:</h1>";
 
-          let interval;
+          let refreshWebviewInterval;
 
           testProcess = {
             process: child_process.spawn("/bin/bash"),
@@ -78,13 +78,13 @@ const startAutomaticTest = () => {
                 `cd ${automaticTest.folderName} && ${automaticTest.testStartCommand} ; exit\n`
               );
 
-              interval = setInterval(
+              refreshWebviewInterval = setInterval(
                 () =>
                   reloadWebview({
                     panel: webviewPanel,
                     html: `<pre>${html}</pre>`,
                   }),
-                1000
+                500
               );
             },
             initEvents: () => {
@@ -98,12 +98,8 @@ const startAutomaticTest = () => {
                 response =
                   response.length > 1 ? response.join("\r\n") : response[0];
 
-                // html += `<p>${response}</p>`;
                 html += response;
-                // reloadWebview({
-                //   panel: webviewPanel,
-                //   html: `<pre>${html}</pre>`,
-                // });
+
                 terminalWriter.fire(response);
               });
 
@@ -119,17 +115,14 @@ const startAutomaticTest = () => {
                   response.length > 1 ? response.join("\r\n") : response[0];
 
                 html += response;
-                // reloadWebview({
-                //   panel: webviewPanel,
-                //   html: `<pre>${html}</pre>`,
-                // });
+
                 terminalWriter.fire(response);
               });
 
               // Handle Closure
               testProcess.process.on("exit", (exitCode) => {
                 sendLog(`startAutomaticTest - exit: ${exitCode}`);
-                clearInterval(interval);
+                clearInterval(refreshWebviewInterval);
 
                 if (exitCode === 0) {
                   sendOutput("Test Passed.");
@@ -137,10 +130,17 @@ const startAutomaticTest = () => {
                   sendOutput("Test Failed.");
                 }
 
-                reloadWebview({
-                  panel: webviewPanel,
-                  html: `<pre>${html}</pre>`,
-                });
+                if (process.env.TEST_REPORT_PATH) {
+                  reloadWebview({
+                    panel: webviewPanel,
+                    html: `<pre>${html}</pre>`,
+                  });
+                } else {
+                  reloadWebview({
+                    panel: webviewPanel,
+                    path: `/home/strove/project/${process.env.TEST_REPORT_PATH}`,
+                  });
+                }
 
                 testRunningFlag = false;
               });
