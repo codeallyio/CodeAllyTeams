@@ -57,7 +57,7 @@ const startAutomaticTest = () => {
         ) {
           const terminalWriter = await startTestTerminal();
           let webviewPanel;
-          let html = "<h5>Automatic test results will be visible below:</h5>";
+          let html = "<h3>Automatic test results will be visible below:</h3>";
 
           let refreshWebviewInterval;
 

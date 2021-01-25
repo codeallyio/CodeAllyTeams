@@ -34,7 +34,11 @@ const createWebview = ({ path, html, title = "Test Results" }) => {
 
       const pathUri = pathToHtml.with({ scheme: "vscode-resource" });
 
-      panel.webview.html = fs.readFileSync(pathUri.fsPath, "utf8");
+      //   panel.webview.html = fs.readFileSync(pathUri.fsPath, "utf8");
+      panel.webview.html = `<pre>${fs.readFileSync(
+        pathUri.fsPath,
+        "utf8"
+      )}</pre>`;
     }
 
     if (html) {
@@ -66,7 +70,10 @@ const reloadWebview = ({ path, html, panel }) => {
 
       const pathUri = pathToHtml.with({ scheme: "vscode-resource" });
 
-      panel.webview.html = fs.readFileSync(pathUri.fsPath, "utf8");
+      panel.webview.html = `<pre>${fs.readFileSync(
+        pathUri.fsPath,
+        "utf8"
+      )}</pre>`;
     }
 
     if (html) {
