@@ -130,7 +130,10 @@ const startAutomaticTest = () => {
                   sendOutput("Test Failed.");
                 }
 
-                if (process.env.TEST_REPORT_PATH) {
+                if (
+                  process.env.TEST_REPORT_PATH &&
+                  process.env.SHOW_TEST_REPORT
+                ) {
                   reloadWebview({
                     panel: webviewPanel,
                     path: `/home/strove/project/${process.env.TEST_REPORT_PATH}`,
