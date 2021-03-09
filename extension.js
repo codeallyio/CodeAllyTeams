@@ -44,6 +44,98 @@ Sentry.init({
 
 let initPing;
 
+let liveshareSubscriber
+let focusEditorSubscriber
+
+const startSubscribing = () => {
+  const stroveLiveshareOperation = {
+    query: stroveLiveshareSubscription,
+    variables: {
+      userId: process.env.STROVE_USER_ID || "123",
+      projectId: process.env.STROVE_PROJECT_ID || "123abc",
+    },
+  };
+
+  liveshareSubscriber = execute(
+    websocketLink,
+    stroveLiveshareOperation
+  ).subscribe({
+    next: (data) => {
+      const {
+        data: { stroveLiveshare },
+      } = data;
+
+      if (initPing) {
+        clearInterval(initPing);
+        initPing = false;
+
+        const userData = stroveLiveshare.find((userData) => {
+          if (userData.documentPath && userData.documentPath > 0) return true;
+        });
+
+        if (userData)
+          handleFocusEditor({
+            uri: userData.documentPath,
+            userPosition: userData.selections,
+          });
+      }
+
+      handleLiveshareResponse(stroveLiveshare);
+    },
+    error: (error) => {
+      console.log(
+        `received error in liveshareSubscriber ${JSON.stringify(error)}`
+      );
+
+      Sentry.withScope((scope) => {
+        scope.setExtras({
+          data: stroveLiveshareOperation,
+          location: "liveshareSubscriber",
+        });
+        Sentry.captureException(error);
+      });
+    },
+    complete: () => console.log(`complete`),
+  });
+
+  const focusEditorOperation = {
+    query: focusEditorSubscription,
+    variables: {
+      projectId: process.env.STROVE_PROJECT_ID || "123abc",
+    },
+  };
+
+  focusEditorSubscriber = execute(
+    websocketLink,
+    focusEditorOperation
+  ).subscribe({
+    next: async (data) => {
+      const {
+        data: { focusEditor },
+      } = data;
+
+      handleFocusEditor({
+        uri: focusEditor.documentPath,
+        userPosition: focusEditor.selections,
+      });
+    },
+    error: (error) => {
+      console.log(
+        `received error in focusEditorSubscriber ${JSON.stringify(error)}`
+      );
+
+      Sentry.withScope((scope) => {
+        scope.setExtras({
+          data: focusEditorOperation,
+          location: "focusEditorSubscriber",
+        });
+        Sentry.captureException(error);
+      });
+    },
+    complete: () => console.log(`complete`),
+  })
+}
+
 const liveshareActivityUpdate = (data) => {
   const liveshareActivityOperation = {
     query: liveshareActivity,
@@ -156,6 +248,7 @@ async function activate(context) {
     let terminal;
     const terminals = vscode.window.terminals;
 
+    startSubscribing()
     startAutomaticTest();
 
     if (terminals.length) {
@@ -209,93 +302,6 @@ async function activate(context) {
     });
   }
 }
-
-const stroveLiveshareOperation = {
-  query: stroveLiveshareSubscription,
-  variables: {
-    userId: process.env.STROVE_USER_ID || "123",
-    projectId: process.env.STROVE_PROJECT_ID || "123abc",
-  },
-};
-
-const liveshareSubscriber = execute(
-  websocketLink,
-  stroveLiveshareOperation
-).subscribe({
-  next: (data) => {
-    const {
-      data: { stroveLiveshare },
-    } = data;
-
-    if (initPing) {
-      clearInterval(initPing);
-      initPing = false;
-
-      const userData = stroveLiveshare.find((userData) => {
-        if (userData.documentPath && userData.documentPath > 0) return true;
-      });
-
-      if (userData)
-        handleFocusEditor({
-          uri: userData.documentPath,
-          userPosition: userData.selections,
-        });
-    }
-
-    handleLiveshareResponse(stroveLiveshare);
-  },
-  error: (error) => {
-    console.log(
-      `received error in liveshareSubscriber ${JSON.stringify(error)}`
-    );
-
-    Sentry.withScope((scope) => {
-      scope.setExtras({
-        data: stroveLiveshareOperation,
-        location: "liveshareSubscriber",
-      });
-      Sentry.captureException(error);
-    });
-  },
-  complete: () => console.log(`complete`),
-});
-
-const focusEditorOperation = {
-  query: focusEditorSubscription,
-  variables: {
-    projectId: process.env.STROVE_PROJECT_ID || "123abc",
-  },
-};
-
-const focusEditorSubscriber = execute(
-  websocketLink,
-  focusEditorOperation
-).subscribe({
-  next: async (data) => {
-    const {
-      data: { focusEditor },
-    } = data;
-
-    handleFocusEditor({
-      uri: focusEditor.documentPath,
-      userPosition: focusEditor.selections,
-    });
-  },
-  error: (error) => {
-    console.log(
-      `received error in focusEditorSubscriber ${JSON.stringify(error)}`
-    );
-
-    Sentry.withScope((scope) => {
-      scope.setExtras({
-        data: focusEditorOperation,
-        location: "focusEditorSubscriber",
-      });
-      Sentry.captureException(error);
-    });
-  },
-  complete: () => console.log(`complete`),
-});
 
 // this method is called when your extension is deactivated
 function deactivate() {

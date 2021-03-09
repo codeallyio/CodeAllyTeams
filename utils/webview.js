@@ -103,10 +103,8 @@ const reloadWebview = ({ path, html, panel }) => {
 
 const checkIfHTMLFile = (path) => {
   const temp = path.slice(path.length - 4);
-
-  if (temp === "html") return true;
-
-  return false;
+  
+  return temp === "html";
 };
 
 module.exports = {
