@@ -59,7 +59,7 @@ const startSubscribing = () => {
     }
   }).subscribe({
     next: (data) => {
-      sendLog("🚀 ~ file: extension.js ~ line 223 ~ }).subscribe ~ data", data)
+      sendLog("🚀 ~ file: extension.js ~ line 223 ~ }).subscribe ~ data")
 
       const {
         data: { stroveLiveshare },
@@ -83,6 +83,7 @@ const startSubscribing = () => {
       handleLiveshareResponse(stroveLiveshare);
     },
     error: (error) => {
+      sendLog("🚀 ~ file: extension.js ~ line 223 ~ }).subscribe ~ error")
       console.log(
         `received error in liveshareSubscriber ${JSON.stringify(error)}`
       );
@@ -98,7 +99,10 @@ const startSubscribing = () => {
         Sentry.captureException(error);
       });
     },
-    complete: () => console.log(`complete`),
+    complete: () => {
+      sendLog("🚀 ~ file: extension.js ~ line 223 ~ }).subscribe ~ data")
+    console.log(`complete`)
+  },
   });
 
   focusEditorSubscriber = apolloClient.subscribe({query: focusEditorSubscription,
