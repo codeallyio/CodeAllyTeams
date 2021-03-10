@@ -188,7 +188,7 @@ const liveshareActivityInit = () => {
     });
 };
 
-const throttleLiveshareActivityCall = throttle(liveshareActivityUpdate, 100, {
+const throttleLiveshareActivityCall = throttle(liveshareActivityUpdate, 1000, {
   leading: true,
 });
 
