@@ -1,3 +1,5 @@
+const gql = require('graphql-tag')
+
 const userDataFragment = `
     projectId
     userId
@@ -25,7 +27,7 @@ const userDataFragment = `
     color
 `;
 
-exports.stroveLiveshareSubscription = `
+exports.stroveLiveshareSubscription = gql`
 subscription($userId: String!, $projectId: String!) {
     stroveLiveshare (userId: $userId, projectId: $projectId) {
       ${userDataFragment}

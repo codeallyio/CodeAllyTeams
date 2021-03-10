@@ -25,6 +25,9 @@ const {
   startAutomaticTest,
   autoTestTerminalSubscriber,
 } = require("./utils/automaticTest");
+const {
+  apolloClient
+} = require("./utils/apolloClient");
 
 const environment = process.env.STROVE_ENVIRONMENT;
 const userType = process.env.STROVE_USER_TYPE;
@@ -201,6 +204,40 @@ const throttleLiveshareActivityCall = throttle(liveshareActivityUpdate, 100, {
  */
 async function activate(context) {
   try {
+    startDebugging();
+    // const { data } = useSubscription(
+    //   stroveLiveshareSubscription,
+    //   { variables: {
+    //     userId: process.env.STROVE_USER_ID || "123",
+    //     projectId: process.env.STROVE_PROJECT_ID || "123abc",
+    //   } }
+    // );
+    // console.log("🚀 ~ file: extension.js ~ line 211 ~ activate ~ data", data)
+
+    const t = apolloClient.subscribe({
+      query:stroveLiveshareSubscription,
+      variables: {
+        userId: process.env.STROVE_USER_ID || "123",
+        projectId: process.env.STROVE_PROJECT_ID || "123abc",
+      }
+    }).subscribe({next: async (data) => {
+      sendLog("🚀 ~ file: extension.js ~ line 223 ~ }).subscribe ~ data", data)
+      console.log("🚀 ~ file: extension.js ~ line 226 ~ }).subscribe ~ data", data)
+      // const {
+      //   data: { focusEditor },
+      // } = data;
+
+      // handleFocusEditor({
+      //   uri: focusEditor.documentPath,
+      //   userPosition: focusEditor.selections,
+      // });
+    }})
+    // })
+    console.log("🚀 ~ file: extension.js ~ line 220 ~ activate ~ apolloClient", apolloClient)
+    // console.log("🚀 ~ file: extension.js ~ line 235 ~ activate ~ t", t)
+
+
+    
     // Example usage:
     // sendLog("proba mikrofonu");
     if (environment !== "production") startDebugging();
