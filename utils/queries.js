@@ -41,7 +41,7 @@ mutation($userData: UserActivityInput) {
 }
 `;
 
-exports.focusEditorSubscription = `
+exports.focusEditorSubscription = gql`
 subscription($projectId: String!) {
     focusEditor(projectId: $projectId) {
         documentPath
