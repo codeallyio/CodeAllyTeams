@@ -51,55 +51,55 @@ let liveshareSubscriber
 let focusEditorSubscriber
 
 const startSubscribing = () => {
-  const stroveLiveshareOperation = {
-    query: stroveLiveshareSubscription,
-    variables: {
-      userId: process.env.STROVE_USER_ID || "123",
-      projectId: process.env.STROVE_PROJECT_ID || "123abc",
-    },
-  };
+  // const stroveLiveshareOperation = {
+  //   query: stroveLiveshareSubscription,
+  //   variables: {
+  //     userId: process.env.STROVE_USER_ID || "123",
+  //     projectId: process.env.STROVE_PROJECT_ID || "123abc",
+  //   },
+  // };
 
-  liveshareSubscriber = execute(
-    websocketLink,
-    stroveLiveshareOperation
-  ).subscribe({
-    next: (data) => {
-      const {
-        data: { stroveLiveshare },
-      } = data;
+  // liveshareSubscriber = execute(
+  //   websocketLink,
+  //   stroveLiveshareOperation
+  // ).subscribe({
+  //   next: (data) => {
+  //     const {
+  //       data: { stroveLiveshare },
+  //     } = data;
 
-      if (initPing) {
-        clearInterval(initPing);
-        initPing = false;
+  //     if (initPing) {
+  //       clearInterval(initPing);
+  //       initPing = false;
 
-        const userData = stroveLiveshare.find((userData) => {
-          if (userData.documentPath && userData.documentPath > 0) return true;
-        });
+  //       const userData = stroveLiveshare.find((userData) => {
+  //         if (userData.documentPath && userData.documentPath > 0) return true;
+  //       });
 
-        if (userData)
-          handleFocusEditor({
-            uri: userData.documentPath,
-            userPosition: userData.selections,
-          });
-      }
+  //       if (userData)
+  //         handleFocusEditor({
+  //           uri: userData.documentPath,
+  //           userPosition: userData.selections,
+  //         });
+  //     }
 
-      handleLiveshareResponse(stroveLiveshare);
-    },
-    error: (error) => {
-      console.log(
-        `received error in liveshareSubscriber ${JSON.stringify(error)}`
-      );
+  //     handleLiveshareResponse(stroveLiveshare);
+  //   },
+  //   error: (error) => {
+  //     console.log(
+  //       `received error in liveshareSubscriber ${JSON.stringify(error)}`
+  //     );
 
-      Sentry.withScope((scope) => {
-        scope.setExtras({
-          data: stroveLiveshareOperation,
-          location: "liveshareSubscriber",
-        });
-        Sentry.captureException(error);
-      });
-    },
-    complete: () => console.log(`complete`),
-  });
+  //     Sentry.withScope((scope) => {
+  //       scope.setExtras({
+  //         data: stroveLiveshareOperation,
+  //         location: "liveshareSubscriber",
+  //       });
+  //       Sentry.captureException(error);
+  //     });
+  //   },
+  //   complete: () => console.log(`complete`),
+  // });
 
   const focusEditorOperation = {
     query: focusEditorSubscription,
@@ -214,26 +214,54 @@ async function activate(context) {
     // );
     // console.log("🚀 ~ file: extension.js ~ line 211 ~ activate ~ data", data)
 
-    const t = apolloClient.subscribe({
+    liveshareSubscriber = apolloClient.subscribe({
       query:stroveLiveshareSubscription,
       variables: {
         userId: process.env.STROVE_USER_ID || "123",
         projectId: process.env.STROVE_PROJECT_ID || "123abc",
       }
-    }).subscribe({next: async (data) => {
-      sendLog("🚀 ~ file: extension.js ~ line 223 ~ }).subscribe ~ data", data)
-      console.log("🚀 ~ file: extension.js ~ line 226 ~ }).subscribe ~ data", data)
-      // const {
-      //   data: { focusEditor },
-      // } = data;
-
-      // handleFocusEditor({
-      //   uri: focusEditor.documentPath,
-      //   userPosition: focusEditor.selections,
-      // });
-    }})
+    }).subscribe({
+      next: (data) => {
+        sendLog("🚀 ~ file: extension.js ~ line 223 ~ }).subscribe ~ data", data)
+        console.log("🚀 ~ file: extension.js ~ line 226 ~ }).subscribe ~ data", data)
+   
+        const {
+          data: { stroveLiveshare },
+        } = data;
+  
+        if (initPing) {
+          clearInterval(initPing);
+          initPing = false;
+  
+          const userData = stroveLiveshare.find((userData) => {
+            if (userData.documentPath && userData.documentPath > 0) return true;
+          });
+  
+          if (userData)
+            handleFocusEditor({
+              uri: userData.documentPath,
+              userPosition: userData.selections,
+            });
+        }
+  
+        handleLiveshareResponse(stroveLiveshare);
+      },
+      error: (error) => {
+        console.log(
+          `received error in liveshareSubscriber ${JSON.stringify(error)}`
+        );
+  
+        Sentry.withScope((scope) => {
+          scope.setExtras({
+            location: "liveshareSubscriber",
+          });
+          Sentry.captureException(error);
+        });
+      },
+      complete: () => console.log(`complete`),
+    });
     // })
-    console.log("🚀 ~ file: extension.js ~ line 220 ~ activate ~ apolloClient", apolloClient)
+    // console.log("🚀 ~ file: extension.js ~ line 220 ~ activate ~ apolloClient", apolloClient)
     // console.log("🚀 ~ file: extension.js ~ line 235 ~ activate ~ t", t)
 
 
