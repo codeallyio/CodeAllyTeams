@@ -60,14 +60,16 @@ const startSubscribing = () => {
   };
 
   liveshareSubscriber = apolloClient.subscribe({
-    // query:stroveLiveshareSubscription,
-    // variables: {
-    //   userId: process.env.STROVE_USER_ID || "123",
-    //   projectId: process.env.STROVE_PROJECT_ID || "123abc",
-    // }
-    stroveLiveshareOperation
+    query: stroveLiveshareSubscription,
+    variables: {
+      userId: process.env.STROVE_USER_ID || "123",
+      projectId: process.env.STROVE_PROJECT_ID || "123abc",
+    }
+    // stroveLiveshareOperation
   }).subscribe({
     next: (data) => {
+      sendLog("🚀 ~ file: extension.js ~ line 223 ~ }).subscribe ~ data", data)
+
       const {
         data: { stroveLiveshare },
       } = data;
@@ -113,7 +115,7 @@ const startSubscribing = () => {
   };
 
 
-    focusEditorSubscriber = apolloClient.subscribe(focusEditorOperation).subscribe({
+  focusEditorSubscriber = apolloClient.subscribe(focusEditorOperation).subscribe({
     next: async (data) => {
       const {
         data: { focusEditor },
@@ -226,33 +228,33 @@ async function activate(context) {
     //   next: (data) => {
     //     sendLog("🚀 ~ file: extension.js ~ line 223 ~ }).subscribe ~ data", data)
     //     console.log("🚀 ~ file: extension.js ~ line 226 ~ }).subscribe ~ data", data)
-   
+
     //     const {
     //       data: { stroveLiveshare },
     //     } = data;
-  
+
     //     if (initPing) {
     //       clearInterval(initPing);
     //       initPing = false;
-  
+
     //       const userData = stroveLiveshare.find((userData) => {
     //         if (userData.documentPath && userData.documentPath > 0) return true;
     //       });
-  
+
     //       if (userData)
     //         handleFocusEditor({
     //           uri: userData.documentPath,
     //           userPosition: userData.selections,
     //         });
     //     }
-  
+
     //     handleLiveshareResponse(stroveLiveshare);
     //   },
     //   error: (error) => {
     //     console.log(
     //       `received error in liveshareSubscriber ${JSON.stringify(error)}`
     //     );
-  
+
     //     Sentry.withScope((scope) => {
     //       scope.setExtras({
     //         location: "liveshareSubscriber",
@@ -267,7 +269,7 @@ async function activate(context) {
     // console.log("🚀 ~ file: extension.js ~ line 235 ~ activate ~ t", t)
 
 
-    
+
     // Example usage:
     // sendLog("proba mikrofonu");
     if (environment !== "production") startDebugging();
