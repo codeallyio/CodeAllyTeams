@@ -10,7 +10,7 @@ const cache = new InMemoryCache()
 const link = new WebSocketLink({
   uri: websocketEndpoint,
   options: {
-    reconnect: true,
+    reconnect: false,
     connectionParams: () => ({
       authorization: process.env.STROVE_USER_TOKEN
         ? `Bearer ${process.env.STROVE_USER_TOKEN}`
