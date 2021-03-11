@@ -58,7 +58,7 @@ const startSubscribing = () => {
       projectId: process.env.STROVE_PROJECT_ID || "123abc",
     }
   }).subscribe({
-    start: () => sendLog('started subscribing'),
+    start: () => setTimeout(() => sendLog('started subscribing'), 10000),
     next: (data) => {
       sendLog("🚀 ~ file: extension.js ~ line 223 ~ }).subscribe ~ data")
 
