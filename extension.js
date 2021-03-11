@@ -58,6 +58,7 @@ const startSubscribing = () => {
       projectId: process.env.STROVE_PROJECT_ID || "123abc",
     }
   }).subscribe({
+    start: () => sendLog('started subscribing'),
     next: (data) => {
       sendLog("🚀 ~ file: extension.js ~ line 223 ~ }).subscribe ~ data")
 
@@ -204,6 +205,8 @@ const throttleLiveshareActivityCall = throttle(liveshareActivityUpdate, 5000, {
 async function activate(context) {
   try {
     startDebugging();
+    sendLog("activate function fired")
+
     // Example usage:
     // sendLog("proba mikrofonu");
     if (environment !== "production") startDebugging();
