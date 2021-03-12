@@ -57,7 +57,9 @@ const startSubscribing = () => {
       userId: process.env.STROVE_USER_ID || "123",
       projectId: process.env.STROVE_PROJECT_ID || "123abc",
     },
-    context: ""
+    context: {
+      firesField: 'Eluwina'
+    }
   }).subscribe({
     start: () => setTimeout(() => sendLog('started subscribing'), 10000),
     next: (data) => {
