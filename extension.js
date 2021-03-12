@@ -213,6 +213,12 @@ const stroveLiveshareOperation = {
     userId: process.env.STROVE_USER_ID || "123",
     projectId: process.env.STROVE_PROJECT_ID || "123abc",
   },
+  context: {
+    testData: 'test test rakieta'
+  },
+  extensions: {
+    testExtensions: 'halo halo Is it on'
+  }
 };
 
 const liveshareSubscriber = execute(
