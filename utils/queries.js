@@ -82,3 +82,13 @@ subscription($projectId: String!) {
     }
 }
 `;
+
+exports.startIOTestMutation = `
+subscription($projectId: String!) {
+    startIOTest(projectId: $projectId, userId: $userId) {
+            language
+            testCommand
+            inputOutput [InputOutputData]  
+    }
+}
+`;
