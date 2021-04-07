@@ -1,5 +1,8 @@
+const vscode = require("vscode");
 const fs = require("fs");
 const Sentry = require("@sentry/node");
+const util = require("util");
+const exec = util.promisify(require("child_process").exec);
 
 const { sendLog } = require("./debugger");
 
@@ -20,7 +23,35 @@ Sentry.init({
 
 const handleCpp = async ({ testCommand, inputOutput }) => {
   try {
-    const userFileContent = fs.readFileSync(pathUri.fsPath, "utf8");
+    if (inputOutput && inputOutput.length > 0 && testCommand) {
+      const pathToFile = vscode.Uri.file("/home/strove/project/main.cpp");
+
+      const pathUri = pathToFile.with({ scheme: "vscode-resource" });
+
+      const cppFileContent = fs.readFileSync(pathUri.fsPath, "utf8");
+
+      let counter = 0;
+      const maxValue = inputOutput.length();
+
+      const results = [];
+
+      while (counter < maxValue) {
+        const { input } = inputOutput[counter];
+        fs.writeFileSync(
+          `/home/strove/main.cpp`,
+          "" + cppFileContent + testFileContent(input.value),
+          "utf8"
+        );
+
+        const { stdout } = await exec(testCommand);
+
+        results.push(stdout.slice(0, -1));
+
+        await exec(`sudo rm -rf /home/strove/main.cpp`);
+      }
+
+      return results;
+    }
   } catch (e) {
     console.log(`received error in handleCpp ${JSON.stringify(e)}`);
 

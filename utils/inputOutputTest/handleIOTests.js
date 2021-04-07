@@ -1,7 +1,7 @@
 const Sentry = require("@sentry/node");
 const { execute, makePromise } = require("apollo-link");
 const { websocketLink } = require("./websocketLink");
-const { startIOTestMutation } = require("./queries");
+const { startIOTestMutation, setProjectDataMutation } = require("./queries");
 const { sendLog } = require("./debugger");
 
 const environment = process.env.STROVE_ENVIRONMENT;
@@ -27,6 +27,7 @@ const startIOTestOperation = {
 };
 
 let startIOTestSubscriber = null;
+let readyToTest = true;
 
 const startIOTest = () => {
   // Start terminal if ping arrives
@@ -40,16 +41,21 @@ const startIOTest = () => {
           data: { startIOTest },
         } = data;
 
-        if (startIOTest.language) {
+        if (startIOTest.language && readyToTest) {
+          readyToTest = false;
+          let outputs = [];
           switch (startIOTest.language) {
             case "cpp":
               const handleCpp = require("./cpp");
-              handleCpp(startIOTest);
+              outputs = await handleCpp(startIOTest);
               break;
             default:
-              sendLog(`Language was not specified - testing impossible.`);
-              console.log(`Language was not specified - testing impossible.`);
+              sendLog(`Language was not recognized - testing impossible.`);
+              console.log(`Language was not recognized - testing impossible.`);
           }
+
+          await sendIOTestOutput({ outputs, language: startIOTest.language });
+          readyToTest = true;
         }
       } catch (e) {
         sendLog(`startIOTest - tryCatch: ${JSON.stringify(e)}`);
@@ -85,6 +91,49 @@ const startIOTest = () => {
     },
     complete: () => console.log(`complete`),
   });
+};
+
+const sendIOTestOutput = async ({ outputs, language }) => {
+  try {
+    const setProjectData = {
+      query: setProjectDataMutation,
+      variables: {
+        id: process.env.STROVE_PROJECT_ID || "123abc",
+        ioTestOutputs: {
+          language,
+          outputs,
+        },
+      },
+    };
+
+    sendLog(`sendIOTestOutput - variables: ${setProjectData.variables}`);
+
+    makePromise(execute(websocketLink, setProjectData))
+      .then()
+      .catch((error) => {
+        console.log(
+          `received error in sendIOTestOutput ${JSON.stringify(error)}`
+        );
+
+        Sentry.withScope((scope) => {
+          scope.setExtras({
+            data: setProjectData,
+            location: "sendIOTestOutput -> mutation",
+          });
+          Sentry.captureException(error);
+        });
+      });
+  } catch (e) {
+    sendLog(`sendIOTestOutput - tryCatch: ${e}`);
+    console.log("error in sendIOTestOutput: ", e);
+    Sentry.withScope((scope) => {
+      scope.setExtras({
+        data: { error: e },
+        location: "sendIOTestOutput",
+      });
+      Sentry.captureMessage("Unexpected error!");
+    });
+  }
 };
 
 module.exports = {
