@@ -22,6 +22,7 @@ Sentry.init({
 });
 
 const runIOTests = async ({ testCommand, inputOutput, language }) => {
+  let results = [];
   try {
     if (inputOutput && inputOutput.length > 0 && testCommand) {
       const { fileName, testFileContent } = languagesData[language];
@@ -34,8 +35,6 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
 
       let counter = 0;
       const maxValue = inputOutput.length();
-
-      const results = [];
 
       while (counter < maxValue) {
         const { input } = inputOutput[counter];
@@ -66,6 +65,8 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
       });
       Sentry.captureException(e);
     });
+
+    return (results = ["User caused unknown error - user's code not working"]);
   }
 };
 
