@@ -43,16 +43,9 @@ const startIOTest = () => {
 
         if (startIOTest.language && readyToTest) {
           readyToTest = false;
-          let outputs = [];
-          switch (startIOTest.language) {
-            case "cpp":
-              const handleCpp = require("./cpp");
-              outputs = await handleCpp(startIOTest);
-              break;
-            default:
-              sendLog(`Language was not recognized - testing impossible.`);
-              console.log(`Language was not recognized - testing impossible.`);
-          }
+
+          const runIOTests = require("./runIOTests");
+          let outputs = await runIOTests(startIOTest);
 
           await sendIOTestOutput({ outputs, language: startIOTest.language });
           readyToTest = true;
