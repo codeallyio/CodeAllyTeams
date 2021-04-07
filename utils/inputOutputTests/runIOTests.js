@@ -76,7 +76,7 @@ const languagesData = {
         ${userFileContent}
 
         int main(int argc, char* argv[]) {
-            std::cout << my_func(${inputValue}) << std::endl;
+            std::cout << main_function(${inputValue}) << std::endl;
             return 0;
         }
     `,
@@ -86,7 +86,7 @@ const languagesData = {
     testFileContent: ({ inputValue, userFileContent }) => `
         ${userFileContent}
 
-        print(my_func(${inputValue}))
+        print(main_function(${inputValue}))
     `,
   },
   java: {
@@ -96,7 +96,7 @@ const languagesData = {
         ${userFileContent}
 
         public static void main(String[] args) {
-            System.out.println(my_func(${inputValue}));
+            System.out.println(main_function(${inputValue}));
         }
     }
     `,
@@ -108,7 +108,7 @@ const languagesData = {
         ${userFileContent}
 
         public static void Main(string[] args) {
-            System.Console.WriteLine(MyFunc(${inputValue}));
+            System.Console.WriteLine(MainFunction(${inputValue}));
         }
     }
     `,
@@ -118,7 +118,7 @@ const languagesData = {
     testFileContent: ({ inputValue, userFileContent }) => `
         ${userFileContent}
 
-        console.log(myFunc(${inputValue}))
+        console.log(mainFunction(${inputValue}))
     `,
   },
 };
