@@ -33,7 +33,7 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
       const userFileContent = fs.readFileSync(pathUri.fsPath, "utf8");
 
       let counter = 0;
-      const maxValue = inputOutput.length();
+      const maxValue = inputOutput.length;
 
       const results = [];
 
