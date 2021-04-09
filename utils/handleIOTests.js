@@ -22,7 +22,7 @@ Sentry.init({
 const startIOTestOperation = {
   query: startIOTestMutation,
   variables: {
-    projectId: process.env.STROVE_PROJECT_ID || "123abc",
+    projectId: process.env.STROVE_PROJECT_ID || "60702e7b231de583c1e3e883",
   },
 };
 
@@ -38,16 +38,30 @@ const startIOTest = () => {
     ).subscribe({
       next: async (data) => {
         sendLog(`in subscribe`);
+        console.log("subscription fired");
         try {
           const {
             data: { startIOTest },
           } = data;
+          console.log(
+            "🚀 ~ file: handleIOTests.js ~ line 46 ~ next: ~ startIOTest",
+            startIOTest
+          );
 
           if (startIOTest.language && readyToTest) {
+            console.log("in if");
             readyToTest = false;
 
-            const runIOTests = require("./inputOutputTests/runIOTests");
+            const runIOTests = require("./runIOTests");
+            console.log(
+              "🚀 ~ file: handleIOTests.js ~ line 56 ~ next: ~ runIOTests",
+              runIOTests
+            );
             let outputs = await runIOTests(startIOTest);
+            console.log(
+              "🚀 ~ file: handleIOTests.js ~ line 54 ~ next: ~ outputs",
+              outputs
+            );
 
             await sendIOTestOutput({ outputs, language: startIOTest.language });
             readyToTest = true;
