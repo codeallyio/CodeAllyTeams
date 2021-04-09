@@ -126,7 +126,11 @@ const sendIOTestOutput = async ({ outputs, language }) => {
       },
     };
 
-    sendLog(`sendIOTestOutput - variables: ${setProjectData.variables}`);
+    sendLog(
+      `sendIOTestOutput - variables: ${JSON.stringify(
+        setProjectData.variables
+      )}`
+    );
 
     makePromise(execute(websocketLink, setProjectData))
       .then()
