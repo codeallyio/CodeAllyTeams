@@ -30,7 +30,6 @@ let startIOTestSubscriber = null;
 let readyToTest = true;
 
 const startIOTest = () => {
-  // Start terminal if ping arrives
   startIOTestSubscriber = execute(
     websocketLink,
     startIOTestOperation
