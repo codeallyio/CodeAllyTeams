@@ -30,11 +30,14 @@ let startIOTestSubscriber = null;
 let readyToTest = true;
 
 const startIOTest = () => {
+  sendLog(`in function`);
+
   startIOTestSubscriber = execute(
     websocketLink,
     startIOTestOperation
   ).subscribe({
     next: async (data) => {
+      sendLog(`in subscribe`);
       try {
         const {
           data: { startIOTest },
