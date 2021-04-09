@@ -45,7 +45,7 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
           "utf8"
         );
 
-        const { stdout } = await exec(testCommand);
+        const { stdout } = await exec(testCommand + " ; exit");
 
         results.push(stdout.slice(0, -1));
 
