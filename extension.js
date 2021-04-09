@@ -25,6 +25,10 @@ const {
   startAutomaticTest,
   autoTestTerminalSubscriber,
 } = require("./utils/automaticTest");
+const {
+  startIOTest,
+  startIOTestSubscriber,
+} = require("./utils/inputOutputTests/handleIOTests");
 
 const environment = process.env.STROVE_ENVIRONMENT;
 const userType = process.env.STROVE_USER_TYPE;
@@ -157,6 +161,7 @@ async function activate(context) {
     const terminals = vscode.window.terminals;
 
     startAutomaticTest();
+    startIOTest();
 
     if (terminals.length) {
       terminal = vscode.window.terminals[0];
@@ -179,6 +184,7 @@ async function activate(context) {
     if (userType === "guest") {
       // Listen for startTest button
       // startAutomaticTest();
+      // startIOTest()
 
       //   broadcastTerminal();
       const redirectedTerminal = vscode.window.createTerminal(
@@ -304,6 +310,7 @@ function deactivate() {
   receiveTerminalSubscriber.unsubscribe();
   manageTerminalSubscriber.unsubscribe();
   autoTestTerminalSubscriber.unsubscribe();
+  startIOTestSubscriber.unsubscribe();
 }
 
 exports.activate = activate;
