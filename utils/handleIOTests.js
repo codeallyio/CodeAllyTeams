@@ -52,7 +52,7 @@ const startIOTest = () => {
             sendLog("in if");
             readyToTest = false;
 
-            const runIOTests = require("./runIOTests");
+            const { runIOTests } = require("./runIOTests");
             sendLog(
               "🚀 ~ file: handleIOTests.js ~ line 56 ~ next: ~ runIOTests",
               runIOTests
@@ -70,9 +70,7 @@ const startIOTest = () => {
           sendLog(`startIOTest - tryCatch: ${JSON.stringify(e)}`);
 
           console.log(
-            `received error in startIOTest -> startIOTestSubscriber -> next ${JSON.stringify(
-              e
-            )}`
+            `received error in startIOTest -> startIOTestSubscriber -> next ${e}`
           );
 
           Sentry.withScope((scope) => {
