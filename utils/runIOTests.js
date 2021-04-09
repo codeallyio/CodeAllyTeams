@@ -57,7 +57,7 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
   } catch (e) {
     console.log(`received error in runIOTests ${e}`);
 
-    sendLog(`received error in runIOTests ${JSON.stringify(e)}`);
+    sendLog(`received error in runIOTests ${e}`);
 
     Sentry.withScope((scope) => {
       scope.setExtras({
