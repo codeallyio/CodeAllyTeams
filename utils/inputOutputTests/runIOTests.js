@@ -72,7 +72,7 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
 };
 
 const languagesData = {
-  cpp: {
+  "C++": {
     fileName: "main.cpp",
     testFileContent: ({ inputValue, userFileContent }) => `
         ${userFileContent}
@@ -83,7 +83,7 @@ const languagesData = {
         }
     `,
   },
-  python: {
+  Python: {
     fileName: "main.py",
     testFileContent: ({ inputValue, userFileContent }) => `
         ${userFileContent}
@@ -91,7 +91,7 @@ const languagesData = {
         print(main_function(${inputValue}))
     `,
   },
-  java: {
+  Java: {
     fileName: "main.java",
     testFileContent: ({ inputValue, userFileContent }) => `
     class Main {
@@ -103,7 +103,7 @@ const languagesData = {
     }
     `,
   },
-  csharp: {
+  "C#": {
     fileName: "main.cs",
     testFileContent: ({ inputValue, userFileContent }) => `
     class MainClass {
@@ -115,7 +115,7 @@ const languagesData = {
     }
     `,
   },
-  javascript: {
+  JavaScript: {
     fileName: "index.js",
     testFileContent: ({ inputValue, userFileContent }) => `
         ${userFileContent}
