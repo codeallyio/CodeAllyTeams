@@ -31,61 +31,72 @@ let readyToTest = true;
 
 const startIOTest = () => {
   sendLog(`in function`);
+  try {
+    startIOTestSubscriber = execute(
+      websocketLink,
+      startIOTestOperation
+    ).subscribe({
+      next: async (data) => {
+        sendLog(`in subscribe`);
+        try {
+          const {
+            data: { startIOTest },
+          } = data;
 
-  startIOTestSubscriber = execute(
-    websocketLink,
-    startIOTestOperation
-  ).subscribe({
-    next: async (data) => {
-      sendLog(`in subscribe`);
-      try {
-        const {
-          data: { startIOTest },
-        } = data;
+          if (startIOTest.language && readyToTest) {
+            readyToTest = false;
 
-        if (startIOTest.language && readyToTest) {
-          readyToTest = false;
+            const runIOTests = require("./inputOutputTests/runIOTests");
+            let outputs = await runIOTests(startIOTest);
 
-          const runIOTests = require("./inputOutputTests/runIOTests");
-          let outputs = await runIOTests(startIOTest);
+            await sendIOTestOutput({ outputs, language: startIOTest.language });
+            readyToTest = true;
+          }
+        } catch (e) {
+          sendLog(`startIOTest - tryCatch: ${JSON.stringify(e)}`);
 
-          await sendIOTestOutput({ outputs, language: startIOTest.language });
-          readyToTest = true;
+          console.log(
+            `received error in startIOTest -> startIOTestSubscriber -> next ${JSON.stringify(
+              e
+            )}`
+          );
+
+          Sentry.withScope((scope) => {
+            scope.setExtras({
+              data: startIOTestOperation,
+              location: "startIOTest -> startIOTestSubscriber -> next",
+            });
+            Sentry.captureException(e);
+          });
         }
-      } catch (e) {
-        sendLog(`startIOTest - tryCatch: ${JSON.stringify(e)}`);
-
+      },
+      error: (error) => {
+        sendLog(`startIOTest - error: ${JSON.stringify(error)}`);
         console.log(
-          `received error in startIOTest -> startIOTestSubscriber -> next ${JSON.stringify(
-            e
-          )}`
+          `received error in startIOTestSubscriber ${JSON.stringify(error)}`
         );
 
         Sentry.withScope((scope) => {
           scope.setExtras({
             data: startIOTestOperation,
-            location: "startIOTest -> startIOTestSubscriber -> next",
+            location: "startIOTest -> startIOTestSubscriber",
           });
-          Sentry.captureException(e);
+          Sentry.captureException(error);
         });
-      }
-    },
-    error: (error) => {
-      sendLog(`startIOTest - error: ${JSON.stringify(error)}`);
-      console.log(
-        `received error in startIOTestSubscriber ${JSON.stringify(error)}`
-      );
-
-      Sentry.withScope((scope) => {
-        scope.setExtras({
-          data: startIOTestOperation,
-          location: "startIOTest -> startIOTestSubscriber",
-        });
-        Sentry.captureException(error);
+      },
+      complete: () => console.log(`complete`),
+    });
+  } catch (e) {
+    sendLog(`startIOTest - tryCatch: ${e}`);
+    console.log("error in startIOTest: ", e);
+    Sentry.withScope((scope) => {
+      scope.setExtras({
+        data: { error: e },
+        location: "startIOTest",
       });
-    },
-    complete: () => console.log(`complete`),
-  });
+      Sentry.captureMessage("Unexpected error!");
+    });
+  }
 };
 
 const sendIOTestOutput = async ({ outputs, language }) => {
