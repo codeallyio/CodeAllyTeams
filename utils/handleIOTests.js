@@ -44,7 +44,7 @@ const startIOTest = () => {
         if (startIOTest.language && readyToTest) {
           readyToTest = false;
 
-          const runIOTests = require("./runIOTests");
+          const runIOTests = require("./inputOutputTests/runIOTests");
           let outputs = await runIOTests(startIOTest);
 
           await sendIOTestOutput({ outputs, language: startIOTest.language });

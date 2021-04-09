@@ -25,10 +25,7 @@ const {
   startAutomaticTest,
   autoTestTerminalSubscriber,
 } = require("./utils/automaticTest");
-const {
-  startIOTest,
-  startIOTestSubscriber,
-} = require("./utils/inputOutputTests/handleIOTests");
+const { startIOTest, startIOTestSubscriber } = require("./utils/handleIOTests");
 
 const environment = process.env.STROVE_ENVIRONMENT;
 const userType = process.env.STROVE_USER_TYPE;
