@@ -43,22 +43,22 @@ const startIOTest = () => {
           const {
             data: { startIOTest },
           } = data;
-          console.log(
+          sendLog(
             "🚀 ~ file: handleIOTests.js ~ line 46 ~ next: ~ startIOTest",
             startIOTest
           );
 
           if (startIOTest.language && readyToTest) {
-            console.log("in if");
+            sendLog("in if");
             readyToTest = false;
 
             const runIOTests = require("./runIOTests");
-            console.log(
+            sendLog(
               "🚀 ~ file: handleIOTests.js ~ line 56 ~ next: ~ runIOTests",
               runIOTests
             );
             let outputs = await runIOTests(startIOTest);
-            console.log(
+            sendLog(
               "🚀 ~ file: handleIOTests.js ~ line 54 ~ next: ~ outputs",
               outputs
             );
