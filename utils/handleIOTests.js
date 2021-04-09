@@ -86,6 +86,7 @@ const startIOTest = () => {
       },
       complete: () => console.log(`complete`),
     });
+    sendLog(`after subscribe`);
   } catch (e) {
     sendLog(`startIOTest - tryCatch: ${e}`);
     console.log("error in startIOTest: ", e);
@@ -97,6 +98,7 @@ const startIOTest = () => {
       Sentry.captureMessage("Unexpected error!");
     });
   }
+  sendLog(`after catch`);
 };
 
 const sendIOTestOutput = async ({ outputs, language }) => {
