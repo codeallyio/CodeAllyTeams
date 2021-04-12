@@ -133,7 +133,7 @@ const languagesData = {
     `,
   },
   JavaScript: {
-    fileName: "index.js",
+    fileName: "main.js",
     testFileContent: ({ inputValue, userFileContent }) => `
         ${userFileContent}
 
