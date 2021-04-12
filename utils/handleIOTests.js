@@ -53,15 +53,8 @@ const startIOTest = () => {
             readyToTest = false;
 
             const { runIOTests } = require("./runIOTests");
-            sendLog(
-              "🚀 ~ file: handleIOTests.js ~ line 56 ~ next: ~ runIOTests",
-              runIOTests
-            );
+
             let outputs = await runIOTests(startIOTest);
-            sendLog(
-              "🚀 ~ file: handleIOTests.js ~ line 54 ~ next: ~ outputs",
-              outputs
-            );
 
             await sendIOTestOutput({ outputs, language: startIOTest.language });
             readyToTest = true;
@@ -133,7 +126,7 @@ const sendIOTestOutput = async ({ outputs, language }) => {
     );
 
     makePromise(execute(websocketLink, setProjectData))
-      .then()
+      .then(data => sendLog(JSON.stringify(data))
       .catch((error) => {
         sendLog(`received error in sendIOTestOutput ${error}`);
         console.log(
