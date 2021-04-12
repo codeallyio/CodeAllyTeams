@@ -50,7 +50,9 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
           "utf8"
         );
 
-        const response = await exec(testCommand + " ; exit");
+        sendLog(`testCommand - ${testCommand}`);
+
+        const response = await exec(testCommand);
 
         sendLog(`stdout - ${JSON.stringify(response)}`);
 
@@ -58,9 +60,9 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
 
         sendLog(`results - ${results}`);
 
-        const response2 = await exec(`sudo rm -rf /home/strove/${fileName}`);
+        // const response2 = await exec(`sudo rm -rf /home/strove/${fileName}`);
 
-        sendLog(`response2 - ${JSON.stringify(response2)}`);
+        // sendLog(`response2 - ${JSON.stringify(response2)}`);
 
         counter++;
 
