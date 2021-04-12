@@ -126,7 +126,7 @@ const sendIOTestOutput = async ({ outputs, language }) => {
     );
 
     makePromise(execute(websocketLink, setProjectData))
-      .then(data => sendLog(JSON.stringify(data))
+      .then((data) => sendLog(JSON.stringify(data)))
       .catch((error) => {
         sendLog(`received error in sendIOTestOutput ${error}`);
         console.log(
