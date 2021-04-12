@@ -60,9 +60,9 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
 
         sendLog(`results - ${results}`);
 
-        // const response2 = await exec(`sudo rm -rf /home/strove/${fileName}`);
+        const response2 = await exec(`sudo rm -rf /home/strove/${fileName}`);
 
-        // sendLog(`response2 - ${JSON.stringify(response2)}`);
+        sendLog(`response2 - ${JSON.stringify(response2)}`);
 
         counter++;
 
