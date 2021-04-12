@@ -61,6 +61,10 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
         const response2 = await exec(`sudo rm -rf /home/strove/${fileName}`);
 
         sendLog(`response2 - ${response2}`);
+
+        counter++;
+
+        sendLog(`counter - ${counter}`);
       }
 
       return results;
