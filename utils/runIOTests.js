@@ -23,6 +23,7 @@ Sentry.init({
 
 const runIOTests = async ({ testCommand, inputOutput, language }) => {
   try {
+    sendLog("in runIOTests");
     if (inputOutput && inputOutput.length > 0 && testCommand) {
       const { fileName, testFileContent } = languagesData[language];
 
@@ -32,8 +33,12 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
 
       const userFileContent = fs.readFileSync(pathUri.fsPath, "utf8");
 
+      sendLog(userFileContent);
+
       let counter = 0;
       const maxValue = inputOutput.length;
+
+      sendLog(`maxValue - ${maxValue}`);
 
       const results = [];
 
@@ -45,11 +50,17 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
           "utf8"
         );
 
-        const { stdout } = await exec(testCommand + " ; exit");
+        const response = await exec(testCommand + " ; exit");
 
-        results.push(stdout.slice(0, -1));
+        sendLog(`stdout - ${response.stdout}`);
 
-        await exec(`sudo rm -rf /home/strove/${fileName}`);
+        results.push(response.stdout.slice(0, -1));
+
+        sendLog(`results - ${results}`);
+
+        const response2 = await exec(`sudo rm -rf /home/strove/${fileName}`);
+
+        sendLog(`response2 - ${response2}`);
       }
 
       return results;
