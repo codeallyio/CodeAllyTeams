@@ -52,7 +52,7 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
 
         sendLog(`testCommand - ${testCommand}`);
 
-        const response = await exec(testCommand);
+        const response = await exec("cd /home/strove && " + testCommand);
 
         sendLog(`stdout - ${JSON.stringify(response)}`);
 
