@@ -64,7 +64,7 @@ subscription($projectId: String!) {
 `;
 
 exports.setProjectDataMutation = `
-mutation($id: ID!, $ioTestOutputs: IOTestOutputs) {
+mutation($id: ID!, $ioTestOutputs: [IOTestOutputs]) {
     setProjectData(id: $id, ioTestOutputs: $ioTestOutputs) {
         name
     }

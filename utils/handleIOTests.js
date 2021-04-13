@@ -112,10 +112,12 @@ const sendIOTestOutput = async ({ outputs, language }) => {
       query: setProjectDataMutation,
       variables: {
         id: process.env.STROVE_PROJECT_ID || "123abc",
-        ioTestOutputs: {
-          language,
-          outputs,
-        },
+        ioTestOutputs: [
+          {
+            language,
+            outputs,
+          },
+        ],
       },
     };
 
