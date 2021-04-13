@@ -44,15 +44,25 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
 
       while (counter < maxValue) {
         const { input } = inputOutput[counter];
+        let inputValue = "";
+
+        if (input.type == "String") {
+          inputValue = `"${input.value}"`;
+        } else {
+          inputValue = input.value;
+        }
+
         fs.writeFileSync(
           `/home/strove/${fileName}`,
-          "" + testFileContent({ inputValue: input.value, userFileContent }),
+          "" + testFileContent({ inputValue, userFileContent }),
           "utf8"
         );
 
         sendLog(`testCommand - ${testCommand}`);
 
-        const response = await exec("cd /home/strove && " + testCommand);
+        const response = await exec("cd /home/strove && " + testCommand, {
+          timeout: 10000,
+        });
 
         sendLog(`stdout - ${JSON.stringify(response)}`);
 
@@ -88,6 +98,7 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
   }
 };
 
+// Some languages have weird formatting but it's necessary for them to work
 const languagesData = {
   "C++": {
     fileName: "main.cpp",
@@ -103,10 +114,10 @@ const languagesData = {
   Python: {
     fileName: "main.py",
     testFileContent: ({ inputValue, userFileContent }) => `
-        ${userFileContent}
+${userFileContent}
 
-        print(main_function(${inputValue}))
-    `,
+print(main_function(${inputValue}))
+`,
   },
   Java: {
     fileName: "main.java",
@@ -138,6 +149,14 @@ const languagesData = {
         ${userFileContent}
 
         console.log(mainFunction(${inputValue}))
+    `,
+  },
+  Ruby: {
+    fileName: "main.rb",
+    testFileContent: ({ inputValue, userFileContent }) => `
+${userFileContent}
+
+puts TestClass.test_function(${inputValue})
     `,
   },
 };
