@@ -1,5 +1,8 @@
 const Sentry = require("@sentry/node");
 const { sendLog } = require("./debugger");
+const { execute, makePromise } = require("apollo-link");
+const { websocketLink } = require("./websocketLink");
+const { setProjectDataMutation } = require("./queries");
 
 const environment = process.env.STROVE_ENVIRONMENT;
 
@@ -61,6 +64,39 @@ const isPortFree = (port) =>
 
 const sendPortStatus = async (port) => {
   try {
+    const setProjectData = {
+      query: setProjectDataMutation,
+      variables: {
+        id: process.env.STROVE_PROJECT_ID || "123abc",
+        portStatus: {
+          portNumber: port,
+          status: portStates[port],
+        },
+      },
+    };
+
+    sendLog(
+      `sendIOTestOutput - variables: ${JSON.stringify(
+        setProjectData.variables
+      )}`
+    );
+
+    makePromise(execute(websocketLink, setProjectData))
+      .then((data) => sendLog(JSON.stringify(data)))
+      .catch((error) => {
+        sendLog(`received error in sendIOTestOutput ${error}`);
+        console.log(
+          `received error in sendIOTestOutput ${JSON.stringify(error)}`
+        );
+
+        Sentry.withScope((scope) => {
+          scope.setExtras({
+            data: setProjectData,
+            location: "sendIOTestOutput -> mutation",
+          });
+          Sentry.captureException(error);
+        });
+      });
   } catch (e) {
     console.log(`received error in sendPortStatus ${e}`);
 
