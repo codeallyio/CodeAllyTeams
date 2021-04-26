@@ -37,13 +37,18 @@ const monitorPorts = async () => {
   sendLog(
     `🚀 ~ file: handlePorts.js ~ line 31 ~ monitorPorts ~ portsTable: ${portsTable}`
   );
+  sendLog(
+    `🚀 ~ file: handlePorts.js ~ line 31 ~ monitorPorts ~ typeof portsTable: ${typeof portsTable}`
+  );
 
   portsTable.forEach((port) => {
     portStates[port] = "free";
   });
 
   sendLog(
-    `🚀 ~ file: handlePorts.js ~ line 34 ~ portsTable.forEach ~ portStates: ${portStates}`
+    `🚀 ~ file: handlePorts.js ~ line 34 ~ portsTable.forEach ~ portStates: ${JSON.stringify(
+      portStates
+    )}`
   );
 
   checkInterval = setInterval(() => {
