@@ -23,26 +23,49 @@ const portStates = {};
 let checkInterval;
 
 const monitorPorts = async () => {
+  sendLog("in monitorPorts");
   const portsEnvs = Object.keys(process.env).filter((key) =>
     key.includes("STROVE_PORT_")
   );
   const portsTable = portsEnvs.map((portEnv) => portEnv.split("_")[2]);
+  sendLog(
+    "🚀 ~ file: handlePorts.js ~ line 31 ~ monitorPorts ~ portsTable",
+    portsTable
+  );
 
   portsTable.forEach((port) => {
     portStates[port] = "free";
   });
 
+  sendLog(
+    "🚀 ~ file: handlePorts.js ~ line 34 ~ portsTable.forEach ~ portStates",
+    portStates
+  );
+
   checkInterval = setInterval(() => {
     portsTable.forEach((port) => {
       const previousState = portStates[port];
+      console.log(
+        "🚀 ~ file: handlePorts.js ~ line 42 ~ portsTable.forEach ~ previousState",
+        previousState
+      );
 
       if (isPortFree(port)) {
         portStates[port] = "free";
+        sendLog(
+          "🚀 ~ file: handlePorts.js ~ line 45 ~ portsTable.forEach ~ portStates[port]",
+          portStates[port]
+        );
       } else {
         portStates[port] = "taken";
+        sendLog(
+          "🚀 ~ file: handlePorts.js ~ line 48 ~ portsTable.forEach ~ portStates[port]",
+          portStates[port]
+        );
       }
 
       if (previousState !== portStates[port]) {
+        sendLog("sending");
         sendPortStatus(port);
       }
     });
