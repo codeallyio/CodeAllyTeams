@@ -54,7 +54,7 @@ const monitorPorts = async () => {
   );
 
   checkInterval = setInterval(() => {
-    portsTable.forEach((port) => {
+    portsTable.forEach(async (port) => {
       sendLog(
         `🚀 ~ file: handlePorts.js ~ line 58 ~ portsTable.forEach ~ ${port}`
       );
@@ -63,7 +63,7 @@ const monitorPorts = async () => {
         `🚀 ~ file: handlePorts.js ~ line 42 ~ portsTable.forEach ~ previousState: ${previousState}`
       );
 
-      if (isPortFree(port)) {
+      if (await isPortFree(port)) {
         portStates[port] = "free";
         sendLog(
           `🚀 ~ file: handlePorts.js ~ line 45 ~ portsTable.forEach ~ portStates[port]: ${portStates[port]}`
