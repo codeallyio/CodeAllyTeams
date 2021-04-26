@@ -3,6 +3,7 @@ const { sendLog } = require("./debugger");
 const { execute, makePromise } = require("apollo-link");
 const { websocketLink } = require("./websocketLink");
 const { setProjectDataMutation } = require("./queries");
+const { asyncMap } = require("./asyncMap");
 
 const environment = process.env.STROVE_ENVIRONMENT;
 
@@ -30,31 +31,17 @@ const monitorPorts = async () => {
   sendLog(
     `🚀 ~ file: handlePorts.js ~ line 30 ~ monitorPorts ~ portsEnvs: ${portsEnvs}`
   );
-  sendLog(
-    `🚀 ~ file: handlePorts.js ~ line 37 ~ monitorPorts ~ process.env: ${process.env}`
-  );
   const portsTable = portsEnvs.map((portEnv) => portEnv.split("_")[2]);
   sendLog(
     `🚀 ~ file: handlePorts.js ~ line 31 ~ monitorPorts ~ portsTable: ${portsTable}`
-  );
-  sendLog(
-    `🚀 ~ file: handlePorts.js ~ line 31 ~ monitorPorts ~ typeof portsTable: ${Array.isArray(
-      portsTable
-    )}`
   );
 
   portsTable.forEach((port) => {
     portStates[port] = "free";
   });
 
-  sendLog(
-    `🚀 ~ file: handlePorts.js ~ line 34 ~ portsTable.forEach ~ portStates: ${JSON.stringify(
-      portStates
-    )}`
-  );
-
   checkInterval = setInterval(() => {
-    portsTable.forEach(async (port) => {
+    asyncMap(portsTable, async (port) => {
       sendLog(
         `🚀 ~ file: handlePorts.js ~ line 58 ~ portsTable.forEach ~ ${port}`
       );
@@ -77,10 +64,10 @@ const monitorPorts = async () => {
 
       if (previousState !== portStates[port]) {
         sendLog("sending");
-        sendPortStatus(port);
+        await sendPortStatus(port);
       }
     });
-  }, 10000);
+  }, 5000);
 };
 
 const isPortFree = (port) =>
