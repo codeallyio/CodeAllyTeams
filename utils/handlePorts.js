@@ -38,7 +38,9 @@ const monitorPorts = async () => {
     `🚀 ~ file: handlePorts.js ~ line 31 ~ monitorPorts ~ portsTable: ${portsTable}`
   );
   sendLog(
-    `🚀 ~ file: handlePorts.js ~ line 31 ~ monitorPorts ~ typeof portsTable: ${typeof portsTable}`
+    `🚀 ~ file: handlePorts.js ~ line 31 ~ monitorPorts ~ typeof portsTable: ${Array.isArray(
+      portsTable
+    )}`
   );
 
   portsTable.forEach((port) => {
@@ -53,6 +55,9 @@ const monitorPorts = async () => {
 
   checkInterval = setInterval(() => {
     portsTable.forEach((port) => {
+      sendLog(
+        `🚀 ~ file: handlePorts.js ~ line 58 ~ portsTable.forEach ~ ${port}`
+      );
       const previousState = portStates[port];
       sendLog(
         `🚀 ~ file: handlePorts.js ~ line 42 ~ portsTable.forEach ~ previousState: ${previousState}`
