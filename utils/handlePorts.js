@@ -27,6 +27,14 @@ const monitorPorts = async () => {
   const portsEnvs = Object.keys(process.env).filter((key) =>
     key.includes("STROVE_PORT_")
   );
+  console.log(
+    "🚀 ~ file: handlePorts.js ~ line 30 ~ monitorPorts ~ portsEnvs",
+    portsEnvs
+  );
+  console.log(
+    "🚀 ~ file: handlePorts.js ~ line 37 ~ monitorPorts ~ process.env",
+    process.env
+  );
   const portsTable = portsEnvs.map((portEnv) => portEnv.split("_")[2]);
   sendLog(
     "🚀 ~ file: handlePorts.js ~ line 31 ~ monitorPorts ~ portsTable",
