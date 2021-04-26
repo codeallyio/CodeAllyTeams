@@ -28,17 +28,14 @@ const monitorPorts = async () => {
     key.includes("STROVE_PORT_")
   );
   sendLog(
-    "🚀 ~ file: handlePorts.js ~ line 30 ~ monitorPorts ~ portsEnvs",
-    portsEnvs
+    `🚀 ~ file: handlePorts.js ~ line 30 ~ monitorPorts ~ portsEnvs: ${portsEnvs}`
   );
   sendLog(
-    "🚀 ~ file: handlePorts.js ~ line 37 ~ monitorPorts ~ process.env",
-    process.env
+    `🚀 ~ file: handlePorts.js ~ line 37 ~ monitorPorts ~ process.env: ${process.env}`
   );
   const portsTable = portsEnvs.map((portEnv) => portEnv.split("_")[2]);
   sendLog(
-    "🚀 ~ file: handlePorts.js ~ line 31 ~ monitorPorts ~ portsTable",
-    portsTable
+    `🚀 ~ file: handlePorts.js ~ line 31 ~ monitorPorts ~ portsTable: ${portsTable}`
   );
 
   portsTable.forEach((port) => {
@@ -46,29 +43,25 @@ const monitorPorts = async () => {
   });
 
   sendLog(
-    "🚀 ~ file: handlePorts.js ~ line 34 ~ portsTable.forEach ~ portStates",
-    portStates
+    `🚀 ~ file: handlePorts.js ~ line 34 ~ portsTable.forEach ~ portStates: ${portStates}`
   );
 
   checkInterval = setInterval(() => {
     portsTable.forEach((port) => {
       const previousState = portStates[port];
-      console.log(
-        "🚀 ~ file: handlePorts.js ~ line 42 ~ portsTable.forEach ~ previousState",
-        previousState
+      sendLog(
+        `🚀 ~ file: handlePorts.js ~ line 42 ~ portsTable.forEach ~ previousState: ${previousState}`
       );
 
       if (isPortFree(port)) {
         portStates[port] = "free";
         sendLog(
-          "🚀 ~ file: handlePorts.js ~ line 45 ~ portsTable.forEach ~ portStates[port]",
-          portStates[port]
+          `🚀 ~ file: handlePorts.js ~ line 45 ~ portsTable.forEach ~ portStates[port]: ${portStates[port]}`
         );
       } else {
         portStates[port] = "taken";
         sendLog(
-          "🚀 ~ file: handlePorts.js ~ line 48 ~ portsTable.forEach ~ portStates[port]",
-          portStates[port]
+          `🚀 ~ file: handlePorts.js ~ line 48 ~ portsTable.forEach ~ portStates[port]: ${portStates[port]}`
         );
       }
 
