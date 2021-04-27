@@ -163,4 +163,5 @@ puts TestClass.test_function(${inputValue})
 
 module.exports = {
   runIOTests,
+  languagesData,
 };

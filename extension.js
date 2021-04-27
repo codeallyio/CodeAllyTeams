@@ -26,6 +26,8 @@ const {
   autoTestTerminalSubscriber,
 } = require("./utils/automaticTest");
 const { startIOTest, startIOTestSubscriber } = require("./utils/handleIOTests");
+const { checkInterval, monitorPorts } = require("./utils/handlePorts");
+const { watchFileChange } = require("./utils/watchFileChange");
 
 const environment = process.env.STROVE_ENVIRONMENT;
 const userType = process.env.STROVE_USER_TYPE;
@@ -159,6 +161,8 @@ async function activate(context) {
 
     startAutomaticTest();
     startIOTest();
+    monitorPorts();
+    watchFileChange();
 
     if (terminals.length) {
       terminal = vscode.window.terminals[0];
@@ -308,6 +312,7 @@ function deactivate() {
   manageTerminalSubscriber.unsubscribe();
   autoTestTerminalSubscriber.unsubscribe();
   startIOTestSubscriber.unsubscribe();
+  clearInterval(checkInterval);
 }
 
 exports.activate = activate;
