@@ -125,12 +125,14 @@ const languagesData = {
   Python: {
     fileName: "main.py",
     testFileContent: ({ inputValue, userFileContent }) => `
+import logging
+
 ${userFileContent}
 
 try:
   print(main_function(${inputValue}))
 except Exception as exception:
-  logger.error(exception, exc_info=True)
+  logging.error(exception, exc_info=True)
 `,
   },
   Java: {
@@ -158,7 +160,7 @@ except Exception as exception:
         public static void Main(string[] args) {
           try {
             System.Console.WriteLine(MainFunction(${inputValue}));
-          } catch (Exception e) {
+          } catch (System.Exception e) {
             System.Console.WriteLine(e);
           }
         }
@@ -185,7 +187,7 @@ ${userFileContent}
 begin
   puts TestClass.test_function(${inputValue})
 rescue => e
-  puts e
+  p "Caught an error: #{e}"
 end
     `,
   },
