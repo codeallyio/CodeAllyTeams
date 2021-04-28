@@ -102,10 +102,8 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
     });
 
     if (typeof e === "string") {
-      // return [e];
       return new Array(inputOutput.length).fill(`${e}`);
     } else {
-      // return [e.stderr || `Caught unknown error: ${e}`];
       return new Array(inputOutput.length).fill(
         `${e.stderr}` || `Caught unknown error: ${e}`
       );
