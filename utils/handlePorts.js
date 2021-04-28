@@ -24,50 +24,61 @@ const portStates = {};
 let checkInterval;
 
 const monitorPorts = async () => {
-  sendLog("in monitorPorts");
-  const portsEnvs = Object.keys(process.env).filter((key) =>
-    key.includes("STROVE_PORT_")
-  );
-  sendLog(
-    `🚀 ~ file: handlePorts.js ~ line 30 ~ monitorPorts ~ portsEnvs: ${portsEnvs}`
-  );
-  const portsTable = portsEnvs.map((portEnv) => portEnv.split("_")[2]);
-  sendLog(
-    `🚀 ~ file: handlePorts.js ~ line 31 ~ monitorPorts ~ portsTable: ${portsTable}`
-  );
+  try {
+    sendLog("in monitorPorts");
+    const portsEnvs = Object.keys(process.env).filter((key) =>
+      key.includes("STROVE_PORT_")
+    );
+    sendLog(
+      `🚀 ~ file: handlePorts.js ~ line 30 ~ monitorPorts ~ portsEnvs: ${portsEnvs}`
+    );
+    const portsTable = portsEnvs.map((portEnv) => portEnv.split("_")[2]);
+    sendLog(
+      `🚀 ~ file: handlePorts.js ~ line 31 ~ monitorPorts ~ portsTable: ${portsTable}`
+    );
 
-  portsTable.forEach((port) => {
-    portStates[port] = "free";
-  });
-
-  checkInterval = setInterval(() => {
-    asyncMap(portsTable, async (port) => {
-      sendLog(
-        `🚀 ~ file: handlePorts.js ~ line 58 ~ portsTable.forEach ~ ${port}`
-      );
-      const previousState = portStates[port];
-      sendLog(
-        `🚀 ~ file: handlePorts.js ~ line 42 ~ portsTable.forEach ~ previousState: ${previousState}`
-      );
-
-      if (await isPortFree(port)) {
-        portStates[port] = "free";
-        sendLog(
-          `🚀 ~ file: handlePorts.js ~ line 45 ~ portsTable.forEach ~ portStates[port]: ${portStates[port]}`
-        );
-      } else {
-        portStates[port] = "taken";
-        sendLog(
-          `🚀 ~ file: handlePorts.js ~ line 48 ~ portsTable.forEach ~ portStates[port]: ${portStates[port]}`
-        );
-      }
-
-      if (previousState !== portStates[port]) {
-        sendLog("sending");
-        await sendPortStatus(port);
-      }
+    portsTable.forEach((port) => {
+      portStates[port] = "free";
     });
-  }, 5000);
+
+    checkInterval = setInterval(() => {
+      asyncMap(portsTable, async (port) => {
+        sendLog(
+          `🚀 ~ file: handlePorts.js ~ line 58 ~ portsTable.forEach ~ ${port}`
+        );
+        const previousState = portStates[port];
+        sendLog(
+          `🚀 ~ file: handlePorts.js ~ line 42 ~ portsTable.forEach ~ previousState: ${previousState}`
+        );
+
+        if (await isPortFree(port)) {
+          portStates[port] = "free";
+          sendLog(
+            `🚀 ~ file: handlePorts.js ~ line 45 ~ portsTable.forEach ~ portStates[port]: ${portStates[port]}`
+          );
+        } else {
+          portStates[port] = "taken";
+          sendLog(
+            `🚀 ~ file: handlePorts.js ~ line 48 ~ portsTable.forEach ~ portStates[port]: ${portStates[port]}`
+          );
+        }
+
+        if (previousState !== portStates[port]) {
+          sendLog("sending");
+          await sendPortStatus(port);
+        }
+      });
+    }, 5000);
+  } catch (e) {
+    sendLog(`Caught an error in monitorPorts: ${e}`);
+
+    Sentry.withScope((scope) => {
+      scope.setExtras({
+        location: "monitorPorts",
+      });
+      Sentry.captureException(e);
+    });
+  }
 };
 
 const isPortFree = (port) =>
