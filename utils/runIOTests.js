@@ -69,6 +69,8 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
           cwd: "/home/strove",
         });
 
+        if (response && response.stderr) throw response.stderr;
+
         sendLog(`stdout - ${JSON.stringify(response)}`);
 
         results.push(response.stdout.slice(0, -1));
@@ -99,7 +101,7 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
       Sentry.captureException(e);
     });
 
-    return ["User caused unknown error - user's code not working"];
+    return [JSON.stringify(e)];
   }
 };
 
