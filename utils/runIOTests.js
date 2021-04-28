@@ -106,8 +106,19 @@ const languagesData = {
         ${userFileContent}
 
         int main(int argc, char* argv[]) {
+          try {
             std::cout << main_function(${inputValue}) << std::endl;
             return 0;
+          } catch (const std::runtime_error& re) {
+            std::cerr << "Runtime error: " << re.what() << std::endl;
+            return 0;
+          } catch(const std::exception& ex) {
+            std::cerr << "Error occurred: " << ex.what() << std::endl;
+            return 0;
+          } catch(...) {
+            std::cerr << "Unknown failure occurred. Possible memory corruption" << std::endl;
+            return 0;
+          }
         }
     `,
   },
@@ -116,7 +127,10 @@ const languagesData = {
     testFileContent: ({ inputValue, userFileContent }) => `
 ${userFileContent}
 
-print(main_function(${inputValue}))
+try:
+  print(main_function(${inputValue}))
+except Exception as exception:
+  logger.error(exception, exc_info=True)
 `,
   },
   Java: {
@@ -126,7 +140,11 @@ print(main_function(${inputValue}))
         ${userFileContent}
 
         public static void main(String[] args) {
+          try {
             System.out.println(main_function(${inputValue}));
+          } catch (Exception e) {
+            System.out.println(e);
+          }
         }
     }
     `,
@@ -138,7 +156,11 @@ print(main_function(${inputValue}))
         ${userFileContent}
 
         public static void Main(string[] args) {
+          try {
             System.Console.WriteLine(MainFunction(${inputValue}));
+          } catch (Exception e) {
+            System.Console.WriteLine(e);
+          }
         }
     }
     `,
@@ -148,7 +170,11 @@ print(main_function(${inputValue}))
     testFileContent: ({ inputValue, userFileContent }) => `
         ${userFileContent}
 
-        console.log(mainFunction(${inputValue}))
+        try {
+          console.log(mainFunction(${inputValue}))
+        } catch (e) {
+          console.log("Error: ", e)
+        }
     `,
   },
   Ruby: {
@@ -156,7 +182,11 @@ print(main_function(${inputValue}))
     testFileContent: ({ inputValue, userFileContent }) => `
 ${userFileContent}
 
-puts TestClass.test_function(${inputValue})
+begin
+  puts TestClass.test_function(${inputValue})
+rescue => e
+  puts e
+end
     `,
   },
 };
