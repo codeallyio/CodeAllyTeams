@@ -198,7 +198,7 @@ ${userFileContent}
 begin
   puts TestClass.test_function(${inputValue})
 rescue => e
-  p "Caught an error: #{e}"
+  puts "Caught an error: #{e}"
 end
     `,
   },
