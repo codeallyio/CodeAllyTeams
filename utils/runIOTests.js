@@ -101,7 +101,11 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
       Sentry.captureException(e);
     });
 
-    return [JSON.stringify(e)];
+    if (typeof e === "string") {
+      return [e];
+    } else {
+      return [e.stderr || `Caught unknown error: ${e}`];
+    }
   }
 };
 
