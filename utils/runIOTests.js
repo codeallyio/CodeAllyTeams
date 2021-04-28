@@ -60,9 +60,18 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
 
         sendLog(`testCommand - ${testCommand}`);
 
-        const response = await exec("cd /home/strove && " + testCommand, {
-          timeout: 10000,
-        });
+        // const response = await exec("cd /home/strove && " + testCommand, {
+        //   timeout: 10000,
+        // });
+
+        const response = await exec(
+          testCommand,
+          {
+            timeout: 10000,
+            cwd: "/home/strove",
+          },
+          (e) => sendLog(e)
+        );
 
         sendLog(`stdout - ${JSON.stringify(response)}`);
 
