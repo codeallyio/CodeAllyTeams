@@ -60,9 +60,16 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
 
         sendLog(`testCommand - ${testCommand}`);
 
-        const response = await exec("cd /home/strove && " + testCommand, {
+        // const response = await exec("cd /home/strove && " + testCommand, {
+        //   timeout: 10000,
+        // });
+
+        const response = await exec(testCommand, {
           timeout: 10000,
+          cwd: "/home/strove",
         });
+
+        if (response && response.stderr) throw response.stderr;
 
         sendLog(`stdout - ${JSON.stringify(response)}`);
 
@@ -94,7 +101,13 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
       Sentry.captureException(e);
     });
 
-    return ["User caused unknown error - user's code not working"];
+    if (typeof e === "string") {
+      return new Array(inputOutput.length).fill(`${e}`);
+    } else {
+      return new Array(inputOutput.length).fill(
+        `${e.stderr}` || `Caught unknown error: ${e}`
+      );
+    }
   }
 };
 
@@ -106,17 +119,33 @@ const languagesData = {
         ${userFileContent}
 
         int main(int argc, char* argv[]) {
+          try {
             std::cout << main_function(${inputValue}) << std::endl;
             return 0;
+          } catch (const std::runtime_error& re) {
+            std::cerr << "Runtime error: " << re.what() << std::endl;
+            return 0;
+          } catch(const std::exception& ex) {
+            std::cerr << "Error occurred: " << ex.what() << std::endl;
+            return 0;
+          } catch(...) {
+            std::cerr << "Unknown failure occurred. Possible memory corruption" << std::endl;
+            return 0;
+          }
         }
     `,
   },
   Python: {
     fileName: "main.py",
     testFileContent: ({ inputValue, userFileContent }) => `
+import logging
+
 ${userFileContent}
 
-print(main_function(${inputValue}))
+try:
+  print(main_function(${inputValue}))
+except Exception as exception:
+  logging.error(exception, exc_info=True)
 `,
   },
   Java: {
@@ -126,7 +155,11 @@ print(main_function(${inputValue}))
         ${userFileContent}
 
         public static void main(String[] args) {
+          try {
             System.out.println(main_function(${inputValue}));
+          } catch (Exception e) {
+            System.out.println(e);
+          }
         }
     }
     `,
@@ -138,7 +171,11 @@ print(main_function(${inputValue}))
         ${userFileContent}
 
         public static void Main(string[] args) {
+          try {
             System.Console.WriteLine(MainFunction(${inputValue}));
+          } catch (System.Exception e) {
+            System.Console.WriteLine(e);
+          }
         }
     }
     `,
@@ -148,7 +185,11 @@ print(main_function(${inputValue}))
     testFileContent: ({ inputValue, userFileContent }) => `
         ${userFileContent}
 
-        console.log(mainFunction(${inputValue}))
+        try {
+          console.log(mainFunction(${inputValue}))
+        } catch (e) {
+          console.log("Error: ", e)
+        }
     `,
   },
   Ruby: {
@@ -156,7 +197,11 @@ print(main_function(${inputValue}))
     testFileContent: ({ inputValue, userFileContent }) => `
 ${userFileContent}
 
-puts TestClass.test_function(${inputValue})
+begin
+  puts TestClass.test_function(${inputValue})
+rescue => e
+  puts "Caught an error: #{e}"
+end
     `,
   },
 };
