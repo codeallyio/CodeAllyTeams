@@ -101,6 +101,12 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
       Sentry.captureException(e);
     });
 
+    const { fileName } = languagesData[language];
+
+    const response = await exec(`sudo rm -rf /home/strove/${fileName}`);
+
+    sendLog(`response2 - ${JSON.stringify(response)}`);
+
     if (typeof e === "string") {
       return new Array(inputOutput.length).fill(`${e}`);
     } else {
