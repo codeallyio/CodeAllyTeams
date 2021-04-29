@@ -2,7 +2,7 @@
   "name": "stroveteams",
   "displayName": "stroveTeams",
   "description": "Teams support for Strove",
-  "version": "0.2.11",
+  "version": "0.2.12",
   "engines": {
     "vscode": "^1.39.2"
   },

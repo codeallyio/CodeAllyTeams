@@ -73,7 +73,7 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
 
         sendLog(`stdout - ${JSON.stringify(response)}`);
 
-        results.push(response.stdout.slice(0, -1));
+        results.push(response.stdout.slice(0, -1).trim());
 
         sendLog(`results - ${results}`);
 
