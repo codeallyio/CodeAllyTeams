@@ -22,21 +22,9 @@ Sentry.init({
 });
 
 const watchFileChange = async () => {
-  const initialFilePath = vscode.window.activeTextEditor.document.fileName;
+  const initialFileName = getInitialFileName();
 
-  const initialFileNameArray = initialFilePath.split("/");
-  const initialFileName = initialFileNameArray[initialFileNameArray.length - 1];
-
-  console.log(
-    "🚀 ~ file: extension.js ~ line 132 ~ activate ~ initialFileName",
-    initialFileName
-  );
-
-  sendLog(
-    `🚀 ~ file: extension.js ~ line 132 ~ activate ~ initialFileName: ${initialFileName}`
-  );
-
-  sendCurrentLanguage(initialFileName);
+  if (initialFileName) sendCurrentLanguage(initialFileName);
 
   vscode.window.onDidChangeActiveTextEditor(({ document }) => {
     // document.fileName /Users/mac/Desktop/SiliSky/gitTest/GitServerTesting/README.md
@@ -54,6 +42,39 @@ const watchFileChange = async () => {
 
     sendCurrentLanguage(actualFileName);
   });
+};
+
+const getInitialFileName = () => {
+  try {
+    const initialFilePath = vscode.window.activeTextEditor.document.fileName;
+
+    const initialFileNameArray = initialFilePath.split("/");
+    const initialFileName =
+      initialFileNameArray[initialFileNameArray.length - 1];
+
+    console.log(
+      "🚀 ~ file: extension.js ~ line 132 ~ activate ~ initialFileName",
+      initialFileName
+    );
+
+    sendLog(
+      `🚀 ~ file: extension.js ~ line 132 ~ activate ~ initialFileName: ${initialFileName}`
+    );
+
+    return initialFileName;
+  } catch (e) {
+    console.log(`received error in getInitialFile ${e}`);
+
+    sendLog(`received error in getInitialFile ${e}`);
+
+    Sentry.withScope((scope) => {
+      scope.setExtras({
+        location: "getInitialFile",
+      });
+      Sentry.captureException(e);
+    });
+    return false;
+  }
 };
 
 const sendCurrentLanguage = async (fileName) => {
