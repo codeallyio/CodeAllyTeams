@@ -29,8 +29,8 @@ const { startIOTest, startIOTestSubscriber } = require("./utils/handleIOTests");
 const { checkInterval, monitorPorts } = require("./utils/handlePorts");
 const { watchFileChange } = require("./utils/watchFileChange");
 
-const environment = process.env.STROVE_ENVIRONMENT;
-const userType = process.env.STROVE_USER_TYPE;
+const environment = process.env.CODEALLY_ENVIRONMENT;
+const userType = process.env.CODEALLY_USER_TYPE;
 
 Sentry.init({
   beforeSend(event) {
@@ -39,8 +39,7 @@ Sentry.init({
     }
     return null;
   },
-  dsn:
-    "https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294",
+  dsn: "https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294",
   maxValueLength: 1000,
   normalizeDepth: 10,
 });
@@ -76,10 +75,10 @@ const liveshareActivityInit = () => {
     query: liveshareActivity,
     variables: {
       userData: {
-        projectId: process.env.STROVE_PROJECT_ID || "123abc",
-        userId: process.env.STROVE_USER_ID || "123",
-        fullName: process.env.STROVE_USER_FULL_NAME,
-        photoUrl: process.env.STROVE_PHOTO_URL,
+        projectId: process.env.CODEALLY_ORIGINAL_PROJECT_ID || "123abc",
+        userId: process.env.CODEALLY_USER_ID || "123",
+        fullName: process.env.CODEALLY_USER_FULL_NAME,
+        photoUrl: process.env.CODEALLY_PHOTO_URL,
       },
     },
   };
@@ -129,10 +128,10 @@ async function activate(context) {
       ({ textEditor, selections }) => {
         // setTimeout(stopProject, idleTimeout);
         const data = {
-          projectId: process.env.STROVE_PROJECT_ID || "123abc",
-          userId: process.env.STROVE_USER_ID || "123",
-          fullName: process.env.STROVE_USER_FULL_NAME,
-          photoUrl: process.env.STROVE_PHOTO_URL,
+          projectId: process.env.CODEALLY_ORIGINAL_PROJECT_ID || "123abc",
+          userId: process.env.CODEALLY_USER_ID || "123",
+          fullName: process.env.CODEALLY_USER_FULL_NAME,
+          photoUrl: process.env.CODEALLY_PHOTO_URL,
           documentPath: textEditor._documentData._uri.path,
           selections,
         };
@@ -143,10 +142,10 @@ async function activate(context) {
 
     vscode.window.onDidChangeActiveTextEditor((textEditor) => {
       const data = {
-        projectId: process.env.STROVE_PROJECT_ID || "123abc",
-        userId: process.env.STROVE_USER_ID || "123",
-        fullName: process.env.STROVE_USER_FULL_NAME,
-        photoUrl: process.env.STROVE_PHOTO_URL,
+        projectId: process.env.CODEALLY_ORIGINAL_PROJECT_ID || "123abc",
+        userId: process.env.CODEALLY_USER_ID || "123",
+        fullName: process.env.CODEALLY_USER_FULL_NAME,
+        photoUrl: process.env.CODEALLY_PHOTO_URL,
       };
 
       if (textEditor) {
@@ -170,13 +169,13 @@ async function activate(context) {
       terminal = vscode.window.createTerminal("strove");
     }
 
-    if (process.env.STROVE_INIT_COMMAND) {
-      terminal.sendText(process.env.STROVE_INIT_COMMAND);
+    if (process.env.CODEALLY_INIT_COMMAND) {
+      terminal.sendText(process.env.CODEALLY_INIT_COMMAND);
     }
 
     /* Used for local debugging */
     if (environment === "local" || !environment) {
-      terminal.sendText(process.env.STROVE_INIT_COMMAND || "yarn start");
+      terminal.sendText(process.env.CODEALLY_INIT_COMMAND || "yarn start");
     }
     await terminal.show();
 
@@ -188,9 +187,8 @@ async function activate(context) {
       // startIOTest()
 
       //   broadcastTerminal();
-      const redirectedTerminal = vscode.window.createTerminal(
-        "Shared terminal"
-      );
+      const redirectedTerminal =
+        vscode.window.createTerminal("Shared terminal");
 
       redirectedTerminal.sendText(
         "script -q -f /home/strove/.local/output.txt"
@@ -220,8 +218,8 @@ async function activate(context) {
 const stroveLiveshareOperation = {
   query: stroveLiveshareSubscription,
   variables: {
-    userId: process.env.STROVE_USER_ID || "123",
-    projectId: process.env.STROVE_PROJECT_ID || "123abc",
+    userId: process.env.CODEALLY_USER_ID || "123",
+    projectId: process.env.CODEALLY_ORIGINAL_PROJECT_ID || "123abc",
   },
 };
 
@@ -270,7 +268,7 @@ const liveshareSubscriber = execute(
 const focusEditorOperation = {
   query: focusEditorSubscription,
   variables: {
-    projectId: process.env.STROVE_PROJECT_ID || "123abc",
+    projectId: process.env.CODEALLY_ORIGINAL_PROJECT_ID || "123abc",
   },
 };
 

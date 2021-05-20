@@ -8,7 +8,7 @@ const { sendLog } = require("./debugger");
 const { websocketLink } = require("./websocketLink");
 const { receiveTerminalSubscription } = require("./queries");
 
-const environment = process.env.STROVE_ENVIRONMENT;
+const environment = process.env.CODEALLY_ENVIRONMENT;
 
 let receiveTerminalSubscriber = null;
 let STARTING_TERMINAL = false;
@@ -21,8 +21,7 @@ Sentry.init({
     }
     return null;
   },
-  dsn:
-    "https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294",
+  dsn: "https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294",
   maxValueLength: 1000,
   normalizeDepth: 10,
 });
@@ -36,7 +35,7 @@ const readTerminal = async () => {
     const receiveTerminalOperation = {
       query: receiveTerminalSubscription,
       variables: {
-        projectId: process.env.STROVE_PROJECT_ID || "123abc",
+        projectId: process.env.CODEALLY_ORIGINAL_PROJECT_ID || "123abc",
       },
     };
 
