@@ -116,7 +116,7 @@ class TreeDataProvider {
           new TreeItem("Focus"),
           new TreeItem("Mustang"),
         ]),
-        new TreeItem("Porshe", [
+        new TreeItem("Porsche", [
           new TreeItem("718 Cayman"),
           new TreeItem("911 Carrera"),
           new TreeItem("Taycan Turbo S"),
