@@ -19,7 +19,23 @@
     "*"
   ],
   "main": "./extension.js",
-  "contributes": {},
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "terminal-sharing",
+          "title": "Terminal Sharing",
+          "icon": "terminal.svg"
+        }
+      ]
+    },
+    "views": {
+      "explorer": [{
+        "id": "testTreeView",
+				"name": "testTreeView"
+      }]
+    }
+  },
   "scripts": {
     "lint": "eslint .",
     "pretest": "yarn run lint",

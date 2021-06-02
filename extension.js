@@ -104,6 +104,53 @@ const throttleLiveshareActivityCall = throttle(liveshareActivityUpdate, 100, {
   leading: true,
 });
 
+class TreeDataProvider {
+  // onDidChangeTreeData;
+  // data;
+
+  constructor() {
+    this.data = [
+      new TreeItem("cars", [
+        new TreeItem("Ford", [
+          new TreeItem("Fiesta"),
+          new TreeItem("Focus"),
+          new TreeItem("Mustang"),
+        ]),
+        new TreeItem("BMW", [
+          new TreeItem("320"),
+          new TreeItem("X3"),
+          new TreeItem("X5"),
+        ]),
+      ]),
+    ];
+  }
+
+  getTreeItem(element) {
+    return element;
+  }
+
+  getChildren(element) {
+    if (element === undefined) {
+      return this.data;
+    }
+    return element.children;
+  }
+}
+
+class TreeItem extends vscode.TreeItem {
+  // children;
+
+  constructor(label, children) {
+    super(
+      label,
+      children === undefined
+        ? vscode.TreeItemCollapsibleState.None
+        : vscode.TreeItemCollapsibleState.Expanded
+    );
+    this.children = children;
+  }
+}
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 /**
@@ -111,6 +158,10 @@ const throttleLiveshareActivityCall = throttle(liveshareActivityUpdate, 100, {
  */
 async function activate(context) {
   try {
+    vscode.window.registerTreeDataProvider(
+      "testTreeView",
+      new TreeDataProvider()
+    );
     // Example usage:
     // sendLog("proba mikrofonu");
     if (environment !== "production") startDebugging();
@@ -182,16 +233,11 @@ async function activate(context) {
     sendLog(userType);
 
     if (userType === "guest") {
-      // Listen for startTest button
-      // startAutomaticTest();
-      // startIOTest()
-
-      //   broadcastTerminal();
       const redirectedTerminal =
         vscode.window.createTerminal("Shared terminal");
 
       redirectedTerminal.sendText(
-        "script -q -f /home/strove/.local/output.txt"
+        `script -q -f /home/strove/.local/output-${process.env.CODEALLY_USER_ID}.txt`
       );
 
       redirectedTerminal.sendText("clear");
