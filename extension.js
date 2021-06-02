@@ -116,10 +116,10 @@ class TreeDataProvider {
           new TreeItem("Focus"),
           new TreeItem("Mustang"),
         ]),
-        new TreeItem("BMW", [
-          new TreeItem("320"),
-          new TreeItem("X3"),
-          new TreeItem("X5"),
+        new TreeItem("Porshe", [
+          new TreeItem("718 Cayman"),
+          new TreeItem("911 Carrera"),
+          new TreeItem("Taycan Turbo S"),
         ]),
       ]),
     ];
