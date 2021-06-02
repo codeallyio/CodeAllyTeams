@@ -30,7 +30,7 @@
       ]
     },
     "views": {
-      "explorer": [{
+      "terminal-sharing": [{
         "id": "testTreeView",
 				"name": "testTreeView"
       }]
