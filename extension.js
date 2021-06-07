@@ -32,6 +32,8 @@ const { watchFileChange } = require("./utils/watchFileChange");
 const environment = process.env.CODEALLY_ENVIRONMENT;
 const userType = process.env.CODEALLY_USER_TYPE;
 
+const { activeUsersMock } = require("./utils/dataMock");
+
 Sentry.init({
   beforeSend(event) {
     if (environment === "production") {
@@ -104,38 +106,55 @@ const throttleLiveshareActivityCall = throttle(liveshareActivityUpdate, 100, {
   leading: true,
 });
 
-class TreeDataProvider {
+const users = Object.keys(activeUsersMock).map(
+  (key) => activeUsersMock[key].name
+);
+
+// class TreeDataProvider {
+//   // onDidChangeTreeData;
+//   // data;
+
+//   constructor() {
+//     this.data = [
+//       new TreeItem("Currently Active Users:", [
+//         ...users.map((userName) => new TreeItem(userName)),
+//       ]),
+//     ];
+//   }
+
+//   getTreeItem(element) {
+//     return element;
+//   }
+
+//   getChildren(element) {
+//     if (element === undefined) {
+//       return this.data;
+//     }
+//     return element.children;
+//   }
+// }
+
+const TreeDataProvider = (name) => {
   // onDidChangeTreeData;
   // data;
 
-  constructor() {
-    this.data = [
-      new TreeItem("cars", [
-        new TreeItem("Ford", [
-          new TreeItem("Fiesta"),
-          new TreeItem("Focus"),
-          new TreeItem("Mustang"),
-        ]),
-        new TreeItem("Porsche", [
-          new TreeItem("718 Cayman"),
-          new TreeItem("911 Carrera"),
-          new TreeItem("Taycan Turbo S"),
-        ]),
-      ]),
-    ];
-  }
+  const data = [
+    new TreeItem(name, [...users.map((userName) => new TreeItem(userName))]),
+  ];
 
-  getTreeItem(element) {
-    return element;
-  }
+  return {
+    getTreeItem: (element) => {
+      return element;
+    },
 
-  getChildren(element) {
-    if (element === undefined) {
-      return this.data;
-    }
-    return element.children;
-  }
-}
+    getChildren: (element) => {
+      if (element === undefined) {
+        return data;
+      }
+      return element.children;
+    },
+  };
+};
 
 class TreeItem extends vscode.TreeItem {
   // children;
@@ -157,10 +176,17 @@ class TreeItem extends vscode.TreeItem {
  * @param {vscode.ExtensionContext} context
  */
 async function activate(context) {
+  const title = await vscode.window.showInputBox({
+    prompt: "Type the new title for the Test View",
+    placeHolder: "smth",
+  });
+  if (title) {
+    console.log(title);
+  }
   try {
     vscode.window.registerTreeDataProvider(
       "testTreeView",
-      new TreeDataProvider()
+      TreeDataProvider("Currently Active Users")
     );
     // Example usage:
     // sendLog("proba mikrofonu");
