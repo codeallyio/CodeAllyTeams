@@ -41,8 +41,9 @@
 				"name": "Active Users"
       },
       {
-        "id": "startSharingButton",
-				"name": "Start Sharing"
+        "id": "sharingManagement",
+				"name": "Sharing Management",
+        "type": "webview"
       }]
     }
   },
