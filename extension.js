@@ -29,10 +29,10 @@ const { startIOTest, startIOTestSubscriber } = require("./utils/handleIOTests");
 const { checkInterval, monitorPorts } = require("./utils/handlePorts");
 const { watchFileChange } = require("./utils/watchFileChange");
 
+const { constructViewPanel } = require("./utils/terminalSharing");
+
 const environment = process.env.CODEALLY_ENVIRONMENT;
 const userType = process.env.CODEALLY_USER_TYPE;
-
-const { activeUsersMock } = require("./utils/dataMock");
 
 Sentry.init({
   beforeSend(event) {
@@ -106,88 +106,14 @@ const throttleLiveshareActivityCall = throttle(liveshareActivityUpdate, 100, {
   leading: true,
 });
 
-const users = Object.keys(activeUsersMock).map(
-  (key) => activeUsersMock[key].name
-);
-
-// class TreeDataProvider {
-//   // onDidChangeTreeData;
-//   // data;
-
-//   constructor() {
-//     this.data = [
-//       new TreeItem("Currently Active Users:", [
-//         ...users.map((userName) => new TreeItem(userName)),
-//       ]),
-//     ];
-//   }
-
-//   getTreeItem(element) {
-//     return element;
-//   }
-
-//   getChildren(element) {
-//     if (element === undefined) {
-//       return this.data;
-//     }
-//     return element.children;
-//   }
-// }
-
-const TreeDataProvider = (name) => {
-  // onDidChangeTreeData;
-  // data;
-
-  const data = [
-    new TreeItem(name, [...users.map((userName) => new TreeItem(userName))]),
-  ];
-
-  return {
-    getTreeItem: (element) => {
-      return element;
-    },
-
-    getChildren: (element) => {
-      if (element === undefined) {
-        return data;
-      }
-      return element.children;
-    },
-  };
-};
-
-class TreeItem extends vscode.TreeItem {
-  // children;
-
-  constructor(label, children) {
-    super(
-      label,
-      children === undefined
-        ? vscode.TreeItemCollapsibleState.None
-        : vscode.TreeItemCollapsibleState.Expanded
-    );
-    this.children = children;
-  }
-}
-
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 /**
  * @param {vscode.ExtensionContext} context
  */
 async function activate(context) {
-  const title = await vscode.window.showInputBox({
-    prompt: "Type the new title for the Test View",
-    placeHolder: "smth",
-  });
-  if (title) {
-    console.log(title);
-  }
   try {
-    vscode.window.registerTreeDataProvider(
-      "testTreeView",
-      TreeDataProvider("Currently Active Users")
-    );
+    constructViewPanel(context);
     // Example usage:
     // sendLog("proba mikrofonu");
     if (environment !== "production") startDebugging();

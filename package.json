@@ -20,6 +20,12 @@
   ],
   "main": "./extension.js",
   "contributes": {
+    "commands": [
+      {
+        "command": "activeUsers.refresh",
+        "title": "Refresh active users"
+      }
+    ],
     "viewsContainers": {
       "activitybar": [
         {
@@ -31,8 +37,12 @@
     },
     "views": {
       "terminal-sharing": [{
-        "id": "testTreeView",
-				"name": "testTreeView"
+        "id": "activeUsers",
+				"name": "Active Users"
+      },
+      {
+        "id": "startSharingButton",
+				"name": "Start Sharing"
       }]
     }
   },
