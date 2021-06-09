@@ -37,13 +37,13 @@
     },
     "views": {
       "terminal-sharing": [{
-        "id": "activeUsers",
-				"name": "Active Users"
-      },
-      {
         "id": "sharingManagement",
 				"name": "Sharing Management",
         "type": "webview"
+      },
+      {
+        "id": "activeUsers",
+				"name": "Active Users"
       }]
     }
   },
