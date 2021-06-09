@@ -82,6 +82,8 @@ const ActiveUsersTreeDataProvider = (fieldNames) => {
 const SharingManagementWebview = () => {
   let _view;
 
+  // const uriPath = environment === "production" ? "" : ""
+
   let _extensionUri = vscode.Uri.parse(
     "/Users/mac/Desktop/SiliSky/extension/stroveTeams"
   );
@@ -97,7 +99,6 @@ const SharingManagementWebview = () => {
     };
 
     webviewView.webview.html = _getHtmlForWebview(webviewView.webview);
-    // webviewView.webview.html = `<p>Testing</p>`;
 
     webviewView.webview.onDidReceiveMessage((data) => {
       // To DO later
@@ -111,56 +112,37 @@ const SharingManagementWebview = () => {
     });
   };
 
-  // addColor() {
-  // 	if (this._view) {
-  // 		this._view.show?.(true); // `show` is not implemented in 1.49 but is for 1.50 insiders
-  // 		this._view.webview.postMessage({ type: 'addColor' });
-  // 	}
-  // }
-
-  // clearColors() {
-  // 	if (this._view) {
-  // 		this._view.webview.postMessage({ type: 'clearColors' });
-  // 	}
-  // }
+  const sendData = ({ message, additionalData }) => {
+    if (_view) {
+      _view.webview.postMessage({ message, additionalData });
+    }
+  };
 
   const _getHtmlForWebview = (webview) => {
     try {
-      console.log("elo", _extensionUri);
       // Get the local path to main script run in the webview, then convert it to a uri we can use in the webview.
       const scriptUri = webview.asWebviewUri(
-        vscode.Uri.joinPath(_extensionUri, "media", "main.js")
-      );
-      console.log(
-        "🚀 ~ file: terminalSharing.js ~ line 129 ~ SharingManagementWebview ~ scriptUri",
-        scriptUri
+        vscode.Uri.joinPath(_extensionUri, "media", "sharing.js")
       );
 
       // Do the same for the stylesheet.
       const styleResetUri = webview.asWebviewUri(
         vscode.Uri.joinPath(_extensionUri, "media", "reset.css")
       );
-      console.log(
-        "🚀 ~ file: terminalSharing.js ~ line 134 ~ SharingManagementWebview ~ styleResetUri",
-        styleResetUri
-      );
       const styleVSCodeUri = webview.asWebviewUri(
         vscode.Uri.joinPath(_extensionUri, "media", "vscode.css")
       );
-      console.log(
-        "🚀 ~ file: terminalSharing.js ~ line 138 ~ SharingManagementWebview ~ styleVSCodeUri",
-        styleVSCodeUri
-      );
       const styleMainUri = webview.asWebviewUri(
-        vscode.Uri.joinPath(_extensionUri, "media", "main.css")
-      );
-      console.log(
-        "🚀 ~ file: terminalSharing.js ~ line 142 ~ SharingManagementWebview ~ styleMainUri",
-        styleMainUri
+        vscode.Uri.joinPath(_extensionUri, "media", "sharing.css")
       );
 
       // Use a nonce to only allow a specific script to be run.
       const nonce = getNonce();
+
+      let listData = "";
+      Object.keys(activeUsersMock).map((key) => {
+        listData += `<option value="${key}">${activeUsersMock[key].name}</option>`;
+      });
 
       return `<!DOCTYPE html>
 			<html lang="en">
@@ -182,10 +164,19 @@ const SharingManagementWebview = () => {
 				<title>Cat Colors</title>
 			</head>
 			<body>
-				<ul class="color-list">
-				</ul>
+				<p>Start sharing your terminal with others in real-time.</p>
 
-				<button class="add-color-button">Add Color</button>
+				<button class="styled-button" id="share-button">Start shared terminal</button>
+                
+                <hr>
+
+                <p>Or you can also see other people's terminal.</p>
+                <label for="user-list">Choose user whose shared terminal you want to see:</label>
+                <br>
+                <select name="user-list" class="styled-select" id="user-list">
+                ${listData}
+                </select>
+                <button class="styled-button" id="receive-button">Show terminal</button>
 
 				<script nonce="${nonce}" src="${scriptUri}"></script>
 			</body>
@@ -201,6 +192,7 @@ const SharingManagementWebview = () => {
     viewType: "sharingManagement",
     _view,
     _extensionUri,
+    sendData,
   };
 };
 
@@ -223,7 +215,7 @@ const registerCommands = (context) => {
   );
 };
 
-const constructViewPanel = (context) => {
+const constructViewPanel = async (context) => {
   registerCommands(context);
 
   const users = Object.keys(activeUsersMock).map(
