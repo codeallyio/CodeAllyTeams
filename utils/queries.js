@@ -101,3 +101,14 @@ subscription($projectId: String!) {
     }
 }
 `;
+
+exports.watchActiveUsersSubscription = `
+subscription($projectId: String!) {
+    watchActiveUsers(projectId: $projectId) {
+            id
+            name
+            fullName
+            type
+    }
+}
+`;
