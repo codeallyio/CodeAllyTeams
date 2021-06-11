@@ -44,13 +44,13 @@
         document.querySelector("#user-list").innerHTML = listData;
         break;
       }
-      // case "set-sharing-flag": {
-      //   vscode.setState({ isSharingTerminalOpen: true });
-      //   isSharingTerminalOpen = true;
-      //   document.querySelector("#share-button").innerHTML =
-      //     "Restart shared terminal";
-      //   break;
-      // }
+      case "set-sharing-flag": {
+        vscode.setState({ isSharingTerminalOpen: true });
+        isSharingTerminalOpen = true;
+        document.querySelector("#share-button").innerHTML =
+          "Restart shared terminal";
+        break;
+      }
       case "reset-state": {
         vscode.setState({ isSharingTerminalOpen: false });
         isSharingTerminalOpen = false;
