@@ -113,7 +113,7 @@ const throttleLiveshareActivityCall = throttle(liveshareActivityUpdate, 100, {
  */
 async function activate(context) {
   try {
-    constructViewPanel(context);
+    await constructViewPanel(context);
     // Example usage:
     // sendLog("proba mikrofonu");
     if (environment !== "production") startDebugging();

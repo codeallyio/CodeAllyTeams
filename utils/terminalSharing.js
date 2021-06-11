@@ -1,8 +1,15 @@
 const vscode = require("vscode");
 const Sentry = require("@sentry/node");
+const { activeUsersMock } = require("./dataMock");
+const util = require("util");
+const exec = util.promisify(require("child_process").exec);
+const { sendLog } = require("./debugger");
+
+let wasWebviewActivated = false;
+let sharedTerminal;
 
 const userType = process.env.CODEALLY_USER_TYPE;
-const userId = process.env.CODEALLY_USER_ID || "123";
+const myId = process.env.CODEALLY_USER_ID || "123";
 const environment = process.env.CODEALLY_ENVIRONMENT;
 
 const isSharing = false;
@@ -18,23 +25,6 @@ Sentry.init({
   maxValueLength: 1000,
   normalizeDepth: 10,
 });
-
-const terminalSharing = () => {};
-
-const startSharing = async () => {
-  const redirectedTerminal = vscode.window.createTerminal("Shared terminal");
-
-  redirectedTerminal.sendText(
-    `script -q -f /home/strove/.local/output-${userId}.txt`
-  );
-
-  redirectedTerminal.sendText("clear");
-
-  await redirectedTerminal.show();
-};
-
-////////////////
-const { activeUsersMock } = require("./dataMock");
 
 // Copied from documentation, I don't know how to do it without a class
 class TreeItem extends vscode.TreeItem {
@@ -55,7 +45,7 @@ const ActiveUsersTreeDataProvider = (fieldNames) => {
 
   const onDidChangeTreeData = _onDidChangeTreeData.event;
 
-  const data = [...fieldNames.map((fieldName) => new TreeItem(fieldName))];
+  let data = [...fieldNames.map((fieldName) => new TreeItem(fieldName))];
 
   return {
     onDidChangeTreeData,
@@ -73,20 +63,17 @@ const ActiveUsersTreeDataProvider = (fieldNames) => {
       return element.children;
     },
 
+    updateData: (fieldNames) =>
+      (data = [...fieldNames.map((fieldName) => new TreeItem(fieldName))]),
+
     refresh: () => {
       _onDidChangeTreeData.fire(undefined);
     },
   };
 };
 
-const SharingManagementWebview = () => {
+const SharingManagementWebview = (_extensionUri) => {
   let _view;
-
-  // const uriPath = environment === "production" ? "" : ""
-
-  let _extensionUri = vscode.Uri.parse(
-    "/Users/mac/Desktop/SiliSky/extension/stroveTeams"
-  );
 
   const resolveWebviewView = (webviewView, context, _token) => {
     _view = webviewView;
@@ -94,27 +81,52 @@ const SharingManagementWebview = () => {
     webviewView.webview.options = {
       // Allow scripts in the webview
       enableScripts: true,
-
       localResourceRoots: [_extensionUri],
     };
 
     webviewView.webview.html = _getHtmlForWebview(webviewView.webview);
 
     webviewView.webview.onDidReceiveMessage((data) => {
-      // To DO later
-      // switch (data.type) {
-      // 	case 'colorSelected':
-      // 		{
-      // 			vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
-      // 			break;
-      // 		}
-      // }
+      const { instruction, additionalData } = data;
+
+      console.log(
+        "🚀 ~ file: terminalSharing.js ~ line 104 ~ webviewView.webview.onDidReceiveMessage ~ data",
+        data
+      );
+
+      switch (instruction) {
+        case "initialized": {
+          if (!wasWebviewActivated) {
+            wasWebviewActivated = true;
+            _view.webview.postMessage({ message: "reset-state" });
+          }
+          break;
+        }
+        case "start-receiving": {
+          startReceiving(additionalData);
+          break;
+        }
+        case "start-sharing": {
+          startSharing();
+          break;
+        }
+        case "restart-sharing": {
+          restartSharing();
+          break;
+        }
+      }
     });
   };
 
   const sendData = ({ message, additionalData }) => {
     if (_view) {
       _view.webview.postMessage({ message, additionalData });
+    }
+  };
+
+  const resetState = () => {
+    if (_view) {
+      _view.webview.postMessage({ message: "reset-state" });
     }
   };
 
@@ -188,11 +200,9 @@ const SharingManagementWebview = () => {
 
   return {
     resolveWebviewView,
-    _getHtmlForWebview,
     viewType: "sharingManagement",
-    _view,
-    _extensionUri,
     sendData,
+    resetState,
   };
 };
 
@@ -205,6 +215,123 @@ function getNonce() {
   }
   return text;
 }
+
+// case "start-receiving": {
+const startReceiving = async ({ userId }) => {
+  try {
+    let STARTING_TERMINAL = true;
+
+    const userName = activeUsersMock[userId].name;
+    const terminal = vscode.window.createTerminal(`${userName}'s terminal`);
+
+    let whileCounter = 0;
+
+    while (STARTING_TERMINAL) {
+      let response;
+      try {
+        response = await exec(
+          `find /home/strove/.local -maxdepth 2 -name "output-${userId}.txt" -print -quit`
+        );
+      } catch (e) {
+        response = null;
+        Sentry.captureMessage(`First error: ${e}`);
+      }
+
+      whileCounter++;
+
+      await new Promise((resolve) =>
+        setTimeout(() => {
+          resolve();
+        }, 500)
+      );
+
+      if (response && response.stdout) {
+        await terminal.sendText(
+          `tail -q -f /home/strove/.local/output-${userId}.txt`
+        );
+
+        await terminal.show();
+
+        STARTING_TERMINAL = false;
+      } else if (whileCounter >= 20) {
+        await terminal.sendText(
+          `echo "Error happened during terminal sharing. Try refreshing."`
+        );
+
+        await terminal.show();
+
+        STARTING_TERMINAL = false;
+      }
+    }
+  } catch (e) {
+    console.log("received error in terminalSharing -> startReceiving: ", e);
+    sendLog(`received error in terminalSharing -> startReceiving: ${e}`);
+    Sentry.withScope((scope) => {
+      scope.setExtras({
+        data: { error: e },
+        location: "terminalSharing -> startReceiving",
+      });
+      Sentry.captureMessage("Unexpected error!");
+    });
+  }
+};
+
+const startSharing = async () => {
+  try {
+    // Start braodcasting terminal for everyone
+    sharedTerminal = vscode.window.createTerminal("Shared terminal");
+
+    sharedTerminal.sendText(
+      `script -q -f /home/strove/.local/output-${myId}.txt`
+    );
+
+    sharedTerminal.sendText("clear");
+
+    sharedTerminal.show();
+  } catch (e) {
+    console.log(
+      `received error in terminalSharing -> startSharing ${JSON.stringify(e)}`
+    );
+
+    sendLog(`received error in terminalSharing -> startSharing ${e}`);
+
+    Sentry.withScope((scope) => {
+      scope.setExtras({
+        data: { error: e },
+        location: "terminalSharing -> startSharing",
+      });
+      Sentry.captureMessage("Unexpected error!");
+    });
+  }
+};
+
+const restartSharing = async () => {
+  try {
+    if (sharedTerminal) {
+      sharedTerminal.sendText("exit");
+
+      await sharedTerminal.dispose();
+
+      startSharing();
+    } else {
+      startSharing();
+    }
+  } catch (e) {
+    console.log(
+      `received error in terminalSharing -> restartSharing ${JSON.stringify(e)}`
+    );
+
+    sendLog(`received error in terminalSharing -> restartSharing ${e}`);
+
+    Sentry.withScope((scope) => {
+      scope.setExtras({
+        data: { error: e },
+        location: "terminalSharing -> restartSharing",
+      });
+      Sentry.captureMessage("Unexpected error!");
+    });
+  }
+};
 
 const registerCommands = (context) => {
   context.subscriptions.push(
@@ -227,9 +354,9 @@ const constructViewPanel = async (context) => {
     ActiveUsersTreeDataProvider(users)
   );
 
-  const provider = SharingManagementWebview(context.extensionUri);
+  const WebviewView = SharingManagementWebview(context.extensionUri);
 
-  vscode.window.registerWebviewViewProvider(provider.viewType, provider);
+  vscode.window.registerWebviewViewProvider(WebviewView.viewType, WebviewView);
 };
 
 module.exports = {
@@ -237,18 +364,6 @@ module.exports = {
 };
 
 // vscode.commands.executeCommand('editor.action.addCommentLine');
-
-const testFunction = () => {
-  const terminal = vscode.window.createTerminal("Testing");
-  terminal.show();
-
-  setTimeout(() => {
-    terminal.dispose();
-
-    const terminal2 = vscode.window.createTerminal("Testing 2");
-    terminal2.show();
-  }, 10000);
-};
 
 // Left for potential future reference
 // https://stackoverflow.com/questions/51525821/activate-command-on-treeviewitem-click-vscode-extension

@@ -1,10 +1,17 @@
 (() => {
   const vscode = acquireVsCodeApi();
 
-  const { isSharingTerminalOpen } = vscode.getState();
+  const state = vscode.getState();
 
-  const sendInstruction = (instruction, data = {}) =>
-    vscode.postMessage({ instruction, data });
+  let isSharingTerminalOpen = state.isSharingTerminalOpen;
+
+  if (isSharingTerminalOpen) {
+    document.querySelector("#share-button").innerHTML =
+      "Restart shared terminal";
+  }
+
+  const sendInstruction = (instruction, additionalData = {}) =>
+    vscode.postMessage({ instruction, additionalData });
 
   document.querySelector("#receive-button").addEventListener("click", () => {
     const userId = document.querySelector("#user-list").value;
@@ -18,6 +25,8 @@
     } else {
       sendInstruction("start-sharing");
       vscode.setState({ isSharingTerminalOpen: true });
+      isSharingTerminalOpen = true;
+      // isSharingTerminalOpen = true;
       document.querySelector("#share-button").innerHTML =
         "Restart shared terminal";
     }
@@ -35,12 +44,22 @@
         document.querySelector("#user-list").innerHTML = listData;
         break;
       }
-      case "set-sharing-flag": {
-        vscode.setState({ isSharingTerminalOpen: true });
+      // case "set-sharing-flag": {
+      //   vscode.setState({ isSharingTerminalOpen: true });
+      //   isSharingTerminalOpen = true;
+      //   document.querySelector("#share-button").innerHTML =
+      //     "Restart shared terminal";
+      //   break;
+      // }
+      case "reset-state": {
+        vscode.setState({ isSharingTerminalOpen: false });
+        isSharingTerminalOpen = false;
         document.querySelector("#share-button").innerHTML =
-          "Restart shared terminal";
+          "Start shared terminal";
         break;
       }
     }
   });
+
+  sendInstruction("initialized");
 })();
