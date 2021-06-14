@@ -67,9 +67,27 @@ const watchActiveUsersChange = async () => {
   }
 };
 
-const checkOutputFiles = () => {
+const checkOutputFiles = async () => {
   try {
-  } catch (e) {}
+    const { stdout, stderr } = await exec(`ls /home/strove/.local`);
+
+    if (stderr) throw `error: ${stderr}`;
+
+    const fileNames = stdout.split("\n");
+
+    fileNames.pop();
+
+    const usersIds = fileNames
+      .filter((fileName) => fileName.includes("output"))
+      .map((fileName) => fileName.match(/(?<=\-)(.*)(?=\.)/g)[0]);
+
+    return usersIds;
+  } catch (error) {
+    handleError({
+      error,
+      location: "watchActiveUsers -> checkOutputFiles",
+    });
+  }
 };
 
 module.exports = {
