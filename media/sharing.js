@@ -44,7 +44,7 @@
         document.querySelector("#user-list").innerHTML = listData;
         break;
       }
-      case "set-sharing-flag": {
+      case "set-sharing-flag-true": {
         vscode.setState({ isSharingTerminalOpen: true });
         isSharingTerminalOpen = true;
         document.querySelector("#share-button").innerHTML =

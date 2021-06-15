@@ -1,9 +1,3 @@
-//   const meMock = {
-//     name: "Jeff",
-//     id: 4321,
-//     isSharing: false,
-//     watchedTerminals: [5678, 1234],
-//   };
 const vscode = require("vscode");
 const { execute } = require("apollo-link");
 const util = require("util");
@@ -16,10 +10,6 @@ const { handleError } = require("./errorHandling");
 let watchActiveUsersSubscriber = null;
 
 let ACTIVE_USERS_DATA = {};
-
-// Check output files every 5 or so seconds
-// isSharing = true when output-userId exists && user is active
-// watchedTerminals field not necessary (?)
 
 const watchActiveUsersChange = async () => {
   try {
@@ -40,8 +30,39 @@ const watchActiveUsersChange = async () => {
             data: { watchActiveUsers },
           } = data;
 
-          if (watchActiveUsers) {
-            // updateActiveUsersData
+          if (
+            watchActiveUsers &&
+            Array.isArray(watchActiveUsers) &&
+            watchActiveUsers.length > 0
+          ) {
+            // In user:
+            // id;
+            // name;
+            // fullName;
+            // type;
+
+            const allUsers = [
+              ...new Set([
+                ...Object.keys(ACTIVE_USERS_DATA),
+                ...watchActiveUsers.map((newUser) => newUser.id),
+              ]),
+            ];
+
+            allUsers.map((userId) => {
+              const user = watchActiveUsers.find(
+                (activeUser) => activeUser.id === userId
+              );
+
+              if (user) {
+                ACTIVE_USERS_DATA[userId] = watchActiveUsers.find(
+                  (activeUser) => activeUser.id === userId
+                );
+              } else {
+                delete ACTIVE_USERS_DATA[userId];
+              }
+            });
+
+            vscode.commands.executeCommand("activeUsers.refresh");
           }
         } catch (error) {
           handleError({
@@ -81,6 +102,12 @@ const checkOutputFiles = async () => {
       .filter((fileName) => fileName.includes("output"))
       .map((fileName) => fileName.match(/(?<=\-)(.*)(?=\.)/g)[0]);
 
+    usersIds.map((userId) => {
+      if (ACTIVE_USERS_DATA[userId]) {
+        ACTIVE_USERS_DATA[userId].isSharing = true;
+      }
+    });
+
     return usersIds;
   } catch (error) {
     handleError({
@@ -90,9 +117,18 @@ const checkOutputFiles = async () => {
   }
 };
 
+const findGuest = () => {
+  const guest = Object.keys(ACTIVE_USERS_DATA).find(
+    (userId) => ACTIVE_USERS_DATA[userId].type === "guest"
+  );
+
+  return guest;
+};
+
 module.exports = {
   ACTIVE_USERS_DATA,
   checkOutputFiles,
   watchActiveUsersChange,
   watchActiveUsersSubscriber,
+  findGuest,
 };

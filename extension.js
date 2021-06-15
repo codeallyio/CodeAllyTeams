@@ -30,9 +30,11 @@ const { checkInterval, monitorPorts } = require("./utils/handlePorts");
 const { watchFileChange } = require("./utils/watchFileChange");
 
 const { constructViewPanel } = require("./utils/terminalSharing");
+const { checkOutputFiles } = require("./utils/watchActiveUsers");
 
 const environment = process.env.CODEALLY_ENVIRONMENT;
 const userType = process.env.CODEALLY_USER_TYPE;
+let checkingFilesInterval;
 
 Sentry.init({
   beforeSend(event) {
@@ -184,23 +186,7 @@ async function activate(context) {
 
     sendLog(userType);
 
-    if (userType === "guest") {
-      const redirectedTerminal =
-        vscode.window.createTerminal("Shared terminal");
-
-      redirectedTerminal.sendText(
-        `script -q -f /home/strove/.local/output-${process.env.CODEALLY_USER_ID}.txt`
-      );
-
-      redirectedTerminal.sendText("clear");
-
-      await redirectedTerminal.show();
-    } else if (userType === "hiring") {
-      sendLog("in hiring");
-      readTerminal();
-    } else {
-      manageTerminalSharing();
-    }
+    checkingFilesInterval = setInterval(checkOutputFiles, 5000);
   } catch (error) {
     console.log(`received error in activate ${error}`);
 
@@ -309,6 +295,7 @@ function deactivate() {
   autoTestTerminalSubscriber.unsubscribe();
   startIOTestSubscriber.unsubscribe();
   clearInterval(checkInterval);
+  clearInterval(checkingFilesInterval);
 }
 
 exports.activate = activate;

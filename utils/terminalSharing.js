@@ -1,9 +1,9 @@
 const vscode = require("vscode");
 const Sentry = require("@sentry/node");
-const { activeUsersMock } = require("./dataMock");
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 const { sendLog } = require("./debugger");
+const { findGuest, ACTIVE_USERS_DATA } = require("./watchActiveUsers");
 
 let wasWebviewActivated = false;
 let sharedTerminal;
@@ -11,8 +11,6 @@ let sharedTerminal;
 const userType = process.env.CODEALLY_USER_TYPE;
 const myId = process.env.CODEALLY_USER_ID || "123";
 const environment = process.env.CODEALLY_ENVIRONMENT;
-
-const isSharing = false;
 
 Sentry.init({
   beforeSend(event) {
@@ -99,6 +97,15 @@ const SharingManagementWebview = (_extensionUri) => {
           if (!wasWebviewActivated) {
             wasWebviewActivated = true;
             _view.webview.postMessage({ message: "reset-state" });
+
+            if (userType === "guest") {
+              _view.webview.postMessage({ message: "set-sharing-flag-true" });
+              startSharing();
+            } else {
+              const guest = findGuest();
+
+              if (guest) startReceiving({ userId: guest.id });
+            }
           }
           break;
         }
@@ -152,8 +159,8 @@ const SharingManagementWebview = (_extensionUri) => {
       const nonce = getNonce();
 
       let listData = "";
-      Object.keys(activeUsersMock).map((key) => {
-        listData += `<option value="${key}">${activeUsersMock[key].name}</option>`;
+      Object.keys(ACTIVE_USERS_DATA).map((key) => {
+        listData += `<option value="${key}">${ACTIVE_USERS_DATA[key].name}</option>`;
       });
 
       return `<!DOCTYPE html>
@@ -221,7 +228,7 @@ const startReceiving = async ({ userId }) => {
   try {
     let STARTING_TERMINAL = true;
 
-    const userName = activeUsersMock[userId].name;
+    const userName = ACTIVE_USERS_DATA[userId].name;
     const terminal = vscode.window.createTerminal(`${userName}'s terminal`);
 
     let whileCounter = 0;
@@ -345,8 +352,8 @@ const registerCommands = (context) => {
 const constructViewPanel = async (context) => {
   registerCommands(context);
 
-  const users = Object.keys(activeUsersMock).map(
-    (key) => activeUsersMock[key].name
+  const users = Object.keys(ACTIVE_USERS_DATA).map(
+    (key) => ACTIVE_USERS_DATA[key].name
   );
 
   vscode.window.registerTreeDataProvider(
@@ -362,8 +369,6 @@ const constructViewPanel = async (context) => {
 module.exports = {
   constructViewPanel,
 };
-
-// vscode.commands.executeCommand('editor.action.addCommentLine');
 
 // Left for potential future reference
 // https://stackoverflow.com/questions/51525821/activate-command-on-treeviewitem-click-vscode-extension
