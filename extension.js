@@ -12,29 +12,22 @@ const {
 const { handleLiveshareResponse } = require("./utils/handleLiveshareResponse");
 const { handleFocusEditor } = require("./utils/handleFocusEditor");
 const { websocketLink } = require("./utils/websocketLink");
-const {
-  readTerminal,
-  receiveTerminalSubscriber,
-} = require("./utils/readTerminal");
-const {
-  manageTerminalSharing,
-  manageTerminalSubscriber,
-} = require("./utils/manageTerminalSharing");
 const { startDebugging, sendLog } = require("./utils/debugger");
 const {
   startAutomaticTest,
   autoTestTerminalSubscriber,
 } = require("./utils/automaticTest");
 const { startIOTest, startIOTestSubscriber } = require("./utils/handleIOTests");
-const { checkInterval, monitorPorts } = require("./utils/handlePorts");
+const { checkPortsInterval, monitorPorts } = require("./utils/handlePorts");
 const { watchFileChange } = require("./utils/watchFileChange");
 
-const { constructViewPanel } = require("./utils/terminalSharing");
-const { checkOutputFiles } = require("./utils/watchActiveUsers");
+const {
+  manageTerminalSharing,
+  checkOutputFilesInterval,
+} = require("./utils/terminalSharing");
 
 const environment = process.env.CODEALLY_ENVIRONMENT;
 const userType = process.env.CODEALLY_USER_TYPE;
-let checkingFilesInterval;
 
 Sentry.init({
   beforeSend(event) {
@@ -115,7 +108,6 @@ const throttleLiveshareActivityCall = throttle(liveshareActivityUpdate, 100, {
  */
 async function activate(context) {
   try {
-    await constructViewPanel(context);
     // Example usage:
     // sendLog("proba mikrofonu");
     if (environment !== "production") startDebugging();
@@ -167,6 +159,7 @@ async function activate(context) {
     startIOTest();
     monitorPorts();
     watchFileChange();
+    manageTerminalSharing(context);
 
     if (terminals.length) {
       terminal = vscode.window.terminals[0];
@@ -185,8 +178,6 @@ async function activate(context) {
     await terminal.show();
 
     sendLog(userType);
-
-    checkingFilesInterval = setInterval(checkOutputFiles, 5000);
   } catch (error) {
     console.log(`received error in activate ${error}`);
 
@@ -290,12 +281,10 @@ const focusEditorSubscriber = execute(
 function deactivate() {
   liveshareSubscriber.unsubscribe();
   focusEditorSubscriber.unsubscribe();
-  receiveTerminalSubscriber.unsubscribe();
-  manageTerminalSubscriber.unsubscribe();
   autoTestTerminalSubscriber.unsubscribe();
   startIOTestSubscriber.unsubscribe();
-  clearInterval(checkInterval);
-  clearInterval(checkingFilesInterval);
+  clearInterval(checkPortsInterval);
+  clearInterval(checkOutputFilesInterval);
 }
 
 exports.activate = activate;

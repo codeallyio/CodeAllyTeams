@@ -71,6 +71,12 @@ mutation($id: ID!, $ioTestOutputs: [IOTestOutputs], $portStatus: PortStatus, $cu
 }
 `;
 
+exports.extensionInitializedMutation = `
+mutation($currentProjectId: ID!, $originalProjectId: ID!) {
+    extensionInitialized(currentProjectId: $currentProjectId, originalProjectId: $originalProjectId)
+}
+`;
+
 exports.receiveAutomaticTestSubscription = `
 subscription($projectId: String!) {
     automaticTest(projectId: $projectId) {
@@ -103,7 +109,7 @@ subscription($projectId: String!) {
 `;
 
 exports.watchActiveUsersSubscription = `
-subscription($projectId: String!) {
+subscription($projectId: ID!) {
     watchActiveUsers(projectId: $projectId) {
             id
             name

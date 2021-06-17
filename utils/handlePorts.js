@@ -20,7 +20,7 @@ Sentry.init({
 });
 
 const portStates = {};
-let checkInterval;
+let checkPortsInterval;
 
 const monitorPorts = async () => {
   try {
@@ -40,7 +40,7 @@ const monitorPorts = async () => {
       portStates[port] = "free";
     });
 
-    checkInterval = setInterval(() => {
+    checkPortsInterval = setInterval(() => {
       asyncMap(portsTable, async (port) => {
         sendLog(
           `🚀 ~ file: handlePorts.js ~ line 58 ~ portsTable.forEach ~ ${port}`
@@ -144,6 +144,6 @@ const sendPortStatus = async (port) => {
 };
 
 module.exports = {
-  checkInterval,
+  checkPortsInterval,
   monitorPorts,
 };

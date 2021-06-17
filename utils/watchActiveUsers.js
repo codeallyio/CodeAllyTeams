@@ -1,13 +1,12 @@
 const vscode = require("vscode");
 const { execute } = require("apollo-link");
-const util = require("util");
-const exec = util.promisify(require("child_process").exec);
 
 const { websocketLink } = require("./websocketLink");
 const { watchActiveUsersSubscription } = require("./queries");
 const { handleError } = require("./errorHandling");
 
 let watchActiveUsersSubscriber = null;
+const myId = process.env.CODEALLY_USER_ID || "123";
 
 let ACTIVE_USERS_DATA = {};
 
@@ -48,7 +47,11 @@ const watchActiveUsersChange = async () => {
               ]),
             ];
 
-            allUsers.map((userId) => {
+            allUsers.forEach((userId) => {
+              // ActiveUSers is a list of other active users so we want to filter current user out
+              // I return false just because I want to do nothing in this case
+              if (userId === myId) return false;
+
               const user = watchActiveUsers.find(
                 (activeUser) => activeUser.id === userId
               );
@@ -88,47 +91,7 @@ const watchActiveUsersChange = async () => {
   }
 };
 
-const checkOutputFiles = async () => {
-  try {
-    const { stdout, stderr } = await exec(`ls /home/strove/.local`);
-
-    if (stderr) throw `error: ${stderr}`;
-
-    const fileNames = stdout.split("\n");
-
-    fileNames.pop();
-
-    const usersIds = fileNames
-      .filter((fileName) => fileName.includes("output"))
-      .map((fileName) => fileName.match(/(?<=\-)(.*)(?=\.)/g)[0]);
-
-    usersIds.map((userId) => {
-      if (ACTIVE_USERS_DATA[userId]) {
-        ACTIVE_USERS_DATA[userId].isSharing = true;
-      }
-    });
-
-    return usersIds;
-  } catch (error) {
-    handleError({
-      error,
-      location: "watchActiveUsers -> checkOutputFiles",
-    });
-  }
-};
-
-const findGuest = () => {
-  const guest = Object.keys(ACTIVE_USERS_DATA).find(
-    (userId) => ACTIVE_USERS_DATA[userId].type === "guest"
-  );
-
-  return guest;
-};
-
 module.exports = {
-  ACTIVE_USERS_DATA,
-  checkOutputFiles,
   watchActiveUsersChange,
   watchActiveUsersSubscriber,
-  findGuest,
 };

@@ -39,7 +39,9 @@
       case "update-user-list": {
         let listData = "";
         Object.keys(additionalData).map((key) => {
-          listData += `<option value="${key}">${additionalData[key].name}</option>`;
+          if (additionalData[key].isSharing) {
+            listData += `<option value="${key}">${additionalData[key].name}</option>`;
+          }
         });
         document.querySelector("#user-list").innerHTML = listData;
         break;
