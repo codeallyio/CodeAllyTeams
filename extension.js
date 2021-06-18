@@ -130,6 +130,7 @@ const throttleLiveshareActivityCall = throttle(liveshareActivityUpdate, 100, {
  */
 async function activate(context) {
   try {
+    sendLog(vscode.window);
     // Example usage:
     // sendLog("proba mikrofonu");
     if (environment !== "production") startDebugging();
