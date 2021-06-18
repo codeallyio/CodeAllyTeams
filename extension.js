@@ -8,6 +8,7 @@ const {
   stroveLiveshareSubscription,
   liveshareActivity,
   focusEditorSubscription,
+  extensionInitializedMutation,
 } = require("./utils/queries");
 const { handleLiveshareResponse } = require("./utils/handleLiveshareResponse");
 const { handleFocusEditor } = require("./utils/handleFocusEditor");
@@ -25,6 +26,7 @@ const {
   manageTerminalSharing,
   checkOutputFilesInterval,
 } = require("./utils/terminalSharing");
+const { handleError } = require("./utils/errorHandling");
 
 const environment = process.env.CODEALLY_ENVIRONMENT;
 const userType = process.env.CODEALLY_USER_TYPE;
@@ -42,6 +44,26 @@ Sentry.init({
 });
 
 let initPing;
+
+const extensionInitialized = () => {
+  const extensionInitializedOperation = {
+    query: extensionInitializedMutation,
+    variables: {
+      currentProjectId: process.env.CODEALLY_CURRENT_PROJECT_ID || "123abc",
+      originalProjectId: process.env.CODEALLY_ORIGINAL_PROJECT_ID || "123abc",
+    },
+  };
+
+  makePromise(execute(websocketLink, extensionInitializedOperation))
+    .then()
+    .catch((error) => {
+      handleError({
+        error,
+        location: "watchActiveUsers -> watchActiveUsersChange",
+        additionalData: extensionInitializedOperation,
+      });
+    });
+};
 
 const liveshareActivityUpdate = (data) => {
   const liveshareActivityOperation = {
@@ -178,6 +200,8 @@ async function activate(context) {
     await terminal.show();
 
     sendLog(userType);
+
+    extensionInitialized();
   } catch (error) {
     console.log(`received error in activate ${error}`);
 
