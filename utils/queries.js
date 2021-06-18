@@ -57,12 +57,6 @@ subscription($projectId: String!) {
 }
 `;
 
-exports.receiveTerminalSubscription = `
-subscription($projectId: String!) {
-    receiveTerminal(projectId: $projectId)
-}
-`;
-
 exports.setProjectDataMutation = `
 mutation($id: ID!, $ioTestOutputs: [IOTestOutputs], $portStatus: PortStatus, $currentIOLanguage: String) {
     setProjectData(id: $id, ioTestOutputs: $ioTestOutputs, portStatus: $portStatus, currentIOLanguage: $currentIOLanguage) {
