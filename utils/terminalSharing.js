@@ -457,7 +457,6 @@ const watchActiveUsersChange = async (webviewView) => {
 
 const manageTerminalSharing = (context) => {
   try {
-    watchActiveUsersChange(WebviewView);
     // I add refresh ability to active users Tree View
     context.subscriptions.push(
       vscode.commands.registerCommand("activeUsers.refresh", (data) => {
@@ -481,6 +480,8 @@ const manageTerminalSharing = (context) => {
       WebviewView.viewType,
       WebviewView
     );
+
+    watchActiveUsersChange(WebviewView);
 
     checkOutputFilesInterval = setInterval(
       () => checkOutputFiles(WebviewView),
