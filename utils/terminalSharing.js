@@ -2,10 +2,15 @@ const vscode = require("vscode");
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 const { handleError } = require("./errorHandling");
+const { execute } = require("apollo-link");
+const { websocketLink } = require("./websocketLink");
+const { watchActiveUsersSubscription } = require("./queries");
 
 let wasWebviewActivated = false;
 let sharedTerminal;
 let checkOutputFilesInterval;
+let watchActiveUsersSubscriber = null;
+
 let ACTIVE_USERS_DATA = {};
 
 const userType = process.env.CODEALLY_USER_TYPE;
@@ -308,7 +313,7 @@ const restartSharing = async () => {
   }
 };
 
-const checkOutputFiles = async () => {
+const checkOutputFiles = async (webviewView) => {
   try {
     const { stdout, stderr } = await exec(`ls /home/strove/.local`);
     let shouldRefresh = false;
@@ -333,8 +338,11 @@ const checkOutputFiles = async () => {
       }
     });
 
-    if (shouldRefresh) {
-      // refresh webviewview data
+    if (shouldRefresh && webviewView) {
+      webviewView.sendData({
+        message: "update-user-list",
+        additionalData: ACTIVE_USERS_DATA,
+      });
     }
 
     return usersIds;
@@ -354,8 +362,102 @@ const findGuest = () => {
   return guest;
 };
 
+const watchActiveUsersChange = async (webviewView) => {
+  try {
+    const watchActiveUsersOperation = {
+      query: watchActiveUsersSubscription,
+      variables: {
+        projectId: process.env.CODEALLY_ORIGINAL_PROJECT_ID || "123abc",
+      },
+    };
+
+    watchActiveUsersSubscriber = execute(
+      websocketLink,
+      watchActiveUsersOperation
+    ).subscribe({
+      next: async (data) => {
+        try {
+          const {
+            data: { watchActiveUsers },
+          } = data;
+
+          if (
+            watchActiveUsers &&
+            Array.isArray(watchActiveUsers) &&
+            watchActiveUsers.length > 0
+          ) {
+            // In user:
+            // id;
+            // name;
+            // fullName;
+            // type;
+
+            // I do it this way to interate through all users in one go
+            // instead of doing two loops iterating on their own subset of data
+            // and potentially messing up in the process
+            const allUsers = [
+              ...new Set([
+                ...Object.keys(ACTIVE_USERS_DATA),
+                ...watchActiveUsers.map((newUser) => newUser.id),
+              ]),
+            ];
+
+            allUsers.forEach((userId) => {
+              // ActiveUSers is a list of other active users so we want to filter current user out
+              // I return false just because I want to do nothing in this case
+              if (userId === myId) return false;
+
+              const user = watchActiveUsers.find(
+                (activeUser) => activeUser.id === userId
+              );
+
+              if (user) {
+                ACTIVE_USERS_DATA[userId] = watchActiveUsers.find(
+                  (activeUser) => activeUser.id === userId
+                );
+              } else {
+                delete ACTIVE_USERS_DATA[userId];
+              }
+            });
+
+            // This should refresh the TreeView
+            vscode.commands.executeCommand("activeUsers.refresh");
+
+            // I refresh this data in case someone left the project
+            if (webviewView) {
+              webviewView.sendData({
+                message: "update-user-list",
+                additionalData: ACTIVE_USERS_DATA,
+              });
+            }
+          }
+        } catch (error) {
+          handleError({
+            error,
+            location: "watchActiveUsers -> watchActiveUsersSubscriber -> next",
+            additionalData: watchActiveUsersOperation,
+          });
+        }
+      },
+      error: (error) =>
+        handleError({
+          error,
+          location: "watchActiveUsers -> watchActiveUsersSubscriber -> error",
+          additionalData: watchActiveUsersOperation,
+        }),
+      complete: () => console.log(`complete`),
+    });
+  } catch (error) {
+    handleError({
+      error,
+      location: "watchActiveUsers -> watchActiveUsersChange",
+    });
+  }
+};
+
 const manageTerminalSharing = (context) => {
   try {
+    watchActiveUsersChange(WebviewView);
     // I add refresh ability to active users Tree View
     context.subscriptions.push(
       vscode.commands.registerCommand("activeUsers.refresh", (data) => {
@@ -380,7 +482,10 @@ const manageTerminalSharing = (context) => {
       WebviewView
     );
 
-    checkOutputFilesInterval = setInterval(checkOutputFiles, 5000);
+    checkOutputFilesInterval = setInterval(
+      () => checkOutputFiles(WebviewView),
+      5000
+    );
   } catch (error) {
     handleError({
       error,
@@ -392,4 +497,5 @@ const manageTerminalSharing = (context) => {
 module.exports = {
   manageTerminalSharing,
   checkOutputFilesInterval,
+  watchActiveUsersSubscriber,
 };
