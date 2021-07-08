@@ -14,8 +14,7 @@ Sentry.init({
     }
     return null;
   },
-  dsn:
-    "https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294",
+  dsn: "https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294",
   maxValueLength: 1000,
   normalizeDepth: 10,
 });
@@ -99,7 +98,7 @@ const sendPortStatus = async (port) => {
     const setProjectData = {
       query: setProjectDataMutation,
       variables: {
-        id: process.env.STROVE_PROJECT_ID || "123abc",
+        id: process.env.STROVE_LIVE_SHARE_PROJECT_ID || "123abc",
         portStatus: {
           portNumber: port,
           status: portStates[port],
