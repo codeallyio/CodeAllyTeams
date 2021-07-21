@@ -14,11 +14,11 @@ else
 
     # read line after line 
     while IFS= read -r line; do
-    echo "linijka - $line"
-    output=$(find -name $line)
+    echo "line - $line"
+    output=$(find /home/strove/project -name $line)
     echo "output - $output"
     chmod 755 $output
-done < permissions.txt
+done < /home/strove/project/permissions.txt
 fi
 
 echo "END"
