@@ -16,6 +16,7 @@ const {
   readTerminal,
   receiveTerminalSubscriber,
 } = require("./utils/readTerminal");
+const automateCommits = require("./utils/automateCommits");
 const {
   manageTerminalSharing,
   manageTerminalSubscriber,
@@ -39,8 +40,7 @@ Sentry.init({
     }
     return null;
   },
-  dsn:
-    "https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294",
+  dsn: "https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294",
   maxValueLength: 1000,
   normalizeDepth: 10,
 });
@@ -183,14 +183,14 @@ async function activate(context) {
     sendLog(userType);
 
     if (userType === "guest") {
+      setInterval(automateCommits(), 30000);
       // Listen for startTest button
       // startAutomaticTest();
       // startIOTest()
 
       //   broadcastTerminal();
-      const redirectedTerminal = vscode.window.createTerminal(
-        "Shared terminal"
-      );
+      const redirectedTerminal =
+        vscode.window.createTerminal("Shared terminal");
 
       redirectedTerminal.sendText(
         "script -q -f /home/strove/.local/output.txt"
