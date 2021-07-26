@@ -135,14 +135,14 @@ const displayGitCommits = () => {
         data: path,
         location: "webview -> createWebview",
       });
-      Sentry.captureException(e);
+      Sentry.captureException(err);
     });
   }
 };
 
 const getCommits = async () => {
   try {
-    let data;
+    let data, commitData;
     try {
       commitData = await exec(
         `sudo git rev-list HEAD --timestamp`,
@@ -153,14 +153,14 @@ const getCommits = async () => {
       return data;
     } catch (err) {
       commitData = null;
-      Sentry.captureMessage(`Error: ${e}`);
+      Sentry.captureMessage(`Error: ${err}`);
     }
     console.log("In getCommits");
   } catch (err) {
     console.log("error in getCommits: ", err);
     Sentry.withScope((scope) => {
       scope.setExtras({
-        data: { error: e },
+        data: { error: err },
         location: "getCommits",
       });
       Sentry.captureMessage("Unexpected error!");

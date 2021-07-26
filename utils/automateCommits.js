@@ -18,7 +18,7 @@ const automateCommits = async () => {
   try {
     let commit;
     try {
-      commit = await exec(`sudo git add . && git commit -m "Automated Commit"`);
+      commit = await exec(`git commit -m "Automated Commit"`);
       console.log(commit);
     } catch (err) {
       commit = null;

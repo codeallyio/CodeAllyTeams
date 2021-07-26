@@ -47,6 +47,7 @@
     "lodash.throttle": "^4.1.1",
     "node-fetch": "^2.6.0",
     "subscriptions-transport-ws": "^0.9.16",
+    "util": "^0.12.4",
     "ws": "^7.3.0"
   }
 }
