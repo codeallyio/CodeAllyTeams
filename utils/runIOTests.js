@@ -51,24 +51,16 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
         } else {
           inputValue = input.value;
         }
-        if (language === "C++") {
-          fs.writeFileSync(
-            `/home/strove/${fileName}`,
-            "" +
-              testFileContent({
-                inputType: input.type,
-                inputValue,
-                userFileContent,
-              }),
-            "utf8"
-          );
-        } else {
-          fs.writeFileSync(
-            `/home/strove/${fileName}`,
-            "" + testFileContent({ inputValue, userFileContent }),
-            "utf8"
-          );
-        }
+        fs.writeFileSync(
+          `/home/strove/${fileName}`,
+          "" +
+            testFileContent({
+              inputType: input.type,
+              inputValue,
+              userFileContent,
+            }),
+          "utf8"
+        );
 
         sendLog(`testCommand - ${testCommand}`);
 
