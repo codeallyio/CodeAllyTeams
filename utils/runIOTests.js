@@ -51,12 +51,20 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
         } else {
           inputValue = input.value;
         }
+        if(language === "C++"){
+          fs.writeFileSync(
+              `/home/strove/${fileName}`,
+              "" + testFileContent({inputType: input.type, inputValue, userFileContent }),
+              "utf8"
+          );
+        }else{
+          fs.writeFileSync(
+              `/home/strove/${fileName}`,
+              "" + testFileContent({ inputValue, userFileContent }),
+              "utf8"
+          );
+        }
 
-        fs.writeFileSync(
-          `/home/strove/${fileName}`,
-          "" + testFileContent({ inputValue, userFileContent }),
-          "utf8"
-        );
 
         sendLog(`testCommand - ${testCommand}`);
 
@@ -116,17 +124,25 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
     }
   }
 };
-
+const execFuncCpp = (inputType,inputValue) => {
+  if(inputType === "ArrayString"){
+    return `std::string arr[] = ${inputValue};std::cout << main_function(arr) << std::endl;`
+  }
+  if(inputType === "ArrayNumber"){
+    return `double arr[] = ${inputValue};std::cout << main_function(arr) << std::endl;`
+  }
+  return `std::cout << main_function(${inputValue}) << std::endl;`
+};
 // Some languages have weird formatting but it's necessary for them to work
 const languagesData = {
   "C++": {
     fileName: "main.cpp",
-    testFileContent: ({ inputValue, userFileContent }) => `
+    testFileContent: ({inputType, inputValue, userFileContent }) => `
         ${userFileContent}
 
         int main(int argc, char* argv[]) {
           try {
-            std::cout << main_function(${inputValue}) << std::endl;
+            ${execFuncCpp(inputType,inputValue)}
             return 0;
           } catch (const std::runtime_error& re) {
             std::cerr << "Runtime error: " << re.what() << std::endl;
