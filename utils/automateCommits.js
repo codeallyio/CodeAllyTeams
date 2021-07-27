@@ -18,7 +18,7 @@ const automateCommits = async () => {
   try {
     let commit;
     try {
-      commit = await exec(`git commit -m "Automated Commit"`);
+      commit = await exec(`sudo git commit -m "Automated Commit"`);
       console.log(commit);
     } catch (err) {
       commit = null;
@@ -27,17 +27,15 @@ const automateCommits = async () => {
     }
   } catch (err) {
     console.log("error in automateCommits: ", err);
-    // Sentry.withScope((scope) => {
-    //   scope.setExtras({
-    //     data: { error: e },
-    //     location: "automateCommits",
-    //   });
-    //   Sentry.captureMessage("Unexpected error!");
-    // });
+    Sentry.withScope((scope) => {
+      scope.setExtras({
+        data: { error: e },
+        location: "automateCommits",
+      });
+      Sentry.captureMessage("Unexpected error!");
+    });
   }
 };
-
-automateCommits();
 
 module.exports = {
   automateCommits,

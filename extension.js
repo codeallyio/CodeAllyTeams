@@ -17,6 +17,7 @@ const {
   receiveTerminalSubscriber,
 } = require("./utils/readTerminal");
 const automateCommits = require("./utils/automateCommits");
+const displayGitCommits = require("./utils/displayGitCommits");
 const {
   manageTerminalSharing,
   manageTerminalSubscriber,
@@ -202,6 +203,7 @@ async function activate(context) {
     } else if (userType === "hiring") {
       sendLog("in hiring");
       readTerminal();
+      displayGitCommits();
     } else {
       manageTerminalSharing();
     }

@@ -48,6 +48,7 @@
     "node-fetch": "^2.6.0",
     "subscriptions-transport-ws": "^0.9.16",
     "util": "^0.12.4",
+    "vscode": "^1.1.37",
     "ws": "^7.3.0"
   }
 }
