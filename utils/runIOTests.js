@@ -169,7 +169,8 @@ except Exception as exception:
   Java: {
     fileName: "main.java",
     testFileContent: ({ inputValue, userFileContent }) => `
-    import java.util.Arrays;
+    import java.util.*;
+    import java.lang.*;
     class Main {
         ${userFileContent}
 
