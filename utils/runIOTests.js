@@ -46,7 +46,7 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
         const { input } = inputOutput[counter];
         let inputValue = "";
 
-        if (input.type == "String") {
+        if (input.type === "String") {
           inputValue = `"${input.value}"`;
         } else {
           inputValue = input.value;
