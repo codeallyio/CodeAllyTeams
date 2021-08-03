@@ -171,6 +171,12 @@ const execFuncJava = (inputValue, outputType) => {
   }
   return `System.out.println(main_function(${inputValue}));`
 };
+const execFuncCSharp = (inputValue, outputType) => {
+  if(outputType.includes("[]")){
+    return `System.Console.WriteLine("[" + string.Join(",",MainFunction(${inputValue})) + "]");`
+  }
+  return `System.Console.WriteLine(MainFunction(${inputValue}));`
+};
 // Some languages have weird formatting but it's necessary for them to work
 const languagesData = {
   "C++": {
@@ -210,7 +216,7 @@ except Exception as exception:
   },
   Java: {
     fileName: "main.java",
-    testFileContent: ({ inputValue, inputType, userFileContent, outputType }) => `
+    testFileContent: ({ inputValue, userFileContent, outputType }) => `
     import java.util.*;
     import java.lang.*;
     class Main {
@@ -228,13 +234,13 @@ except Exception as exception:
   },
   "C#": {
     fileName: "main.cs",
-    testFileContent: ({ inputValue, userFileContent }) => `
+    testFileContent: ({ inputValue, userFileContent, outputType  }) => `
     class MainClass {
         ${userFileContent}
 
         public static void Main(string[] args) {
           try {
-            System.Console.WriteLine(MainFunction(${inputValue}));
+            ${execFuncCSharp(inputValue,outputType)}
           } catch (System.Exception e) {
             System.Console.WriteLine(e);
           }
