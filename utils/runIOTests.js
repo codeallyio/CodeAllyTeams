@@ -125,25 +125,29 @@ const runIOTests = async ({ testCommand, inputOutput, language, createdFromFile 
 const execFuncCpp = (inputType, inputValue, createdFromFile, outputType) => {
   if(createdFromFile){
     if(outputType.includes("*")){
-      //pointers
-      //TODO inputvalue {} []
+      /*pointers
+      examples
+      ${outputType} = double *
+      ${inputType} = long long int arr[]examples
+      ${inputValue} = {1,2,3}
+      */
       return `
       ${outputType}p;
       ${inputType} = ${inputValue};
       p = main_function(arr);
       size_t n = sizeof(arr)/sizeof(p);
-      string result = "[";
+      string result = "{";
       for(int i=0; i<n; i++){
         result+=arr[i];
         if(i != n-1){
             result+=",";
         }
       }
-      result+="]";
+      result+="}";
       cout << result;
       `;
 
-    }else if(outputType.includes("[]")) {
+    }else if(inputType.includes("[]")) {
       //arrays
       return `${inputType} = ${inputValue};std::cout << main_function(arr) << std::endl;`;
     }
@@ -160,6 +164,15 @@ const execFuncCpp = (inputType, inputValue, createdFromFile, outputType) => {
     }
     return `std::cout << main_function(${inputValue}) << std::endl;`;
   }
+};
+const execFuncJava = (inputValue, outputType) => {
+  if(outputType.includes("[]")){
+    return `System.out.println(Arrays.toString(main_function(${inputValue})));`
+  }
+  return `System.out.println(main_function(${inputValue}));`
+
+
+
 };
 // Some languages have weird formatting but it's necessary for them to work
 const languagesData = {
@@ -200,7 +213,7 @@ except Exception as exception:
   },
   Java: {
     fileName: "main.java",
-    testFileContent: ({ inputValue, userFileContent }) => `
+    testFileContent: ({ inputValue, inputType, userFileContent }) => `
     import java.util.*;
     import java.lang.*;
     class Main {
@@ -208,7 +221,7 @@ except Exception as exception:
 
         public static void main(String[] args) {
           try {
-            System.out.println(main_function(${inputValue}));
+            ${execFuncJava(inputType, inputValue, createdFromFile)}
           } catch (Exception e) {
             System.out.println(e);
           }
