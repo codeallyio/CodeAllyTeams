@@ -21,7 +21,7 @@ Sentry.init({
   normalizeDepth: 10,
 });
 
-const runIOTests = async ({ testCommand, inputOutput, language }) => {
+const runIOTests = async ({ testCommand, inputOutput, language, createdFromFile }) => {
   try {
     sendLog("in runIOTests");
     if (inputOutput && inputOutput.length > 0 && testCommand) {
@@ -43,7 +43,7 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
       const results = [];
 
       while (counter < maxValue) {
-        const { input } = inputOutput[counter];
+        const { input, output } = inputOutput[counter];
         let inputValue = "";
 
         if (input.type === "String") {
@@ -55,8 +55,10 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
           `/home/strove/${fileName}`,
           "" +
             testFileContent({
+              createdFromFile,
               inputType: input.type,
               inputValue,
+              outputType: output.type,
               userFileContent,
             }),
           "utf8"
@@ -120,25 +122,55 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
     }
   }
 };
-const execFuncCpp = (inputType, inputValue) => {
-  if (inputType === "ArrayString") {
-    return `std::string arr[] = ${inputValue};std::cout << main_function(arr) << std::endl;`;
+const execFuncCpp = (inputType, inputValue, createdFromFile, outputType) => {
+  if(createdFromFile){
+    if(outputType.includes("*")){
+      //pointers
+      //TODO inputvalue {} []
+      return `
+      ${outputType}p;
+      ${inputType} = ${inputValue};
+      p = main_function(arr);
+      size_t n = sizeof(arr)/sizeof(p);
+      string result = "[";
+      for(int i=0; i<n; i++){
+        result+=arr[i];
+        if(i != n-1){
+            result+=",";
+        }
+      }
+      result+="]";
+      cout << result;
+      `;
+
+    }else if(outputType.includes("[]")) {
+      //arrays
+      return `${inputType} = ${inputValue};std::cout << main_function(arr) << std::endl;`;
+    }
+    else{
+      //other fundamental types
+        return `std::cout << main_function(${inputValue}) << std::endl;`;
+    }
+  }else{
+    if (inputType === "ArrayString") {
+      return `std::string arr[] = ${inputValue};std::cout << main_function(arr) << std::endl;`;
+    }
+    if (inputType === "ArrayNumber") {
+      return `double arr[] = ${inputValue};std::cout << main_function(arr) << std::endl;`;
+    }
+    return `std::cout << main_function(${inputValue}) << std::endl;`;
   }
-  if (inputType === "ArrayNumber") {
-    return `double arr[] = ${inputValue};std::cout << main_function(arr) << std::endl;`;
-  }
-  return `std::cout << main_function(${inputValue}) << std::endl;`;
 };
 // Some languages have weird formatting but it's necessary for them to work
 const languagesData = {
   "C++": {
     fileName: "main.cpp",
-    testFileContent: ({ inputType, inputValue, userFileContent }) => `
+    testFileContent: ({ inputType, inputValue, userFileContent,createdFromFile,outputType }) => `
         ${userFileContent}
 
         int main(int argc, char* argv[]) {
           try {
-            ${execFuncCpp(inputType, inputValue)}
+            ${execFuncCpp(inputType, inputValue, createdFromFile,outputType)}
             return 0;
           } catch (const std::runtime_error& re) {
             std::cerr << "Runtime error: " << re.what() << std::endl;
