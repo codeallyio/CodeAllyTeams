@@ -170,9 +170,6 @@ const execFuncJava = (inputValue, outputType) => {
     return `System.out.println(Arrays.toString(main_function(${inputValue})));`
   }
   return `System.out.println(main_function(${inputValue}));`
-
-
-
 };
 // Some languages have weird formatting but it's necessary for them to work
 const languagesData = {
@@ -213,7 +210,7 @@ except Exception as exception:
   },
   Java: {
     fileName: "main.java",
-    testFileContent: ({ inputValue, inputType, userFileContent }) => `
+    testFileContent: ({ inputValue, inputType, userFileContent, outputType }) => `
     import java.util.*;
     import java.lang.*;
     class Main {
@@ -221,7 +218,7 @@ except Exception as exception:
 
         public static void main(String[] args) {
           try {
-            ${execFuncJava(inputType, inputValue, createdFromFile)}
+            ${execFuncJava(inputValue, outputType)}
           } catch (Exception e) {
             System.out.println(e);
           }
