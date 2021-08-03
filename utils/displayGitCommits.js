@@ -18,6 +18,70 @@ Sentry.init({
   normalizeDepth: 10,
 });
 
+const commitDiff = async (i) => {
+  try {
+    const panel = vscode.window.createWebviewPanel(
+      "html",
+      "Commit differences",
+      vscode.ViewColumn.Two,
+      {
+        enableScripts: true,
+        retainContextWhenHidden: true,
+      }
+    );
+    const commitDifferences = await loadCommitDiff(i);
+
+    panel.webview.html = commitDifferences;
+
+    return panel;
+  } catch (err) {
+    console.log(
+      `received error in webview -> commitDiff ${JSON.stringify(err)}`
+    );
+
+    sendLog(`received error in webview -> commitDiff ${JSON.stringify(err)}`);
+
+    Sentry.withScope((scope) => {
+      scope.setExtras({
+        data: path,
+        location: "webview -> commitDiff",
+      });
+      Sentry.captureException(err);
+    });
+  }
+};
+
+const loadCommitDiff = async (i) => {
+  const cData = await getCommits();
+  var second = cData[1];
+  if (i != 0) {
+    second = cData[i * 2 + 1];
+  }
+  console.log(second);
+  const { stdout } = await exec(`sudo git diff ${second} ${cData[1]}`);
+  const data = stdout.toString().split(/['+''\n']+/);
+  let result = ``;
+  for (let i = 0; i <= data.length; i++) {
+    result += `
+    <div>${data[i]}</div>
+    `;
+  }
+
+  return `
+  <!DOCTYPE html>
+  <html>
+  <head>
+  <title>Commit differences</title>
+  </head>
+  <body>
+  <h1>Commit differences</h1>
+  <br>
+  ${result}
+  </body>
+  </html>
+  `;
+};
+
 const displayGitCommits = async () => {
   try {
     const panel = vscode.window.createWebviewPanel(
@@ -30,6 +94,12 @@ const displayGitCommits = async () => {
       }
     );
     const fileContent = await getGitCommits();
+
+    panel.webview.onDidReceiveMessage((message) => {
+      if (message.commit) {
+        return commitDiff(message.commit);
+      }
+    });
 
     panel.webview.html = fileContent;
 
@@ -83,16 +153,16 @@ const getGitCommits = async () => {
       commits.push(data[i]);
     }
   }
-
   let tableData = ``;
   for (let i = 0; i < timestamps.length - 1; i++) {
     tableData += `
-        <tr>
-          <td><p>${timestamps[i]}</p></td>
-          <td id="${i}">${commits[i]}</td>
-        </tr>
-        `;
+      <tr>
+        <td><p>${timestamps[i]}</p></td>
+        <td id="${i}">${commits[i]}</td>
+      </tr>
+    `;
   }
+  const cLength = commits.length;
   return `
   <!DOCTYPE html>
   <html>
@@ -109,83 +179,26 @@ const getGitCommits = async () => {
   ${tableData}
   </table>
   <script>
-  for (let i = 0; i < ${commits.length}; i++) {
-    document.getElementById(${i}).addEventListener("click"), function() {
-      //just testing to see if the commit id-s are accessible
-      document.getElementById(${i}).innerHTML = "clicked";
+  (function() {
+    const vscode = acquireVsCodeApi();
+
+    for(let i = 0; i < ${cLength}; i++) {
+      document.getElementById(i).addEventListener("click", function myFunction() {
+        vscode.postMessage({
+          commit: i,
+        })
+      });
     }
-  }
+}())
   </script>
   </body>
   </html>
   `;
 };
 
-const commitDiff = async () => {
-  try {
-    const panel = vscode.window.createWebviewPanel(
-      "html",
-      "Commit diff",
-      vscode.ViewColumn.Two,
-      {
-        enableScripts: true,
-        retainContextWhenHidden: true,
-      }
-    );
-    const commitDifferences = await loadCommitDiff();
-
-    panel.webview.html = commitDifferences;
-
-    return panel;
-  } catch (err) {
-    console.log(
-      `received error in webview -> commitDiff ${JSON.stringify(err)}`
-    );
-
-    sendLog(`received error in webview -> commitDiff ${JSON.stringify(err)}`);
-
-    Sentry.withScope((scope) => {
-      scope.setExtras({
-        data: path,
-        location: "webview -> commitDiff",
-      });
-      Sentry.captureException(err);
-    });
-  }
-};
-
-const loadCommitDiff = async () => {
-  // 2 random commits since clicking on them isn't working
-  const { stdout } = await exec(
-    `sudo git diff 187f76de473542d31d2452ca8b852d0b8a0b1c8a 69076ad0c4ca6cf45f4c45807286fa89c8096fcd`
-  );
-  const data = stdout.toString().split(/['+''\n']+/);
-  let result = ``;
-  for (let i = 0; i <= data.length; i++) {
-    result += `
-    <div>${data[i]}</div>
-    `;
-  }
-
-  return `
-  <!DOCTYPE html>
-  <html>
-  <head>
-  <title>Commit differences</title>
-  </head>
-  <body>
-  <h1>Commit differences</h1>
-  <br>
-  ${result}
-  </body>,l
-  </html>
-  `;
-};
-
 displayGitCommits();
-// commitDiff();
 
 module.exports = {
-  commitDiff,
   displayGitCommits,
+  commitDiff,
 };
