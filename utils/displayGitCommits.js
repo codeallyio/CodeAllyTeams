@@ -1,7 +1,7 @@
 const vscode = require("vscode");
 const path = require("path");
 const Sentry = require("@sentry/node");
-var util = require("util");
+const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 const { sendLog } = require("./debugger");
 const environment = process.env.STROVE_ENVIRONMENT;
