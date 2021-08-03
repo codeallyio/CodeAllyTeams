@@ -11,6 +11,9 @@ if (environment === "local" || !environment) {
 } else if (environment === "development") {
   endpoint = "https://graphql.codeally.io";
   websocketEndpoint = "wss://graphql.codeally.io/graphql";
+} else if (environment === "testing") {
+  endpoint = "https://testingapi.codeally.io";
+  websocketEndpoint = "wss://testingapi.codeally.io/graphql";
 } else {
   endpoint = "https://api.codeally.io/graphql";
   websocketEndpoint = "wss://api.codeally.io/graphql";

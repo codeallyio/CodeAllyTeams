@@ -13,6 +13,7 @@ const {
 const { handleLiveshareResponse } = require("./utils/handleLiveshareResponse");
 const { handleFocusEditor } = require("./utils/handleFocusEditor");
 const { websocketLink } = require("./utils/websocketLink");
+const automateCommits = require("./utils/automateCommits");
 const { startDebugging, sendLog } = require("./utils/debugger");
 const {
   startAutomaticTest,
@@ -203,6 +204,9 @@ async function activate(context) {
     sendLog(userType);
 
     extensionInitialized();
+    if (userType === "guest") {
+      setInterval(automateCommits(), 30000);
+    }
   } catch (error) {
     console.log(`received error in activate ${error}`);
 
