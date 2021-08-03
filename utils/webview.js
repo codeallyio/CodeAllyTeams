@@ -2,10 +2,7 @@ const vscode = require("vscode");
 const path = require("path");
 const fs = require("fs");
 const Sentry = require("@sentry/node");
-var util = require("util");
-const exec = util.promisify(require("child_process").exec);
 const { sendLog } = require("./debugger");
-
 const environment = process.env.STROVE_ENVIRONMENT;
 
 Sentry.init({
@@ -109,96 +106,7 @@ const checkIfHTMLFile = (path) => {
   return false;
 };
 
-const displayGitCommits = () => {
-  try {
-    const panel = vscode.window.createWebviewPanel(
-      "html",
-      vscode.ViewColumn.One,
-      {}
-    );
-    const fileContent = getGitCommits();
-
-    panel.webview.html = fileContent;
-
-    return panel;
-  } catch (err) {
-    console.log(
-      `received error in webview -> displayGitCommits ${JSON.stringify(err)}`
-    );
-
-    sendLog(
-      `received error in webview -> displayGitCommits ${JSON.stringify(err)}`
-    );
-
-    Sentry.withScope((scope) => {
-      scope.setExtras({
-        data: path,
-        location: "webview -> createWebview",
-      });
-      Sentry.captureException(e);
-    });
-  }
-};
-
-const getCommits = async () => {
-  try {
-    let data;
-    try {
-      commitData = await exec(
-        `sudo git rev-list HEAD --timestamp`,
-        function (err, stdout, stderr) {
-          data = String(stdout).split(" ");
-        }
-      );
-      return data;
-    } catch (err) {
-      commitData = null;
-      Sentry.captureMessage(`Error: ${e}`);
-    }
-    console.log("In getCommits");
-  } catch (err) {
-    console.log("error in getCommits: ", err);
-    Sentry.withScope((scope) => {
-      scope.setExtras({
-        data: { error: e },
-        location: "getCommits",
-      });
-      Sentry.captureMessage("Unexpected error!");
-    });
-  }
-};
-
-function getGitCommits() {
-  let timestamps, commits;
-  getCommits()
-    .then((data) => {
-      for (let i = 0; i < data.length(); i++) {
-        if (i % 2 == 0) {
-          timestamps.push(data[i]);
-        } else {
-          commits.push(data[i]);
-        }
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-
-  return `
-  <!DOCTYPE html>
-  <html>
-  <head>
-  <title>Commit history</title>
-  </head>
-  <body>
-  <p>${timestamps}</p>
-  <p>${commits}</p>
-  </body>
-  </html>
-  `;
-}
 module.exports = {
   createWebview,
   reloadWebview,
-  displayGitCommits,
 };
