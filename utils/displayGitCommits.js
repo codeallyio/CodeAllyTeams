@@ -53,11 +53,10 @@ const commitDiff = async (i) => {
 
 const loadCommitDiff = async (i) => {
   const cData = await getCommits();
-  var second = cData[1];
+  let second = cData[1];
   if (i != 0) {
     second = cData[i * 2 + 1];
   }
-  console.log(second);
   const { stdout } = await exec(`sudo git diff ${second} ${cData[1]}`);
   const data = stdout.toString().split(/['+''\n']+/);
   let result = ``;
@@ -146,9 +145,13 @@ const getGitCommits = async () => {
   let commits = [];
   // store data in 2 separate arrays
   const data = await getCommits();
-  for (var i = 0; i < data.length; i++) {
+  for (let i = 0; i < data.length; i++) {
     if (i % 2 === 0) {
-      timestamps.push(data[i]);
+      // convert timestamps to human-readable date format
+      const milliseconds = data[i] * 1000;
+      const dateObject = new Date(milliseconds);
+      const humanDateFormat = dateObject.toLocaleString();
+      timestamps.push(humanDateFormat);
     } else {
       commits.push(data[i]);
     }
