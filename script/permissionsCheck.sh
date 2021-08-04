@@ -2,7 +2,7 @@
 
 echo "START"
 
-check=$(find /home/strove/project -type f -name 'permissions.txt')
+check=$(find /home/codeally/project -type f -name 'permissions.txt')
 echo "check - $check"
 
 # Check if string is empty
@@ -15,10 +15,10 @@ else
     # read line after line 
     while IFS= read -r line; do
     echo "line - $line"
-    output=$(find /home/strove/project -name $line)
+    output=$(find /home/codeally/project -name $line)
     echo "output - $output"
     chmod 755 $output
-done < /home/strove/project/permissions.txt
+done < /home/codeally/project/permissions.txt
 fi
 
 echo "END"

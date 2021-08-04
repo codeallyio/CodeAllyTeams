@@ -228,7 +228,7 @@ const startReceiving = async ({ userId }) => {
       let response;
       try {
         response = await exec(
-          `find /home/strove/.local -maxdepth 2 -name "output-${userId}.txt" -print -quit`
+          `find /home/codeally/.local -maxdepth 2 -name "output-${userId}.txt" -print -quit`
         );
       } catch (error) {
         response = null;
@@ -249,7 +249,7 @@ const startReceiving = async ({ userId }) => {
 
       if (response && response.stdout) {
         await terminal.sendText(
-          `tail -q -f /home/strove/.local/output-${userId}.txt`
+          `tail -q -f /home/codeally/.local/output-${userId}.txt`
         );
 
         await terminal.show();
@@ -280,7 +280,7 @@ const startSharing = async () => {
     sharedTerminal = vscode.window.createTerminal("Shared terminal");
 
     sharedTerminal.sendText(
-      `script -q -f /home/strove/.local/output-${myId}.txt`
+      `script -q -f /home/codeally/.local/output-${myId}.txt`
     );
 
     sharedTerminal.sendText("clear");
@@ -315,7 +315,7 @@ const restartSharing = async () => {
 
 const checkOutputFiles = async (webviewView) => {
   try {
-    const { stdout, stderr } = await exec(`ls /home/strove/.local`);
+    const { stdout, stderr } = await exec(`ls /home/codeally/.local`);
     let shouldRefresh = false;
 
     if (stderr) throw `error: ${stderr}`;

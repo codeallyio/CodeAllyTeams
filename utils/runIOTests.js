@@ -26,7 +26,7 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
     if (inputOutput && inputOutput.length > 0 && testCommand) {
       const { fileName, testFileContent } = languagesData[language];
 
-      const pathToFile = vscode.Uri.file(`/home/strove/project/${fileName}`);
+      const pathToFile = vscode.Uri.file(`/home/codeally/project/${fileName}`);
 
       const pathUri = pathToFile.with({ scheme: "vscode-resource" });
 
@@ -51,7 +51,7 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
           inputValue = input.value;
         }
         fs.writeFileSync(
-          `/home/strove/${fileName}`,
+          `/home/codeally/${fileName}`,
           "" +
             testFileContent({
               inputType: input.type,
@@ -63,13 +63,13 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
 
         sendLog(`testCommand - ${testCommand}`);
 
-        // const response = await exec("cd /home/strove && " + testCommand, {
+        // const response = await exec("cd /home/codeally && " + testCommand, {
         //   timeout: 10000,
         // });
 
         const response = await exec(testCommand, {
           timeout: 10000,
-          cwd: "/home/strove",
+          cwd: "/home/codeally",
         });
 
         if (response && response.stderr) throw response.stderr;
@@ -80,7 +80,7 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
 
         sendLog(`results - ${results}`);
 
-        const response2 = await exec(`sudo rm -rf /home/strove/${fileName}`);
+        const response2 = await exec(`sudo rm -rf /home/codeally/${fileName}`);
 
         sendLog(`response2 - ${JSON.stringify(response2)}`);
 
@@ -106,7 +106,7 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
 
     const { fileName } = languagesData[language];
 
-    const response = await exec(`sudo rm -rf /home/strove/${fileName}`);
+    const response = await exec(`sudo rm -rf /home/codeally/${fileName}`);
 
     sendLog(`response2 - ${JSON.stringify(response)}`);
 

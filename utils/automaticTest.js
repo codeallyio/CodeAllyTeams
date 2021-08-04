@@ -135,7 +135,7 @@ const startAutomaticTest = () => {
                 ) {
                   reloadWebview({
                     panel: webviewPanel,
-                    path: `/home/strove/project/${process.env.TEST_REPORT_PATH}`,
+                    path: `/home/codeally/project/${process.env.TEST_REPORT_PATH}`,
                   });
                 } else {
                   reloadWebview({
