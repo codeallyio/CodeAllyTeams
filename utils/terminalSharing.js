@@ -83,6 +83,7 @@ const SharingManagementWebview = (_extensionUri) => {
         "🚀 ~ file: terminalSharing.js ~ line 104 ~ webviewView.webview.onDidReceiveMessage ~ data",
         data
       );
+      sendLog("Received message");
 
       switch (instruction) {
         case "initialized": {
@@ -102,6 +103,7 @@ const SharingManagementWebview = (_extensionUri) => {
           break;
         }
         case "start-receiving": {
+          sendLog("start-receiving");
           startReceiving(additionalData);
           break;
         }
