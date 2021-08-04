@@ -76,6 +76,8 @@ const SharingManagementWebview = (_extensionUri) => {
 
     webviewView.webview.html = _getHtmlForWebview(webviewView.webview);
 
+    sendLog(webviewView.webview);
+
     webviewView.webview.onDidReceiveMessage((data) => {
       const { instruction, additionalData } = data;
 
