@@ -135,7 +135,7 @@ const execFuncCpp = (inputType, inputValue, createdFromFile, outputType) => {
       ${inputType} = ${inputValue};
       p = main_function(arr);
       size_t n = sizeof(arr)/sizeof(p);
-      string result = "{";
+      std::string result = "{";
       for(int i=0; i<n; i++){
         result+=arr[i];
         if(i != n-1){
@@ -143,7 +143,7 @@ const execFuncCpp = (inputType, inputValue, createdFromFile, outputType) => {
         }
       }
       result+="}";
-      cout << result;
+      std::cout << result;
       `;
 
     }else if(inputType.includes("[]")) {
