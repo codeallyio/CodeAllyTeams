@@ -79,7 +79,7 @@ const SharingManagementWebview = (_extensionUri) => {
     sendLog("Look here:");
     sendLog(webviewView.webview);
 
-    webviewView.webview._onMessageEmitter((data) => {
+    webviewView.webview.onDidReceiveMessage((data) => {
       const { instruction, additionalData } = data;
 
       console.log(
