@@ -88,6 +88,7 @@ subscription($projectId: String!) {
     startIOTest(projectId: $projectId) {
             language
             testCommand
+            createdFromFile
             inputOutput {
                 input {
                   type

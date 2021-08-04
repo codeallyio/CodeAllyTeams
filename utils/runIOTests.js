@@ -21,7 +21,7 @@ Sentry.init({
   normalizeDepth: 10,
 });
 
-const runIOTests = async ({ testCommand, inputOutput, language }) => {
+const runIOTests = async ({ testCommand, inputOutput, language, createdFromFile }) => {
   try {
     sendLog("in runIOTests");
     if (inputOutput && inputOutput.length > 0 && testCommand) {
@@ -43,20 +43,21 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
       const results = [];
 
       while (counter < maxValue) {
-        const { input } = inputOutput[counter];
-        let inputValue = "";
-
-        if (input.type === "String") {
-          inputValue = `"${input.value}"`;
-        } else {
-          inputValue = input.value;
-        }
+        const { input, output } = inputOutput[counter];
+        // let inputValue = "";
+        // if (input.type === "String") {
+        //   inputValue = `"${input.value}"`;
+        // } else {
+        //   inputValue = input.value;
+        // }
         fs.writeFileSync(
           `/home/strove/${fileName}`,
           "" +
             testFileContent({
+              createdFromFile,
               inputType: input.type,
-              inputValue,
+              inputValue: input.value,
+              outputType: output.type,
               userFileContent,
             }),
           "utf8"
@@ -120,25 +121,71 @@ const runIOTests = async ({ testCommand, inputOutput, language }) => {
     }
   }
 };
-const execFuncCpp = (inputType, inputValue) => {
-  if (inputType === "ArrayString") {
-    return `std::string arr[] = ${inputValue};std::cout << main_function(arr) << std::endl;`;
+const execFuncCpp = (inputType, inputValue, createdFromFile, outputType) => {
+  if(createdFromFile){
+    if(outputType.includes("*")){
+      /*pointers
+      examples
+      ${outputType} = double *
+      ${inputType} = long long int arr[]examples
+      ${inputValue} = {1,2,3}
+      */
+      return `
+      ${outputType}p;
+      ${inputType} = ${inputValue};
+      p = main_function(arr);
+      size_t n = sizeof(arr)/sizeof(p);
+      string result = "{";
+      for(int i=0; i<n; i++){
+        result+=arr[i];
+        if(i != n-1){
+            result+=",";
+        }
+      }
+      result+="}";
+      cout << result;
+      `;
+
+    }else if(inputType.includes("[]")) {
+      //arrays
+      return `${inputType} = ${inputValue};std::cout << main_function(arr) << std::endl;`;
+    }
+    else{
+      //other fundamental types
+        return `std::cout << main_function(${inputValue}) << std::endl;`;
+    }
+  }else{
+    if (inputType === "ArrayString") {
+      return `std::string arr[] = ${inputValue};std::cout << main_function(arr) << std::endl;`;
+    }
+    if (inputType === "ArrayNumber") {
+      return `double arr[] = ${inputValue};std::cout << main_function(arr) << std::endl;`;
+    }
+    return `std::cout << main_function(${inputValue}) << std::endl;`;
   }
-  if (inputType === "ArrayNumber") {
-    return `double arr[] = ${inputValue};std::cout << main_function(arr) << std::endl;`;
+};
+const execFuncJava = (inputValue, outputType) => {
+  if(outputType.includes("[]")){
+    return `System.out.println(Arrays.toString(main_function(${inputValue})));`
   }
-  return `std::cout << main_function(${inputValue}) << std::endl;`;
+  return `System.out.println(main_function(${inputValue}));`
+};
+const execFuncCSharp = (inputValue, outputType) => {
+  if(outputType.includes("[]")){
+    return `System.Console.WriteLine("[" + string.Join(",",MainFunction(${inputValue})) + "]");`
+  }
+  return `System.Console.WriteLine(MainFunction(${inputValue}));`
 };
 // Some languages have weird formatting but it's necessary for them to work
 const languagesData = {
   "C++": {
     fileName: "main.cpp",
-    testFileContent: ({ inputType, inputValue, userFileContent }) => `
+    testFileContent: ({ inputType, inputValue, userFileContent,createdFromFile,outputType }) => `
         ${userFileContent}
 
         int main(int argc, char* argv[]) {
           try {
-            ${execFuncCpp(inputType, inputValue)}
+            ${execFuncCpp(inputType, inputValue, createdFromFile,outputType)}
             return 0;
           } catch (const std::runtime_error& re) {
             std::cerr << "Runtime error: " << re.what() << std::endl;
@@ -168,7 +215,7 @@ except Exception as exception:
   },
   Java: {
     fileName: "main.java",
-    testFileContent: ({ inputValue, userFileContent }) => `
+    testFileContent: ({ inputValue, userFileContent, outputType }) => `
     import java.util.*;
     import java.lang.*;
     class Main {
@@ -176,7 +223,7 @@ except Exception as exception:
 
         public static void main(String[] args) {
           try {
-            System.out.println(main_function(${inputValue}));
+            ${execFuncJava(inputValue, outputType)}
           } catch (Exception e) {
             System.out.println(e);
           }
@@ -186,13 +233,13 @@ except Exception as exception:
   },
   "C#": {
     fileName: "main.cs",
-    testFileContent: ({ inputValue, userFileContent }) => `
+    testFileContent: ({ inputValue, userFileContent, outputType  }) => `
     class MainClass {
         ${userFileContent}
 
         public static void Main(string[] args) {
           try {
-            System.Console.WriteLine(MainFunction(${inputValue}));
+            ${execFuncCSharp(inputValue,outputType)}
           } catch (System.Exception e) {
             System.Console.WriteLine(e);
           }
