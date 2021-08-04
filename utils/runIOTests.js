@@ -44,20 +44,19 @@ const runIOTests = async ({ testCommand, inputOutput, language, createdFromFile 
 
       while (counter < maxValue) {
         const { input, output } = inputOutput[counter];
-        let inputValue = "";
-
-        if (input.type === "String") {
-          inputValue = `"${input.value}"`;
-        } else {
-          inputValue = input.value;
-        }
+        // let inputValue = "";
+        // if (input.type === "String") {
+        //   inputValue = `"${input.value}"`;
+        // } else {
+        //   inputValue = input.value;
+        // }
         fs.writeFileSync(
           `/home/strove/${fileName}`,
           "" +
             testFileContent({
               createdFromFile,
               inputType: input.type,
-              inputValue,
+              inputValue: input.value,
               outputType: output.type,
               userFileContent,
             }),
