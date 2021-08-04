@@ -19,7 +19,8 @@
     sendInstruction("start-receiving", { userId });
   });
 
-  document.querySelector("#share-button").addEventListener("click", () => {
+  // document.querySelector("#share-button").addEventListener("click", () => {
+  document.getElementById("share-button").addEventListener("click", () => {
     if (isSharingTerminalOpen) {
       sendInstruction("restart-sharing");
     } else {
