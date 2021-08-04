@@ -5,6 +5,7 @@ const { handleError } = require("./errorHandling");
 const { execute } = require("apollo-link");
 const { websocketLink } = require("./websocketLink");
 const { watchActiveUsersSubscription } = require("./queries");
+const { sendLog } = require("./debugger");
 
 let wasWebviewActivated = false;
 let sharedTerminal;
@@ -276,16 +277,22 @@ const startReceiving = async ({ userId }) => {
 
 const startSharing = async () => {
   try {
+    sendLog("In startSharing");
     // Start braodcasting terminal for everyone
     sharedTerminal = vscode.window.createTerminal("Shared terminal");
 
+    sendLog("Started terminal");
     sharedTerminal.sendText(
       `script -q -f /home/codeally/.local/output-${myId}.txt`
     );
 
+    sendLog("Started writing");
     sharedTerminal.sendText("clear");
 
+    sendLog("cleared terminal");
     sharedTerminal.show();
+
+    sendLog("showed terminal");
   } catch (error) {
     handleError({
       error,
