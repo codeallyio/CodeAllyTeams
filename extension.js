@@ -59,7 +59,7 @@ const extensionInitialized = () => {
   makePromise(execute(websocketLink, extensionInitializedOperation))
     .then((response) =>
       handleError({
-        response,
+        error: response,
         location: "watchActiveUsers -> watchActiveUsersChange",
         additionalData: extensionInitializedOperation,
       })
