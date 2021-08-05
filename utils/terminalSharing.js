@@ -324,9 +324,13 @@ const restartSharing = async () => {
 const stopSharing = async (terminal) => {
   try {
     if (terminal) {
-      terminal.sendText("exit");
+      if (terminal.name) {
+        terminal.sendText("exit");
 
-      await terminal.dispose();
+        await terminal.dispose();
+      }
+    } else {
+      terminal.hide();
     }
   } catch (error) {
     handleError({
@@ -508,7 +512,7 @@ const manageTerminalSharing = (context) => {
     );
 
     const terminalsToClose = vscode.window.terminals.filter(
-      (terminal) => terminal.name === "Shared terminal"
+      (terminal) => terminal.name === "Shared terminal" || terminal.name === ""
     );
     console.log(
       "🚀 ~ file: terminalSharing.js ~ line 509 ~ manageTerminalSharing ~ terminalsToClose",
