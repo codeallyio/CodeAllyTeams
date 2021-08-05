@@ -409,10 +409,19 @@ const watchActiveUsersChange = async (webviewView) => {
       watchActiveUsersOperation
     ).subscribe({
       next: async (data) => {
+        console.log(
+          "🚀 ~ file: terminalSharing.js ~ line 412 ~ next: ~ data",
+          data
+        );
         try {
+          console.log("received users data");
           const {
             data: { watchActiveUsers },
           } = data;
+          console.log(
+            "🚀 ~ file: terminalSharing.js ~ line 417 ~ next: ~ watchActiveUsers",
+            watchActiveUsers
+          );
 
           if (
             watchActiveUsers &&
