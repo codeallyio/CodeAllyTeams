@@ -502,9 +502,17 @@ const manageTerminalSharing = (context) => {
       WebviewView.viewType,
       WebviewView
     );
+    console.log(
+      "🚀 ~ file: terminalSharing.js ~ line 523 ~ manageTerminalSharing ~ vscode.window.terminals",
+      vscode.window.terminals
+    );
 
     const terminalsToClose = vscode.window.terminals.filter(
       (terminal) => terminal.name === "Shared terminal"
+    );
+    console.log(
+      "🚀 ~ file: terminalSharing.js ~ line 509 ~ manageTerminalSharing ~ terminalsToClose",
+      terminalsToClose
     );
     asyncMap(
       terminalsToClose,
