@@ -16,7 +16,11 @@ Sentry.init({
 });
 
 const handleError = ({ error, location, additionalData = {} }) => {
-  console.log(`received error in ${location}: ${error}`);
+  const stringifiedError = JSON.stringify(error, (key, value) =>
+    value instanceof Error ? value.message : value
+  );
+
+  console.log(`received error in ${location}: ${stringifiedError}`);
 
   sendLog(`received error in ${location}: ${error}`);
 
