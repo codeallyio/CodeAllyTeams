@@ -60,14 +60,14 @@ const extensionInitialized = () => {
     .then((response) =>
       handleError({
         error: response,
-        location: "watchActiveUsers -> watchActiveUsersChange",
+        location: "extension -> extensionInitialized",
         additionalData: extensionInitializedOperation,
       })
     )
     .catch((error) => {
       handleError({
         error,
-        location: "watchActiveUsers -> watchActiveUsersChange",
+        location: "extension -> extensionInitialized",
         additionalData: extensionInitializedOperation,
       });
     });
