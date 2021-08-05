@@ -360,6 +360,10 @@ const checkOutputFiles = async (webviewView) => {
     const usersIds = fileNames
       .filter((fileName) => fileName.includes("output"))
       .map((fileName) => fileName.match(/(?<=\-)(.*)(?=\.)/g)[0]);
+    console.log(
+      "🚀 ~ file: terminalSharing.js ~ line 363 ~ checkOutputFiles ~ usersIds",
+      usersIds
+    );
 
     usersIds.map((userId) => {
       if (ACTIVE_USERS_DATA[userId]) {
@@ -452,15 +456,22 @@ const watchActiveUsersChange = async (webviewView) => {
               const user = watchActiveUsers.find(
                 (activeUser) => activeUser.id === userId
               );
+              console.log(
+                "🚀 ~ file: terminalSharing.js ~ line 459 ~ allUsers.forEach ~ user",
+                user
+              );
 
               if (user) {
-                ACTIVE_USERS_DATA[userId] = watchActiveUsers.find(
-                  (activeUser) => activeUser.id === userId
-                );
+                ACTIVE_USERS_DATA[userId] = user;
               } else {
                 delete ACTIVE_USERS_DATA[userId];
               }
             });
+
+            console.log(
+              "🚀 ~ file: terminalSharing.js ~ line 465 ~ allUsers.forEach ~ ACTIVE_USERS_DATA",
+              ACTIVE_USERS_DATA
+            );
 
             // This should refresh the TreeView
             // vscode.commands.executeCommand("activeUsers.refresh");
