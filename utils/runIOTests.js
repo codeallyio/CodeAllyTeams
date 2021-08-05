@@ -147,7 +147,6 @@ const execFuncCpp = (inputType, inputValue, createdFromFile, outputType, outputV
       result+='}';
       std::cout << result;
       `;
-
     }else if(inputType.includes("[]")) {
       //arrays
       return `${inputType} = ${inputValue};std::cout << main_function(arr) << std::endl;`;
