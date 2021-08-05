@@ -371,7 +371,7 @@ const checkOutputFiles = async (webviewView) => {
 
     const usersIds = fileNames
       .filter((fileName) => fileName.includes("output"))
-      .map((fileName) => fileName.match(/(?<=\-)(.*)(?=\.)/g))
+      .map((fileName) => fileName.match(/(?<=\-)(.*)(?=\.txt)/g))
       .filter((x) => !!x);
     console.log(
       "🚀 ~ file: terminalSharing.js ~ line 363 ~ checkOutputFiles ~ usersIds",
