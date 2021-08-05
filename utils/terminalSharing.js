@@ -362,6 +362,10 @@ const checkOutputFiles = async (webviewView) => {
     if (stderr) throw `error: ${stderr}`;
 
     const fileNames = stdout.split("\n");
+    console.log(
+      "🚀 ~ file: terminalSharing.js ~ line 365 ~ checkOutputFiles ~ fileNames",
+      fileNames
+    );
 
     fileNames.pop();
 
