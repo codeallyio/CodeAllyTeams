@@ -463,7 +463,7 @@ const watchActiveUsersChange = async (webviewView) => {
             });
 
             // This should refresh the TreeView
-            vscode.commands.executeCommand("activeUsers.refresh");
+            // vscode.commands.executeCommand("activeUsers.refresh");
 
             // I refresh this data in case someone left the project
             if (webviewView) {

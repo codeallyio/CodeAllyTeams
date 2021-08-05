@@ -38,6 +38,10 @@
   // Handle messages sent from the extension to the webview
   window.addEventListener("message", (event) => {
     const { message, additionalData } = event.data; // The json data that the extension sent
+    console.log(
+      "🚀 ~ file: sharing.js ~ line 41 ~ window.addEventListener ~ additionalData",
+      additionalData
+    );
     switch (message) {
       case "update-user-list": {
         let listData = "";
