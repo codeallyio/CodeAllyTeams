@@ -474,7 +474,6 @@ const watchActiveUsersChange = async (webviewView) => {
 
 const manageTerminalSharing = (context) => {
   try {
-    vscode.setState({ bracia: "Figo Fagot" });
     // I add refresh ability to active users Tree View
     context.subscriptions.push(
       vscode.commands.registerCommand("activeUsers.refresh", (data) => {
@@ -499,11 +498,7 @@ const manageTerminalSharing = (context) => {
       WebviewView
     );
 
-    const state = vscode.getState();
-    console.log(
-      "🚀 ~ file: terminalSharing.js ~ line 503 ~ manageTerminalSharing ~ state",
-      state
-    );
+    console.log(vscode.window.terminals);
 
     watchActiveUsersChange(WebviewView);
 
