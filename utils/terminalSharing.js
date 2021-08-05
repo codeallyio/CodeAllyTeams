@@ -6,6 +6,7 @@ const { execute } = require("apollo-link");
 const { websocketLink } = require("./websocketLink");
 const { watchActiveUsersSubscription } = require("./queries");
 const { sendLog } = require("./debugger");
+const { asyncMap } = require("./asyncMap");
 
 let wasWebviewActivated = false;
 let sharedTerminal;
@@ -330,6 +331,21 @@ const restartSharing = async () => {
   }
 };
 
+const stopSharing = async (terminal) => {
+  try {
+    if (terminal) {
+      terminal.sendText("exit");
+
+      await terminal.dispose();
+    }
+  } catch (error) {
+    handleError({
+      error,
+      location: "terminalSharing -> stopSharing",
+    });
+  }
+};
+
 const checkOutputFiles = async (webviewView) => {
   try {
     const { stdout, stderr } = await exec(`ls /home/codeally/.local`);
@@ -498,7 +514,13 @@ const manageTerminalSharing = (context) => {
       WebviewView
     );
 
-    console.log(vscode.window.terminals);
+    const terminalsToClose = vscode.window.terminals.filter(
+      (terminal) => terminal.name === "Shared terminal"
+    );
+    asyncMap(
+      terminalsToClose,
+      async (terminalToClose) => await stopSharing(terminalToClose)
+    );
 
     watchActiveUsersChange(WebviewView);
 
