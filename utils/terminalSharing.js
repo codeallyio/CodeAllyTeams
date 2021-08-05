@@ -324,7 +324,7 @@ const restartSharing = async () => {
 const stopSharing = async (terminal) => {
   try {
     if (terminal) {
-      if (terminal.name) {
+      if (terminal.name && terminal.name.length > 0) {
         terminal.sendText("exit");
 
         await terminal.dispose();
