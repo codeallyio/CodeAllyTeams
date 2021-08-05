@@ -83,12 +83,6 @@ const SharingManagementWebview = (_extensionUri) => {
     webviewView.webview.onDidReceiveMessage((data) => {
       const { instruction, additionalData } = data;
 
-      console.log(
-        "🚀 ~ file: terminalSharing.js ~ line 104 ~ webviewView.webview.onDidReceiveMessage ~ data",
-        data
-      );
-      sendLog("Received message");
-
       switch (instruction) {
         case "initialized": {
           if (!wasWebviewActivated) {
@@ -134,11 +128,6 @@ const SharingManagementWebview = (_extensionUri) => {
       // Get the local path to main script run in the webview, then convert it to a uri we can use in the webview.
       let scriptUri = webview.asWebviewUri(
         vscode.Uri.joinPath(_extensionUri, "media", "sharing.js")
-      );
-
-      console.log(
-        "🚀 ~ file: terminalSharing.js ~ line 141 ~ SharingManagementWebview ~ scriptUri",
-        scriptUri
       );
 
       // Do the same for the stylesheet.
@@ -228,18 +217,11 @@ function getNonce() {
 
 // case "start-receiving": {
 const startReceiving = async ({ userId }) => {
-  console.log(
-    "🚀 ~ file: terminalSharing.js ~ line 231 ~ startReceiving ~ userId",
-    userId
-  );
   try {
     let STARTING_TERMINAL = true;
 
     const userName = ACTIVE_USERS_DATA[userId].name;
-    console.log(
-      "🚀 ~ file: terminalSharing.js ~ line 235 ~ startReceiving ~ ACTIVE_USERS_DATA",
-      ACTIVE_USERS_DATA
-    );
+
     const terminal = vscode.window.createTerminal(`${userName}'s terminal`);
 
     let whileCounter = 0;
@@ -362,10 +344,6 @@ const checkOutputFiles = async (webviewView) => {
     if (stderr) throw `error: ${stderr}`;
 
     const fileNames = stdout.split("\n");
-    console.log(
-      "🚀 ~ file: terminalSharing.js ~ line 365 ~ checkOutputFiles ~ fileNames",
-      fileNames
-    );
 
     fileNames.pop();
 
@@ -373,10 +351,6 @@ const checkOutputFiles = async (webviewView) => {
       .filter((fileName) => fileName.includes("output"))
       .map((fileName) => fileName.match(/(?<=\-)(.*)(?=\.txt)/g))
       .filter((x) => !!x);
-    console.log(
-      "🚀 ~ file: terminalSharing.js ~ line 363 ~ checkOutputFiles ~ usersIds",
-      usersIds
-    );
 
     usersIds.map((userId) => {
       if (ACTIVE_USERS_DATA[userId]) {
@@ -426,19 +400,10 @@ const watchActiveUsersChange = async (webviewView) => {
       watchActiveUsersOperation
     ).subscribe({
       next: async (data) => {
-        console.log(
-          "🚀 ~ file: terminalSharing.js ~ line 412 ~ next: ~ data",
-          data
-        );
         try {
-          console.log("received users data");
           const {
             data: { watchActiveUsers },
           } = data;
-          console.log(
-            "🚀 ~ file: terminalSharing.js ~ line 417 ~ next: ~ watchActiveUsers",
-            watchActiveUsers
-          );
 
           if (
             watchActiveUsers &&
@@ -469,10 +434,6 @@ const watchActiveUsersChange = async (webviewView) => {
               const user = watchActiveUsers.find(
                 (activeUser) => activeUser.id === userId
               );
-              console.log(
-                "🚀 ~ file: terminalSharing.js ~ line 459 ~ allUsers.forEach ~ user",
-                user
-              );
 
               if (user) {
                 ACTIVE_USERS_DATA[userId] = user;
@@ -480,11 +441,6 @@ const watchActiveUsersChange = async (webviewView) => {
                 delete ACTIVE_USERS_DATA[userId];
               }
             });
-
-            console.log(
-              "🚀 ~ file: terminalSharing.js ~ line 465 ~ allUsers.forEach ~ ACTIVE_USERS_DATA",
-              ACTIVE_USERS_DATA
-            );
 
             // This should refresh the TreeView
             // vscode.commands.executeCommand("activeUsers.refresh");

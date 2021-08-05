@@ -47,7 +47,6 @@ Sentry.init({
 let initPing;
 
 const extensionInitialized = () => {
-  console.log("initialized mutation");
   const extensionInitializedOperation = {
     query: extensionInitializedMutation,
     variables: {
