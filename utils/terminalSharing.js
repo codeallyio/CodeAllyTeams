@@ -508,7 +508,7 @@ const manageTerminalSharing = (context) => {
     );
 
     const terminalsToClose = vscode.window.terminals.filter(
-      (terminal) => terminal.name === "Shared terminal"
+      (terminal) => terminal.name === "Shared terminal" || terminal.name === ""
     );
     console.log(
       "🚀 ~ file: terminalSharing.js ~ line 509 ~ manageTerminalSharing ~ terminalsToClose",

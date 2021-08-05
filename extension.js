@@ -59,7 +59,7 @@ const extensionInitialized = () => {
     .then((response) =>
       handleError({
         error: response,
-        location: "extension -> extensionInitialized",
+        location: "extension -> extensionInitialized -> response",
         additionalData: extensionInitializedOperation,
       })
     )
