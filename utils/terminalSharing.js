@@ -99,9 +99,9 @@ const SharingManagementWebview = (_extensionUri) => {
               _view.webview.postMessage({ message: "set-sharing-flag-true" });
               startSharing();
             } else if (userType === "hiring") {
-              const guest = findGuest();
+              const guestId = findGuest();
 
-              if (guest) startReceiving({ userId: guest.id });
+              if (guestId) startReceiving({ userId: guestId });
             }
           }
           break;
@@ -228,10 +228,18 @@ function getNonce() {
 
 // case "start-receiving": {
 const startReceiving = async ({ userId }) => {
+  console.log(
+    "🚀 ~ file: terminalSharing.js ~ line 231 ~ startReceiving ~ userId",
+    userId
+  );
   try {
     let STARTING_TERMINAL = true;
 
     const userName = ACTIVE_USERS_DATA[userId].name;
+    console.log(
+      "🚀 ~ file: terminalSharing.js ~ line 235 ~ startReceiving ~ ACTIVE_USERS_DATA",
+      ACTIVE_USERS_DATA
+    );
     const terminal = vscode.window.createTerminal(`${userName}'s terminal`);
 
     let whileCounter = 0;
@@ -392,11 +400,11 @@ const checkOutputFiles = async (webviewView) => {
 };
 
 const findGuest = () => {
-  const guest = Object.keys(ACTIVE_USERS_DATA).find(
+  const guestId = Object.keys(ACTIVE_USERS_DATA).find(
     (userId) => ACTIVE_USERS_DATA[userId].type === "guest"
   );
 
-  return guest;
+  return guestId;
 };
 
 const watchActiveUsersChange = async (webviewView) => {
