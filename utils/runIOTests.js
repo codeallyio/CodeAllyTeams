@@ -58,6 +58,7 @@ const runIOTests = async ({ testCommand, inputOutput, language, createdFromFile 
               inputType: input.type,
               inputValue: input.value,
               outputType: output.type,
+              outputValue: output.value,
               userFileContent,
             }),
           "utf8"
@@ -121,9 +122,10 @@ const runIOTests = async ({ testCommand, inputOutput, language, createdFromFile 
     }
   }
 };
-const execFuncCpp = (inputType, inputValue, createdFromFile, outputType) => {
+const execFuncCpp = (inputType, inputValue, createdFromFile, outputType, outputValue) => {
   if(createdFromFile){
     if(outputType.includes("*")){
+      const len = JSON.parse(outputValue.replace('{','[').replace('}',']')).length
       /*pointers
       examples
       ${outputType} = double *
@@ -134,15 +136,15 @@ const execFuncCpp = (inputType, inputValue, createdFromFile, outputType) => {
       ${outputType}p;
       ${inputType} = ${inputValue};
       p = main_function(arr);
-      size_t n = sizeof(arr)/sizeof(p);
+      int n = ${len};
       std::string result = "{";
       for(int i=0; i<n; i++){
-        result+=arr[i];
+        result += *(p + i);
         if(i != n-1){
-            result+=",";
+            result+=',';
         }
       }
-      result+="}";
+      result+='}';
       std::cout << result;
       `;
 
@@ -180,12 +182,12 @@ const execFuncCSharp = (inputValue, outputType) => {
 const languagesData = {
   "C++": {
     fileName: "main.cpp",
-    testFileContent: ({ inputType, inputValue, userFileContent,createdFromFile,outputType }) => `
+    testFileContent: ({ inputType, inputValue, userFileContent,createdFromFile,outputType,outputValue }) => `
         ${userFileContent}
 
         int main(int argc, char* argv[]) {
           try {
-            ${execFuncCpp(inputType, inputValue, createdFromFile,outputType)}
+            ${execFuncCpp(inputType, inputValue, createdFromFile,outputType,outputValue)}
             return 0;
           } catch (const std::runtime_error& re) {
             std::cerr << "Runtime error: " << re.what() << std::endl;
