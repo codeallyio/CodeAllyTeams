@@ -47,6 +47,7 @@ Sentry.init({
 let initPing;
 
 const extensionInitialized = () => {
+  console.log("initialized mutation");
   const extensionInitializedOperation = {
     query: extensionInitializedMutation,
     variables: {
@@ -56,7 +57,13 @@ const extensionInitialized = () => {
   };
 
   makePromise(execute(websocketLink, extensionInitializedOperation))
-    .then()
+    .then((response) =>
+      handleError({
+        response,
+        location: "watchActiveUsers -> watchActiveUsersChange",
+        additionalData: extensionInitializedOperation,
+      })
+    )
     .catch((error) => {
       handleError({
         error,
