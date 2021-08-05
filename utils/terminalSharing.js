@@ -139,7 +139,9 @@ const SharingManagementWebview = (_extensionUri) => {
       //     vscode.Uri.joinPath(_extensionUri, "media", "sharing.js")
       //   );
       // } else {
-      scriptUri = "https://codeally.io/static/codeally-teams/sharing.js";
+      scriptUri = webview.asWebviewUri(
+        "https://codeally.io/static/codeally-teams/sharing.js"
+      );
       // }
 
       console.log(
