@@ -7,6 +7,8 @@ const { websocketLink } = require("./websocketLink");
 const { watchActiveUsersSubscription } = require("./queries");
 const { sendLog } = require("./debugger");
 
+const environment = process.env.CODEALLY_ENVIRONMENT;
+
 let wasWebviewActivated = false;
 let sharedTerminal;
 let checkOutputFilesInterval;
@@ -131,8 +133,18 @@ const SharingManagementWebview = (_extensionUri) => {
   const _getHtmlForWebview = (webview) => {
     try {
       // Get the local path to main script run in the webview, then convert it to a uri we can use in the webview.
-      const scriptUri = webview.asWebviewUri(
-        vscode.Uri.joinPath(_extensionUri, "media", "sharing.js")
+      let scriptUri;
+      // if (environment === "") {
+      //   scriptUri = webview.asWebviewUri(
+      //     vscode.Uri.joinPath(_extensionUri, "media", "sharing.js")
+      //   );
+      // } else {
+      scriptUri = "https://codeally.io/static/codeally-teams/sharing.js";
+      // }
+
+      console.log(
+        "🚀 ~ file: terminalSharing.js ~ line 141 ~ SharingManagementWebview ~ scriptUri",
+        scriptUri
       );
 
       // Do the same for the stylesheet.
@@ -191,7 +203,7 @@ const SharingManagementWebview = (_extensionUri) => {
                 <button class="styled-button" id="receive-button">Show terminal</button>
                 <p>If some user isn't on the list it means they don't share their terminal yet.</p>
 
-				<script nonce="${nonce}" src="${scriptUri}"></script>
+				<script nonce="${nonce}" type="text/javascript" src="${scriptUri}"></script>
 			</body>
 			</html>`;
     } catch (error) {
