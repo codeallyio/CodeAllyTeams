@@ -14,6 +14,7 @@ let checkOutputFilesInterval;
 let watchActiveUsersSubscriber = null;
 
 let ACTIVE_USERS_DATA = {};
+let treeDataObject;
 
 const userType = process.env.CODEALLY_USER_TYPE;
 const myId = process.env.CODEALLY_USER_ID || "123";
@@ -451,8 +452,8 @@ const watchActiveUsersChange = async (webviewView) => {
               (key) => ACTIVE_USERS_DATA[key].name
             );
 
-            ActiveUsersTreeDataProvider.updateData(usersNames);
-            // ActiveUsersTreeDataProvider.refresh();
+            treeDataObject.updateData(usersNames);
+            // treeDataObject.refresh();
 
             // This should refresh the TreeView
             vscode.commands.executeCommand("activeUsers.refresh");
@@ -499,7 +500,7 @@ const manageTerminalSharing = (context) => {
     context.subscriptions.push(
       vscode.commands.registerCommand("activeUsers.refresh", (data) => {
         console.log("activeUsers.refresh -> data: ", data);
-        ActiveUsersTreeDataProvider.refresh();
+        treeDataObject.refresh();
       })
     );
 
@@ -507,7 +508,7 @@ const manageTerminalSharing = (context) => {
       (key) => ACTIVE_USERS_DATA[key].name
     );
 
-    vscode.window.registerTreeDataProvider(
+    treeDataObject = vscode.window.registerTreeDataProvider(
       "activeUsers",
       ActiveUsersTreeDataProvider(users)
     );
