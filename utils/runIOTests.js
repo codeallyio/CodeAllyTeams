@@ -6,7 +6,7 @@ const exec = util.promisify(require("child_process").exec);
 
 const { sendLog } = require("./debugger");
 
-const environment = process.env.STROVE_ENVIRONMENT;
+const environment = process.env.CODEALLY_ENVIRONMENT;
 
 Sentry.init({
   beforeSend(event) {
@@ -15,8 +15,7 @@ Sentry.init({
     }
     return null;
   },
-  dsn:
-    "https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294",
+  dsn: "https://8acd5bf9eafc402b8666e9d55186f620@o221478.ingest.sentry.io/5285294",
   maxValueLength: 1000,
   normalizeDepth: 10,
 });
@@ -27,7 +26,7 @@ const runIOTests = async ({ testCommand, inputOutput, language, createdFromFile 
     if (inputOutput && inputOutput.length > 0 && testCommand) {
       const { fileName, testFileContent } = languagesData[language];
 
-      const pathToFile = vscode.Uri.file(`/home/strove/project/${fileName}`);
+      const pathToFile = vscode.Uri.file(`/home/codeally/project/${fileName}`);
 
       const pathUri = pathToFile.with({ scheme: "vscode-resource" });
 
@@ -51,7 +50,7 @@ const runIOTests = async ({ testCommand, inputOutput, language, createdFromFile 
         //   inputValue = input.value;
         // }
         fs.writeFileSync(
-          `/home/strove/${fileName}`,
+          `/home/codeally/${fileName}`,
           "" +
             testFileContent({
               createdFromFile,
@@ -65,13 +64,13 @@ const runIOTests = async ({ testCommand, inputOutput, language, createdFromFile 
 
         sendLog(`testCommand - ${testCommand}`);
 
-        // const response = await exec("cd /home/strove && " + testCommand, {
+        // const response = await exec("cd /home/codeally && " + testCommand, {
         //   timeout: 10000,
         // });
 
         const response = await exec(testCommand, {
           timeout: 10000,
-          cwd: "/home/strove",
+          cwd: "/home/codeally",
         });
 
         if (response && response.stderr) throw response.stderr;
@@ -82,7 +81,7 @@ const runIOTests = async ({ testCommand, inputOutput, language, createdFromFile 
 
         sendLog(`results - ${results}`);
 
-        const response2 = await exec(`sudo rm -rf /home/strove/${fileName}`);
+        const response2 = await exec(`sudo rm -rf /home/codeally/${fileName}`);
 
         sendLog(`response2 - ${JSON.stringify(response2)}`);
 
@@ -108,7 +107,7 @@ const runIOTests = async ({ testCommand, inputOutput, language, createdFromFile 
 
     const { fileName } = languagesData[language];
 
-    const response = await exec(`sudo rm -rf /home/strove/${fileName}`);
+    const response = await exec(`sudo rm -rf /home/codeally/${fileName}`);
 
     sendLog(`response2 - ${JSON.stringify(response)}`);
 
