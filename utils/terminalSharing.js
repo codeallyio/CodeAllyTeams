@@ -500,7 +500,7 @@ const manageTerminalSharing = (context) => {
       (key) => ACTIVE_USERS_DATA[key].name
     );
 
-    treeDataObject = new ActiveUsersTreeDataProvider(users);
+    treeDataObject = ActiveUsersTreeDataProvider(users);
     vscode.window.registerTreeDataProvider("activeUsers", treeDataObject);
 
     // I add refresh ability to active users Tree View
