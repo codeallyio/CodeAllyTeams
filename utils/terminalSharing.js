@@ -343,6 +343,7 @@ const stopSharing = async (terminal) => {
 
 const checkOutputFiles = async (webviewView) => {
   try {
+    console.log("checking");
     const { stdout, stderr } = await exec(`ls /home/codeally/.local`);
     let shouldRefresh = false;
 
@@ -447,20 +448,14 @@ const watchActiveUsersChange = async (webviewView) => {
               }
             });
 
-            console.log("Check here");
             const usersNames = Object.keys(ACTIVE_USERS_DATA).map(
               (key) => ACTIVE_USERS_DATA[key].name
             );
 
             treeDataObject.updateData(usersNames);
-            // treeDataObject.refresh();
 
             // This should refresh the TreeView
             vscode.commands.executeCommand("activeUsers.refresh");
-            console.log(
-              "🚀 ~ file: terminalSharing.js ~ line 454 ~ next: ~ vscode.commands",
-              vscode.commands
-            );
 
             // I refresh this data in case someone left the project
             if (webviewView) {
@@ -506,7 +501,6 @@ const manageTerminalSharing = (context) => {
     // I add refresh ability to active users Tree View
     context.subscriptions.push(
       vscode.commands.registerCommand("activeUsers.refresh", (data) => {
-        console.log("activeUsers.refresh -> data: ", data);
         treeDataObject.refresh();
       })
     );
@@ -517,18 +511,11 @@ const manageTerminalSharing = (context) => {
       WebviewView.viewType,
       WebviewView
     );
-    console.log(
-      "🚀 ~ file: terminalSharing.js ~ line 523 ~ manageTerminalSharing ~ vscode.window.terminals",
-      vscode.window.terminals
-    );
 
     const terminalsToClose = vscode.window.terminals.filter(
       (terminal) => terminal.name === "Shared terminal" || terminal.name === ""
     );
-    console.log(
-      "🚀 ~ file: terminalSharing.js ~ line 509 ~ manageTerminalSharing ~ terminalsToClose",
-      terminalsToClose
-    );
+
     asyncMap(
       terminalsToClose,
       async (terminalToClose) => await stopSharing(terminalToClose)
