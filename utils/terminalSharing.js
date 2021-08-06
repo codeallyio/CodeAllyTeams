@@ -58,7 +58,7 @@ const ActiveUsersTreeDataProvider = (fieldNames) => {
       (data = [...fieldNames.map((fieldName) => new TreeItem(fieldName))]),
 
     refresh: () => {
-      _onDidChangeTreeData.fire(undefined);
+      _onDidChangeTreeData.fire();
     },
   };
 };
@@ -447,7 +447,11 @@ const watchActiveUsersChange = async (webviewView) => {
             });
 
             // This should refresh the TreeView
-            // vscode.commands.executeCommand("activeUsers.refresh");
+            vscode.commands.executeCommand("activeUsers.refresh");
+            console.log(
+              "🚀 ~ file: terminalSharing.js ~ line 454 ~ next: ~ vscode.commands",
+              vscode.commands
+            );
 
             // I refresh this data in case someone left the project
             if (webviewView) {
