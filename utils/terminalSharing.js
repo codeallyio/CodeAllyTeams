@@ -446,6 +446,8 @@ const watchActiveUsersChange = async (webviewView) => {
               }
             });
 
+            console.log("Check here");
+
             // This should refresh the TreeView
             vscode.commands.executeCommand("activeUsers.refresh");
             console.log(
