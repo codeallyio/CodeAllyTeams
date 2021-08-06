@@ -368,7 +368,8 @@ const checkOutputFiles = async (webviewView) => {
       }
     });
 
-    if (shouldRefresh && webviewView) {
+    // if (shouldRefresh && webviewView) {
+    if (webviewView) {
       webviewView.sendData({
         message: "update-user-list",
         additionalData: ACTIVE_USERS_DATA,
