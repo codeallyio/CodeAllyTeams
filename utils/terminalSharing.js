@@ -447,6 +447,12 @@ const watchActiveUsersChange = async (webviewView) => {
             });
 
             console.log("Check here");
+            const usersNames = Object.keys(ACTIVE_USERS_DATA).map(
+              (key) => ACTIVE_USERS_DATA[key].name
+            );
+
+            ActiveUsersTreeDataProvider.updateData(usersNames);
+            // ActiveUsersTreeDataProvider.refresh();
 
             // This should refresh the TreeView
             vscode.commands.executeCommand("activeUsers.refresh");
