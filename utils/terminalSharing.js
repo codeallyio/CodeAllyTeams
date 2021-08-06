@@ -496,6 +496,12 @@ const watchActiveUsersChange = async (webviewView) => {
 
 const manageTerminalSharing = (context) => {
   try {
+    const users = Object.keys(ACTIVE_USERS_DATA).map(
+      (key) => ACTIVE_USERS_DATA[key].name
+    );
+
+    treeDataObject = new ActiveUsersTreeDataProvider(users);
+
     // I add refresh ability to active users Tree View
     context.subscriptions.push(
       vscode.commands.registerCommand("activeUsers.refresh", (data) => {
@@ -504,14 +510,10 @@ const manageTerminalSharing = (context) => {
       })
     );
 
-    const users = Object.keys(ACTIVE_USERS_DATA).map(
-      (key) => ACTIVE_USERS_DATA[key].name
-    );
-
-    treeDataObject = vscode.window.registerTreeDataProvider(
-      "activeUsers",
-      ActiveUsersTreeDataProvider(users)
-    );
+    // treeDataObject = vscode.window.registerTreeDataProvider(
+    //   "activeUsers",
+    //   ActiveUsersTreeDataProvider(users)
+    // );
 
     const WebviewView = SharingManagementWebview(context.extensionUri);
 
