@@ -55,9 +55,9 @@ const runIOTests = async ({ testCommand, inputOutput, language, createdFromFile 
           "" +
             testFileContent({
               createdFromFile,
-              inputType: input.type,
+              inputType: input.type || null,
               inputValue: input.value,
-              outputType: output.type,
+              outputType: output.type || null,
               outputValue: output.value,
               userFileContent,
             }),
