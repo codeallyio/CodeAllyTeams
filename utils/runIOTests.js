@@ -78,7 +78,11 @@ const runIOTests = async ({ testCommand, inputOutput, language, createdFromFile 
 
         sendLog(`stdout - ${JSON.stringify(response)}`);
 
-        results.push(response.stdout.slice(0, -1).trim());
+        if(language === "Ruby"){
+          results.push(response.stdout.trim());
+        }else{
+          results.push(response.stdout.slice(0, -1).trim());
+        }
 
         sendLog(`results - ${results}`);
 
