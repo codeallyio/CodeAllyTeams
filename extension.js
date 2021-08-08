@@ -159,11 +159,11 @@ async function activate(context) {
           userId: process.env.CODEALLY_USER_ID || "123",
           fullName: process.env.CODEALLY_USER_FULL_NAME,
           photoUrl: process.env.CODEALLY_PHOTO_URL,
-          documentPath: textEditor._documentData._uri.path,
+          documentPath: textEditor.document.uri.path,
           selections,
         };
-
         throttleLiveshareActivityCall(data);
+
       }
     );
 
@@ -176,9 +176,8 @@ async function activate(context) {
       };
 
       if (textEditor) {
-        data.documentPath = textEditor._documentData._uri.path;
+        data.documentPath = textEditor.document.uri.path;
       }
-
       liveshareActivityUpdate(data);
     });
 

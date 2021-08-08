@@ -54,9 +54,10 @@ const runIOTests = async ({ testCommand, inputOutput, language, createdFromFile 
           "" +
             testFileContent({
               createdFromFile,
-              inputType: input.type,
+              inputType: input.type || null,
               inputValue: input.value,
-              outputType: output.type,
+              outputType: output.type || null,
+              outputValue: output.value,
               userFileContent,
             }),
           "utf8"
@@ -77,7 +78,11 @@ const runIOTests = async ({ testCommand, inputOutput, language, createdFromFile 
 
         sendLog(`stdout - ${JSON.stringify(response)}`);
 
-        results.push(response.stdout.slice(0, -1).trim());
+        if(language === "Ruby"){
+          results.push(response.stdout.trim());
+        }else{
+          results.push(response.stdout.slice(0, -1).trim());
+        }
 
         sendLog(`results - ${results}`);
 
@@ -120,9 +125,10 @@ const runIOTests = async ({ testCommand, inputOutput, language, createdFromFile 
     }
   }
 };
-const execFuncCpp = (inputType, inputValue, createdFromFile, outputType) => {
+const execFuncCpp = (inputType, inputValue, createdFromFile, outputType, outputValue) => {
   if(createdFromFile){
     if(outputType.includes("*")){
+      const len = JSON.parse(outputValue.replace('{','[').replace('}',']')).length
       /*pointers
       examples
       ${outputType} = double *
@@ -133,18 +139,17 @@ const execFuncCpp = (inputType, inputValue, createdFromFile, outputType) => {
       ${outputType}p;
       ${inputType} = ${inputValue};
       p = main_function(arr);
-      size_t n = sizeof(arr)/sizeof(p);
-      string result = "{";
+      int n = ${len};
+      std::string result = "{";
       for(int i=0; i<n; i++){
-        result+=arr[i];
+        result += *(p + i);
         if(i != n-1){
             result+=",";
         }
       }
-      result+="}";
-      cout << result;
+      result+="} ";
+      std::cout << result;
       `;
-
     }else if(inputType.includes("[]")) {
       //arrays
       return `${inputType} = ${inputValue};std::cout << main_function(arr) << std::endl;`;
@@ -179,12 +184,12 @@ const execFuncCSharp = (inputValue, outputType) => {
 const languagesData = {
   "C++": {
     fileName: "main.cpp",
-    testFileContent: ({ inputType, inputValue, userFileContent,createdFromFile,outputType }) => `
+    testFileContent: ({ inputType, inputValue, userFileContent,createdFromFile,outputType,outputValue }) => `
         ${userFileContent}
 
         int main(int argc, char* argv[]) {
           try {
-            ${execFuncCpp(inputType, inputValue, createdFromFile,outputType)}
+            ${execFuncCpp(inputType, inputValue, createdFromFile,outputType,outputValue)}
             return 0;
           } catch (const std::runtime_error& re) {
             std::cerr << "Runtime error: " << re.what() << std::endl;
@@ -264,9 +269,9 @@ except Exception as exception:
 ${userFileContent}
 
 begin
-  puts TestClass.test_function(${inputValue})
+  print TestClass.test_function(${inputValue})
 rescue => e
-  puts "Caught an error: #{e}"
+  print "Caught an error: #{e}"
 end
     `,
   },
