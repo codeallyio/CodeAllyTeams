@@ -1,7 +1,7 @@
 {
   "name": "stroveteams",
   "displayName": "stroveTeams",
-  "description": "Teams support for Strove",
+  "description": "Coding support for CodeAlly",
   "version": "0.3.1",
   "engines": {
     "vscode": "^1.39.2"
