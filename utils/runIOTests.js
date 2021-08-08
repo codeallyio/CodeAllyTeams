@@ -265,9 +265,9 @@ except Exception as exception:
 ${userFileContent}
 
 begin
-  puts TestClass.test_function(${inputValue})
+  print TestClass.test_function(${inputValue})
 rescue => e
-  puts "Caught an error: #{e}"
+  print "Caught an error: #{e}"
 end
     `,
   },

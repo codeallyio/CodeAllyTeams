@@ -153,8 +153,6 @@ async function activate(context) {
 
     vscode.window.onDidChangeTextEditorSelection(
       ({ textEditor, selections }) => {
-        //TODO delete
-        sendLog(`textEditorDebug ${JSON.stringify(textEditor)}`);
         // setTimeout(stopProject, idleTimeout);
         const data = {
           projectId: process.env.CODEALLY_ORIGINAL_PROJECT_ID || "123abc",
@@ -164,14 +162,12 @@ async function activate(context) {
           documentPath: textEditor.document.uri.path,
           selections,
         };
-        sendLog(`DataBeforeTextEditor ${JSON.stringify(data)}`);
         throttleLiveshareActivityCall(data);
 
       }
     );
 
     vscode.window.onDidChangeActiveTextEditor((textEditor) => {
-      sendLog(`textEditorDebug ${JSON.stringify(textEditor)}`);
       const data = {
         projectId: process.env.CODEALLY_ORIGINAL_PROJECT_ID || "123abc",
         userId: process.env.CODEALLY_USER_ID || "123",
@@ -182,9 +178,6 @@ async function activate(context) {
       if (textEditor) {
         data.documentPath = textEditor.document.uri.path;
       }
-      //TODO delete
-      sendLog(`DataBeforeTextEditor ${JSON.stringify(data)}`);
-
       liveshareActivityUpdate(data);
     });
 
