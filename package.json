@@ -2,7 +2,7 @@
   "name": "stroveteams",
   "displayName": "stroveTeams",
   "description": "Teams support for Strove",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "engines": {
     "vscode": "^1.39.2"
   },
@@ -36,15 +36,17 @@
       ]
     },
     "views": {
-      "terminal-sharing": [{
-        "id": "sharingManagement",
-				"name": "Sharing Management",
-        "type": "webview"
-      },
-      {
-        "id": "activeUsers",
-				"name": "Active Users"
-      }]
+      "terminal-sharing": [
+        {
+          "id": "sharingManagement",
+          "name": "Sharing Management",
+          "type": "webview"
+        },
+        {
+          "id": "activeUsers",
+          "name": "Active Users"
+        }
+      ]
     }
   },
   "scripts": {
