@@ -143,7 +143,7 @@ const execFuncCpp = (inputType, inputValue, createdFromFile, outputType, outputV
             result+=",";
         }
       }
-      result+="}";
+      result+="} ";
       std::cout << result;
       `;
     }else if(inputType.includes("[]")) {
