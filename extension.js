@@ -127,6 +127,8 @@ async function activate(context) {
 
     vscode.window.onDidChangeTextEditorSelection(
       ({ textEditor, selections }) => {
+        //TODO delete
+        sendLog(`textEditorDebug ${textEditor}`);
         // setTimeout(stopProject, idleTimeout);
         const data = {
           projectId: process.env.STROVE_PROJECT_ID || "123abc",
@@ -136,12 +138,14 @@ async function activate(context) {
           documentPath: textEditor._documentData._uri.path,
           selections,
         };
-
+        sendLog(`DataBeforeTextEditor ${data}`);
         throttleLiveshareActivityCall(data);
+
       }
     );
 
     vscode.window.onDidChangeActiveTextEditor((textEditor) => {
+      sendLog(`textEditorDebug ${textEditor}`);
       const data = {
         projectId: process.env.STROVE_PROJECT_ID || "123abc",
         userId: process.env.STROVE_USER_ID || "123",
@@ -152,10 +156,8 @@ async function activate(context) {
       if (textEditor) {
         data.documentPath = textEditor._documentData._uri.path;
       }
-
       //TODO delete
       sendLog(`DataBeforeTextEditor ${data}`);
-      sendLog(`textEditorDebug ${textEditor}`);
 
       liveshareActivityUpdate(data);
     });
