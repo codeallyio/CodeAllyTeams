@@ -135,7 +135,7 @@ async function activate(context) {
           userId: process.env.STROVE_USER_ID || "123",
           fullName: process.env.STROVE_USER_FULL_NAME,
           photoUrl: process.env.STROVE_PHOTO_URL,
-          documentPath: textEditor._documentData._uri.path,
+          documentPath: textEditor.document.uri.path,
           selections,
         };
         sendLog(`DataBeforeTextEditor ${JSON.stringify(data)}`);
@@ -154,7 +154,7 @@ async function activate(context) {
       };
 
       if (textEditor) {
-        data.documentPath = textEditor._documentData._uri.path;
+        data.documentPath = textEditor.document.uri.path;
       }
       //TODO delete
       sendLog(`DataBeforeTextEditor ${JSON.stringify(data)}`);
