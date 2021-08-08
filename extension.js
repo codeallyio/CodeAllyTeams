@@ -8,30 +8,29 @@ const {
   stroveLiveshareSubscription,
   liveshareActivity,
   focusEditorSubscription,
+  extensionInitializedMutation,
 } = require("./utils/queries");
 const { handleLiveshareResponse } = require("./utils/handleLiveshareResponse");
 const { handleFocusEditor } = require("./utils/handleFocusEditor");
 const { websocketLink } = require("./utils/websocketLink");
-const {
-  readTerminal,
-  receiveTerminalSubscriber,
-} = require("./utils/readTerminal");
 const automateCommits = require("./utils/automateCommits");
-const {
-  manageTerminalSharing,
-  manageTerminalSubscriber,
-} = require("./utils/manageTerminalSharing");
 const { startDebugging, sendLog } = require("./utils/debugger");
 const {
   startAutomaticTest,
   autoTestTerminalSubscriber,
 } = require("./utils/automaticTest");
 const { startIOTest, startIOTestSubscriber } = require("./utils/handleIOTests");
-const { checkInterval, monitorPorts } = require("./utils/handlePorts");
+const { checkPortsInterval, monitorPorts } = require("./utils/handlePorts");
 const { watchFileChange } = require("./utils/watchFileChange");
 
-const environment = process.env.STROVE_ENVIRONMENT;
-const userType = process.env.STROVE_USER_TYPE;
+const {
+  manageTerminalSharing,
+  checkOutputFilesInterval,
+} = require("./utils/terminalSharing");
+const { handleError } = require("./utils/errorHandling");
+
+const environment = process.env.CODEALLY_ENVIRONMENT;
+const userType = process.env.CODEALLY_USER_TYPE;
 
 Sentry.init({
   beforeSend(event) {
@@ -46,6 +45,32 @@ Sentry.init({
 });
 
 let initPing;
+
+const extensionInitialized = () => {
+  const extensionInitializedOperation = {
+    query: extensionInitializedMutation,
+    variables: {
+      currentProjectId: process.env.CODEALLY_CURRENT_PROJECT_ID || "123abc",
+      originalProjectId: process.env.CODEALLY_ORIGINAL_PROJECT_ID || "123abc",
+    },
+  };
+
+  makePromise(execute(websocketLink, extensionInitializedOperation))
+    .then((response) =>
+      handleError({
+        error: response,
+        location: "extension -> extensionInitialized -> response",
+        additionalData: extensionInitializedOperation,
+      })
+    )
+    .catch((error) => {
+      handleError({
+        error,
+        location: "extension -> extensionInitialized",
+        additionalData: extensionInitializedOperation,
+      });
+    });
+};
 
 const liveshareActivityUpdate = (data) => {
   const liveshareActivityOperation = {
@@ -76,10 +101,10 @@ const liveshareActivityInit = () => {
     query: liveshareActivity,
     variables: {
       userData: {
-        projectId: process.env.STROVE_PROJECT_ID || "123abc",
-        userId: process.env.STROVE_USER_ID || "123",
-        fullName: process.env.STROVE_USER_FULL_NAME,
-        photoUrl: process.env.STROVE_PHOTO_URL,
+        projectId: process.env.CODEALLY_ORIGINAL_PROJECT_ID || "123abc",
+        userId: process.env.CODEALLY_USER_ID || "123",
+        fullName: process.env.CODEALLY_USER_FULL_NAME,
+        photoUrl: process.env.CODEALLY_PHOTO_URL,
       },
     },
   };
@@ -112,6 +137,7 @@ const throttleLiveshareActivityCall = throttle(liveshareActivityUpdate, 100, {
  */
 async function activate(context) {
   try {
+    sendLog(vscode.window);
     // Example usage:
     // sendLog("proba mikrofonu");
     if (environment !== "production") startDebugging();
@@ -131,10 +157,10 @@ async function activate(context) {
         sendLog(`textEditorDebug ${JSON.stringify(textEditor)}`);
         // setTimeout(stopProject, idleTimeout);
         const data = {
-          projectId: process.env.STROVE_PROJECT_ID || "123abc",
-          userId: process.env.STROVE_USER_ID || "123",
-          fullName: process.env.STROVE_USER_FULL_NAME,
-          photoUrl: process.env.STROVE_PHOTO_URL,
+          projectId: process.env.CODEALLY_ORIGINAL_PROJECT_ID || "123abc",
+          userId: process.env.CODEALLY_USER_ID || "123",
+          fullName: process.env.CODEALLY_USER_FULL_NAME,
+          photoUrl: process.env.CODEALLY_PHOTO_URL,
           documentPath: textEditor.document.uri.path,
           selections,
         };
@@ -147,10 +173,10 @@ async function activate(context) {
     vscode.window.onDidChangeActiveTextEditor((textEditor) => {
       sendLog(`textEditorDebug ${JSON.stringify(textEditor)}`);
       const data = {
-        projectId: process.env.STROVE_PROJECT_ID || "123abc",
-        userId: process.env.STROVE_USER_ID || "123",
-        fullName: process.env.STROVE_USER_FULL_NAME,
-        photoUrl: process.env.STROVE_PHOTO_URL,
+        projectId: process.env.CODEALLY_ORIGINAL_PROJECT_ID || "123abc",
+        userId: process.env.CODEALLY_USER_ID || "123",
+        fullName: process.env.CODEALLY_USER_FULL_NAME,
+        photoUrl: process.env.CODEALLY_PHOTO_URL,
       };
 
       if (textEditor) {
@@ -169,6 +195,7 @@ async function activate(context) {
     startIOTest();
     monitorPorts();
     watchFileChange();
+    manageTerminalSharing(context);
 
     if (terminals.length) {
       terminal = vscode.window.terminals[0];
@@ -176,40 +203,21 @@ async function activate(context) {
       terminal = vscode.window.createTerminal("strove");
     }
 
-    if (process.env.STROVE_INIT_COMMAND) {
-      terminal.sendText(process.env.STROVE_INIT_COMMAND);
+    if (process.env.CODEALLY_INIT_COMMAND) {
+      terminal.sendText(process.env.CODEALLY_INIT_COMMAND);
     }
 
     /* Used for local debugging */
     if (environment === "local" || !environment) {
-      terminal.sendText(process.env.STROVE_INIT_COMMAND || "yarn start");
+      terminal.sendText(process.env.CODEALLY_INIT_COMMAND || "yarn start");
     }
     await terminal.show();
 
     sendLog(userType);
 
+    extensionInitialized();
     if (userType === "guest") {
       setInterval(automateCommits(), 30000);
-      // Listen for startTest button
-      // startAutomaticTest();
-      // startIOTest()
-
-      //   broadcastTerminal();
-      const redirectedTerminal =
-        vscode.window.createTerminal("Shared terminal");
-
-      redirectedTerminal.sendText(
-        "script -q -f /home/strove/.local/output.txt"
-      );
-
-      redirectedTerminal.sendText("clear");
-
-      await redirectedTerminal.show();
-    } else if (userType === "hiring") {
-      sendLog("in hiring");
-      readTerminal();
-    } else {
-      manageTerminalSharing();
     }
   } catch (error) {
     console.log(`received error in activate ${error}`);
@@ -226,8 +234,8 @@ async function activate(context) {
 const stroveLiveshareOperation = {
   query: stroveLiveshareSubscription,
   variables: {
-    userId: process.env.STROVE_USER_ID || "123",
-    projectId: process.env.STROVE_PROJECT_ID || "123abc",
+    userId: process.env.CODEALLY_USER_ID || "123",
+    projectId: process.env.CODEALLY_ORIGINAL_PROJECT_ID || "123abc",
   },
 };
 
@@ -276,7 +284,7 @@ const liveshareSubscriber = execute(
 const focusEditorOperation = {
   query: focusEditorSubscription,
   variables: {
-    projectId: process.env.STROVE_PROJECT_ID || "123abc",
+    projectId: process.env.CODEALLY_ORIGINAL_PROJECT_ID || "123abc",
   },
 };
 
@@ -314,11 +322,10 @@ const focusEditorSubscriber = execute(
 function deactivate() {
   liveshareSubscriber.unsubscribe();
   focusEditorSubscriber.unsubscribe();
-  receiveTerminalSubscriber.unsubscribe();
-  manageTerminalSubscriber.unsubscribe();
   autoTestTerminalSubscriber.unsubscribe();
   startIOTestSubscriber.unsubscribe();
-  clearInterval(checkInterval);
+  clearInterval(checkPortsInterval);
+  clearInterval(checkOutputFilesInterval);
 }
 
 exports.activate = activate;

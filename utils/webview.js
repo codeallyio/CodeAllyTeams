@@ -6,7 +6,7 @@ var util = require("util");
 const exec = util.promisify(require("child_process").exec);
 const { sendLog } = require("./debugger");
 
-const environment = process.env.STROVE_ENVIRONMENT;
+const environment = process.env.CODEALLY_ENVIRONMENT;
 
 Sentry.init({
   beforeSend(event) {

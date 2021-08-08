@@ -5,7 +5,7 @@ const { websocketLink } = require("./websocketLink");
 const { setProjectDataMutation } = require("./queries");
 const { asyncMap } = require("./asyncMap");
 
-const environment = process.env.STROVE_ENVIRONMENT;
+const environment = process.env.CODEALLY_ENVIRONMENT;
 
 Sentry.init({
   beforeSend(event) {
@@ -20,13 +20,13 @@ Sentry.init({
 });
 
 const portStates = {};
-let checkInterval;
+let checkPortsInterval;
 
 const monitorPorts = async () => {
   try {
     sendLog("in monitorPorts");
     const portsEnvs = Object.keys(process.env).filter((key) =>
-      key.includes("STROVE_PORT_")
+      key.includes("CODEALLY_PORT_")
     );
     sendLog(
       `🚀 ~ file: handlePorts.js ~ line 30 ~ monitorPorts ~ portsEnvs: ${portsEnvs}`
@@ -40,7 +40,7 @@ const monitorPorts = async () => {
       portStates[port] = "free";
     });
 
-    checkInterval = setInterval(() => {
+    checkPortsInterval = setInterval(() => {
       asyncMap(portsTable, async (port) => {
         sendLog(
           `🚀 ~ file: handlePorts.js ~ line 58 ~ portsTable.forEach ~ ${port}`
@@ -98,7 +98,7 @@ const sendPortStatus = async (port) => {
     const setProjectData = {
       query: setProjectDataMutation,
       variables: {
-        id: process.env.STROVE_LIVE_SHARE_PROJECT_ID || "123abc",
+        id: process.env.CODEALLY_CURRENT_PROJECT_ID || "123abc",
         portStatus: {
           portNumber: port,
           status: portStates[port],
@@ -144,6 +144,6 @@ const sendPortStatus = async (port) => {
 };
 
 module.exports = {
-  checkInterval,
+  checkPortsInterval,
   monitorPorts,
 };

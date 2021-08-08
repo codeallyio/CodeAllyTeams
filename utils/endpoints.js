@@ -1,8 +1,8 @@
-const environment = process.env.STROVE_ENVIRONMENT;
+const environment = process.env.CODEALLY_ENVIRONMENT;
 
 let endpoint;
 let websocketEndpoint;
-let idleTimeout = process.env.STROVE_IDLE_TIMEOUT;
+let idleTimeout = process.env.CODEALLY_IDLE_TIMEOUT;
 
 if (environment === "local" || !environment) {
   idleTimeout = 5000;
@@ -11,6 +11,9 @@ if (environment === "local" || !environment) {
 } else if (environment === "development") {
   endpoint = "https://graphql.codeally.io";
   websocketEndpoint = "wss://graphql.codeally.io/graphql";
+} else if (environment === "testing") {
+  endpoint = "https://testingapi.codeally.io";
+  websocketEndpoint = "wss://testingapi.codeally.io/graphql";
 } else {
   endpoint = "https://api.codeally.io/graphql";
   websocketEndpoint = "wss://api.codeally.io/graphql";
