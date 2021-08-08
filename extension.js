@@ -153,6 +153,10 @@ async function activate(context) {
         data.documentPath = textEditor._documentData._uri.path;
       }
 
+      //TODO delete
+      sendLog(`DataBeforeTextEditor ${data}`);
+      sendLog(`textEditorDebug ${textEditor}`);
+
       liveshareActivityUpdate(data);
     });
 

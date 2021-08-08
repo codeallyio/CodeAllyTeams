@@ -84,6 +84,8 @@ const handleLiveshareResponse = (userDataArray) => {
         editor._documentData._uri &&
         editor._documentData._uri.path === userData.documentPath;
 
+
+
       if (isEditorPathTheSameAsUsers) {
         const codeDecorationType = createDecorationType({
           userData,
