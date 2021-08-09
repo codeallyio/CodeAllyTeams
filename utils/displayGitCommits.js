@@ -18,67 +18,46 @@ Sentry.init({
   normalizeDepth: 10,
 });
 
-const commitDiff = async (i) => {
+const getCommits = async () => {
+  let data;
   try {
-    const panel = vscode.window.createWebviewPanel(
-      "html",
-      "Commit differences",
-      vscode.ViewColumn.Two,
-      {
-        enableScripts: true,
-        retainContextWhenHidden: true,
+    const { stdout } = await exec(`sudo git rev-list HEAD --timestamp`);
+    data = stdout.toString().split(/[' ','\n']+/);
+    let timestamps = [],
+      commits = [];
+    for (let i = 0; i < data.length; i++) {
+      if (i % 2 === 0) {
+        // convert timestamps to human-readable date format
+        const milliseconds = data[i] * 1000;
+        const dateObject = new Date(milliseconds);
+        const humanDateFormat = dateObject.toLocaleString();
+        timestamps.push(humanDateFormat);
+      } else {
+        commits.push(data[i]);
       }
-    );
-    const commitDifferences = await loadCommitDiff(i);
-
-    panel.webview.html = commitDifferences;
-
-    return panel;
+    }
+    return [timestamps, commits];
   } catch (err) {
-    console.log(
-      `received error in webview -> commitDiff ${JSON.stringify(err)}`
-    );
-
-    sendLog(`received error in webview -> commitDiff ${JSON.stringify(err)}`);
-
-    Sentry.withScope((scope) => {
-      scope.setExtras({
-        data: path,
-        location: "webview -> commitDiff",
-      });
-      Sentry.captureException(err);
-    });
+    console.log("error in getCommits: ", err);
   }
 };
 
-const loadCommitDiff = async (i) => {
+const commitDiff = async (i) => {
   const cData = await getCommits();
-  let second = cData[1];
-  if (i != 0) {
-    second = cData[i * 2 + 1];
-  }
-  const { stdout } = await exec(`sudo git diff ${second} ${cData[1]}`);
+  const timestamps = cData[0];
+  const commits = cData[1];
+  const { stdout } = await exec(`sudo git diff ${commits[i]} ${commits[0]}`);
   const data = stdout.toString().split(/['+''\n']+/);
-  let result = ``;
-  for (let i = 0; i <= data.length; i++) {
+  let result = `
+  <h4>Time of commit: ${timestamps[i]}</h4>
+  <h5>Commit differences: </h5>
+  `;
+  for (let j = 0; j <= data.length - 1; j++) {
     result += `
-    <div>${data[i]}</div>
+    <div>${data[j]}</div>
     `;
   }
-
-  return `
-  <!DOCTYPE html>
-  <html>
-  <head>
-  <title>Commit differences</title>
-  </head>
-  <body>
-  <h1>Commit differences</h1>
-  <br>
-  ${result}
-  </body>
-  </html>
-  `;
+  return result;
 };
 
 const displayGitCommits = async () => {
@@ -93,21 +72,25 @@ const displayGitCommits = async () => {
       }
     );
     const fileContent = await getGitCommits();
-
     panel.webview.onDidReceiveMessage((message) => {
-      if (message.commit) {
-        return commitDiff(message.commit);
+      if (message.commitId) {
+        let output = ``;
+        (async () => {
+          const diff = await commitDiff(message.commitId);
+          output += `${diff}`;
+          panel.webview.postMessage({
+            commitData: output,
+          });
+        })();
       }
     });
 
     panel.webview.html = fileContent;
-
     return panel;
   } catch (err) {
     console.log(
       `received error in webview -> displayGitCommits ${JSON.stringify(err)}`
     );
-
     sendLog(
       `received error in webview -> displayGitCommits ${JSON.stringify(err)}`
     );
@@ -122,86 +105,87 @@ const displayGitCommits = async () => {
   }
 };
 
-const getCommits = async () => {
-  let data;
-  try {
-    const { stdout } = await exec(`sudo git rev-list HEAD --timestamp`);
-    data = stdout.toString().split(/[' ','\n']+/);
-    return data;
-  } catch (err) {
-    console.log("error in getCommits: ", err);
-    // Sentry.withScope((scope) => {
-    //   scope.setExtras(
-    //     data: { error: err },
-    //     location: "getCommits",
-    //   });
-    //   Sentry.captureMessage("Unexpected error!");
-    // });
-  }
-};
-
 const getGitCommits = async () => {
-  let timestamps = [];
-  let commits = [];
-  // store data in 2 separate arrays
-  const data = await getCommits();
-  for (let i = 0; i < data.length; i++) {
-    if (i % 2 === 0) {
-      // convert timestamps to human-readable date format
-      const milliseconds = data[i] * 1000;
-      const dateObject = new Date(milliseconds);
-      const humanDateFormat = dateObject.toLocaleString();
-      timestamps.push(humanDateFormat);
-    } else {
-      commits.push(data[i]);
-    }
-  }
-  let tableData = ``;
-  for (let i = 0; i < timestamps.length - 1; i++) {
-    tableData += `
-      <tr>
-        <td><p>${timestamps[i]}</p></td>
-        <td id="${i}">${commits[i]}</td>
-      </tr>
-    `;
-  }
-  const cLength = commits.length;
+  const diff = await commitDiff(1);
+  const firstCommit = `<div>${diff}</div>`;
   return `
   <!DOCTYPE html>
   <html>
   <head>
   <title>Commit history</title>
+  <style>
+  .head {
+    display: flex;
+    width: 100vw;
+  }
+
+  .btn {
+    background-color: #ccc;
+    padding: 5px 7px;
+    margin: 20px;
+    border-radius: 5px;
+    border: none;
+    height: 20px;
+  }
+
+  .btn next {
+    float: right;
+  }
+
+  .btn prev {
+    float: left;
+  }
+
+  </style>
   </head>
   <body>
-	<h1>Git commits history</h1>
-  <table>
-  <tr>
-  <th>Timestamps</th>
-  <th>Commits (click to see changes)</th>
-  </tr>
-  ${tableData}
-  </table>
+  <div class="head">
+  <button class="btn prev" id="prev">Previous</button>
+	<h2>Git commits history</h2>
+  <button class="btn next" id="next">Next</button>
+  </div>
+  <div id="commit">${firstCommit}</div>
   <script>
+  let index = 0;
   (function() {
     const vscode = acquireVsCodeApi();
-
-    for(let i = 0; i < ${cLength}; i++) {
-      document.getElementById(i).addEventListener("click", function myFunction() {
+    document.getElementById('prev').addEventListener("click", function myFunction() {
+      if (index === 0) {
+        return;
+      } else {
+        index--;
         vscode.postMessage({
-          commit: i,
-        })
-      });
+          commitId: index,
+        });
+      }
+    });
+
+    document.getElementById('next').addEventListener("click", function myFunction() {
+      index++;
+      vscode.postMessage({
+        commitId: index,
+      })
+    });
+
+    function changeCommitData(i) {
+      const data = i;
+      document.getElementById('commit').innerHTML = "haiya";
+      document.getElementById('commit').innerHTML = data;
     }
-}())
+
+    window.addEventListener('message', event => {
+      const message = event.data;
+      if(message.commitData) {
+        changeCommitData(message.commitData);
+      }
+  });
+  }());
   </script>
   </body>
   </html>
   `;
 };
 
-displayGitCommits();
-
 module.exports = {
   displayGitCommits,
-  commitDiff,
 };
