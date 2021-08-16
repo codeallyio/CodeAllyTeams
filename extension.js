@@ -163,7 +163,6 @@ async function activate(context) {
           selections,
         };
         throttleLiveshareActivityCall(data);
-
       }
     );
 
