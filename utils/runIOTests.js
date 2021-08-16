@@ -86,7 +86,7 @@ const runIOTests = async ({ testCommand, inputOutput, language, createdFromFile 
 
         sendLog(`results - ${results}`);
 
-        const response2 = await exec(`sudo rm -rf /home/codeally/${fileName}`);
+        const response2 = await exec(`rm -rf /home/codeally/${fileName}`);
 
         sendLog(`response2 - ${JSON.stringify(response2)}`);
 
@@ -112,7 +112,7 @@ const runIOTests = async ({ testCommand, inputOutput, language, createdFromFile 
 
     const { fileName } = languagesData[language];
 
-    const response = await exec(`sudo rm -rf /home/codeally/${fileName}`);
+    const response = await exec(`rm -rf /home/codeally/${fileName}`);
 
     sendLog(`response2 - ${JSON.stringify(response)}`);
 
