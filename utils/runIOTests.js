@@ -20,7 +20,12 @@ Sentry.init({
   normalizeDepth: 10,
 });
 
-const runIOTests = async ({ testCommand, inputOutput, language, createdFromFile }) => {
+const runIOTests = async ({
+  testCommand,
+  inputOutput,
+  language,
+  createdFromFile,
+}) => {
   try {
     sendLog("in runIOTests");
     if (inputOutput && inputOutput.length > 0 && testCommand) {
@@ -78,9 +83,9 @@ const runIOTests = async ({ testCommand, inputOutput, language, createdFromFile 
 
         sendLog(`stdout - ${JSON.stringify(response)}`);
 
-        if(language === "Ruby"){
+        if (language === "Ruby") {
           results.push(response.stdout.trim());
-        }else{
+        } else {
           results.push(response.stdout.slice(0, -1).trim());
         }
 
@@ -125,10 +130,18 @@ const runIOTests = async ({ testCommand, inputOutput, language, createdFromFile 
     }
   }
 };
-const execFuncCpp = (inputType, inputValue, createdFromFile, outputType, outputValue) => {
-  if(createdFromFile){
-    if(outputType.includes("*")){
-      const len = JSON.parse(outputValue.replace('{','[').replace('}',']')).length
+const execFuncCpp = (
+  inputType,
+  inputValue,
+  createdFromFile,
+  outputType,
+  outputValue
+) => {
+  if (createdFromFile) {
+    if (outputType.includes("*")) {
+      const len = JSON.parse(
+        outputValue.replace("{", "[").replace("}", "]")
+      ).length;
       /*pointers
       examples
       ${outputType} = double *
@@ -150,15 +163,14 @@ const execFuncCpp = (inputType, inputValue, createdFromFile, outputType, outputV
       result+="} ";
       std::cout << result;
       `;
-    }else if(inputType.includes("[]")) {
+    } else if (inputType.includes("[]")) {
       //arrays
       return `${inputType} = ${inputValue};std::cout << main_function(arr) << std::endl;`;
-    }
-    else{
+    } else {
       //other fundamental types
-        return `std::cout << main_function(${inputValue}) << std::endl;`;
+      return `std::cout << main_function(${inputValue}) << std::endl;`;
     }
-  }else{
+  } else {
     if (inputType === "ArrayString") {
       return `std::string arr[] = ${inputValue};std::cout << main_function(arr) << std::endl;`;
     }
@@ -169,27 +181,40 @@ const execFuncCpp = (inputType, inputValue, createdFromFile, outputType, outputV
   }
 };
 const execFuncJava = (inputValue, outputType) => {
-  if(outputType.includes("[]")){
-    return `System.out.println(Arrays.toString(main_function(${inputValue})));`
+  if (outputType.includes("[]")) {
+    return `System.out.println(Arrays.toString(main_function(${inputValue})));`;
   }
-  return `System.out.println(main_function(${inputValue}));`
+  return `System.out.println(main_function(${inputValue}));`;
 };
 const execFuncCSharp = (inputValue, outputType) => {
-  if(outputType.includes("[]")){
-    return `System.Console.WriteLine("[" + string.Join(",",MainFunction(${inputValue})) + "]");`
+  if (outputType.includes("[]")) {
+    return `System.Console.WriteLine("[" + string.Join(",",MainFunction(${inputValue})) + "]");`;
   }
-  return `System.Console.WriteLine(MainFunction(${inputValue}));`
+  return `System.Console.WriteLine(MainFunction(${inputValue}));`;
 };
 // Some languages have weird formatting but it's necessary for them to work
 const languagesData = {
   "C++": {
     fileName: "main.cpp",
-    testFileContent: ({ inputType, inputValue, userFileContent,createdFromFile,outputType,outputValue }) => `
+    testFileContent: ({
+      inputType,
+      inputValue,
+      userFileContent,
+      createdFromFile,
+      outputType,
+      outputValue,
+    }) => `
         ${userFileContent}
 
         int main(int argc, char* argv[]) {
           try {
-            ${execFuncCpp(inputType, inputValue, createdFromFile,outputType,outputValue)}
+            ${execFuncCpp(
+              inputType,
+              inputValue,
+              createdFromFile,
+              outputType,
+              outputValue
+            )}
             return 0;
           } catch (const std::runtime_error& re) {
             std::cerr << "Runtime error: " << re.what() << std::endl;
@@ -235,15 +260,28 @@ except Exception as exception:
     }
     `,
   },
+  PHP: {
+    fileName: "main.php",
+    testFileContent: ({ inputValue, userFileContent }) => `<?php
+${userFileContent}
+
+    try {
+      echo json_encode(mainFunction(${inputValue}));
+    } catch(Exception | Throwable | Error $e) {
+      echo 'Caught exception: ',  $e->getMessage();
+    }
+?>
+    `,
+  },
   "C#": {
     fileName: "main.cs",
-    testFileContent: ({ inputValue, userFileContent, outputType  }) => `
+    testFileContent: ({ inputValue, userFileContent, outputType }) => `
     class MainClass {
         ${userFileContent}
 
         public static void Main(string[] args) {
           try {
-            ${execFuncCSharp(inputValue,outputType)}
+            ${execFuncCSharp(inputValue, outputType)}
           } catch (System.Exception e) {
             System.Console.WriteLine(e);
           }
