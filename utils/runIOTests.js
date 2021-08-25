@@ -262,16 +262,15 @@ except Exception as exception:
   },
   PHP: {
     fileName: "main.php",
-    testFileContent: ({ inputValue, userFileContent }) => `
-    <?php
-    ${userFileContent}
+    testFileContent: ({ inputValue, userFileContent }) => `<?php
+${userFileContent}
 
     try {
-      echo json_encode(main_function(${inputValue}));
+      echo json_encode(mainFunction(${inputValue}));
     } catch(Exception | Throwable | Error $e) {
-      echo json_encode($e);
+      echo 'Caught exception: ',  $e->getMessage();
     }
-    ?>
+?>
     `,
   },
   "C#": {
