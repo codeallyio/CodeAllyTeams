@@ -14,6 +14,7 @@ const { handleLiveshareResponse } = require("./utils/handleLiveshareResponse");
 const { handleFocusEditor } = require("./utils/handleFocusEditor");
 const { websocketLink } = require("./utils/websocketLink");
 const automateCommits = require("./utils/automateCommits");
+const unitTestResults = require("./utils/unitTestResults");
 const { startDebugging, sendLog } = require("./utils/debugger");
 const {
   startAutomaticTest,
@@ -210,6 +211,7 @@ async function activate(context) {
     extensionInitialized();
     if (userType === "guest") {
       setInterval(automateCommits(), 30000);
+      unitTestResults();
     }
   } catch (error) {
     console.log(`received error in activate ${error}`);
