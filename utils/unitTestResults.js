@@ -3,6 +3,11 @@
 const parser = require("fast-xml-parser");
 const he = require("he");
 const fs = require("fs");
+const { handleError } = require("./errorHandling");
+const { sendLog } = require("./debugger");
+const { setProjectDataMutation } = require("./queries");
+const { execute, makePromise } = require("apollo-link");
+const { websocketLink } = require("./websocketLink");
 
 // Sentry.init({
 //   beforeSend(event) \
@@ -39,7 +44,11 @@ const getUnitTestResults = async () => {
       stopNodes: ["parse-me-as-string"],
     };
 
-    let unitTestData = fs.readFileSync(process.env.TEST_REPORT_PATH, "utf-8");
+    let unitTestData = fs.readFileSync(
+      process.env.TEST_REPORT_PATH ||
+        "/Users/mac/Desktop/SiliSky/gitTest/GitServerTesting/junit.xml",
+      "utf-8"
+    );
     let jsonObj;
     try {
       jsonObj = parser.parse(unitTestData, options, true);
@@ -49,6 +58,47 @@ const getUnitTestResults = async () => {
     return jsonObj;
   } catch (err) {
     console.log(err);
+  }
+};
+
+const sendTestResultsData = async (parsedTestData) => {
+  try {
+    const setProjectData = {
+      query: setProjectDataMutation,
+      variables: {
+        id: process.env.CODEALLY_ORIGINAL_PROJECT_ID || "123abc",
+        repoTestReport: parsedTestData,
+        // Expected data structure in parsedTestData:
+        // repoTestReport: {
+        //   all: Number,
+        //   passed: Number,
+        //   failed: Number,
+        //   repoTestResults: [
+        //     {
+        //       name: String,
+        //       success: Boolean,
+        //       receivedOutput: String,
+        //     },
+        //   ],
+        // },
+      },
+    };
+
+    sendLog(`sendTestResultsData - variables: ${setProjectData.variables}`);
+
+    makePromise(execute(websocketLink, setProjectData))
+      .then()
+      .catch((error) => {
+        handleError({
+          error,
+          location: "unitTestResults -> sendTestResultsData -> mutation",
+        });
+      });
+  } catch (error) {
+    handleError({
+      error,
+      location: "unitTestResults -> sendTestResultsData",
+    });
   }
 };
 
