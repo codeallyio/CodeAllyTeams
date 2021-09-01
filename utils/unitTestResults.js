@@ -1,8 +1,5 @@
-// const Sentry = require("@sentry/node");
-// const environment = process.env.STROVE_ENVIRONMENT;
-const parser = require("fast-xml-parser");
-const he = require("he");
 const fs = require("fs");
+const { transform } = require("camaro");
 
 // Sentry.init({
 //   beforeSend(event) \
@@ -18,35 +15,49 @@ const fs = require("fs");
 
 const getUnitTestResults = async () => {
   try {
-    // Formatting XML to JSON
-    let options = {
-      attributeNamePrefix: "@_",
-      attrNodeName: "attr", //default is 'false'
-      textNodeName: "#text",
-      ignoreAttributes: true,
-      ignoreNameSpace: false,
-      allowBooleanAttributes: false,
-      parseNodeValue: true,
-      parseAttributeValue: false,
-      trimValues: true,
-      cdataTagName: "__cdata", //default is 'false'
-      cdataPositionChar: "\\c",
-      parseTrueNumberOnly: false,
-      arrayMode: false, //"strict"
-      attrValueProcessor: (val, attrName) =>
-        he.decode(val, { isAttributeValue: true }), //default is a=>a
-      tagValueProcessor: (val, tagName) => he.decode(val), //default is a=>a
-      stopNodes: ["parse-me-as-string"],
+    let junitTestData = fs.readFileSync(
+      "C:/Users/User/.ssh/codeallyteam/test-results.xml",
+      "utf-8"
+    );
+    let parsedOutput;
+    const getParsedOutput = async (junitTestData) => {
+      const result = await transform(junitTestData, {
+        testsuites: [
+          "/testsuites",
+          {
+            testsuite: [
+              "/testsuites/testsuite",
+              {
+                testcase: [
+                  "testcase",
+                  {
+                    name: "@name",
+                    classname: "@classname",
+                    time: "@time",
+                    failure: ".",
+                  },
+                ],
+                name: "@name",
+                errors: "@errors",
+                failures: "@failures",
+                skipped: "@skipped",
+                timestamp: "@timestamp",
+                time: "@time",
+                tests: "@tests",
+              },
+            ],
+            name: "@name",
+            tests: "@tests",
+            failures: "@failures",
+            errors: "@errors",
+            time: "@time",
+          },
+        ],
+      });
+      return JSON.stringify(result, null, 2);
     };
-
-    let unitTestData = fs.readFileSync(process.env.TEST_REPORT_PATH, "utf-8");
-    let jsonObj;
-    try {
-      jsonObj = parser.parse(unitTestData, options, true);
-    } catch (error) {
-      console.log(error.message);
-    }
-    return jsonObj;
+    parsedOutput = await getParsedOutput(junitTestData);
+    return parsedOutput;
   } catch (err) {
     console.log(err);
   }

@@ -71,7 +71,7 @@
     "apollo-link": "^1.2.14",
     "apollo-link-ws": "^1.0.20",
     "axios": "^0.21.1",
-    "fast-xml-parser": "^3.19.0",
+    "camaro": "^6.1.0",
     "graphql": "14.0.2",
     "graphql-tag": "^2.10.3",
     "lodash.throttle": "^4.1.1",
