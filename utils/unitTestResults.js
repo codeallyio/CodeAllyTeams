@@ -18,66 +18,90 @@ const { websocketLink } = require("./websocketLink");
 //   normalizeDepth: 10,
 // });
 
+const getJSONReport = async (junitTestData) => {
+  try {
+    const result = await transform(junitTestData, {
+      testsuites: [
+        "/testsuites",
+        {
+          testsuite: [
+            "testsuite",
+            {
+              testcase: [
+                "testcase",
+                {
+                  name: "@name",
+                  classname: "@classname",
+                  time: "number(@time)",
+                  failure: ".",
+                  skipped: ".",
+                },
+              ],
+              name: "@name",
+              errors: "number(@errors)",
+              failures: "@failures",
+              skipped: "@skipped || @skip",
+              timestamp: "@timestamp",
+              time: "@time",
+              tests: "@tests",
+            },
+          ],
+        },
+      ],
+    });
+    return JSON.stringify(result, null, 2);
+  } catch (err) {
+    handleError({
+      err,
+      location: "unitTestResults -> getJSONReport",
+    });
+  }
+};
+
+const parseTestData = async (junitTestData) => {
+  try {
+    let json = await getJSONReport(junitTestData);
+    let junitTestReport = JSON.parse(json);
+    let test = junitTestReport.testsuites[0].testsuite[0];
+    let testResults = [];
+    for (let i = 0; i < test.tests; i++) {
+      testResults.push({
+        name: test.testcase[i].classname,
+        success: test.testcase[i].failure == "" ? false : true,
+        receivedOutput: test.testcase[i].failure
+          ? test.testcase[i].failure
+          : test.testcase[i].name,
+      });
+    }
+    let parsedTestData = {
+      all: test.tests,
+      passed: test.tests - test.failures,
+      failed: test.failures,
+      repoTestResults: testResults,
+    };
+    return parsedTestData;
+  } catch (err) {
+    handleError({
+      err,
+      location: "unitTestResults -> parseTestData",
+    });
+  }
+};
+
 const getUnitTestResults = async () => {
   try {
     let junitTestData = fs.readFileSync(
-      "C:/Users/User/.ssh/codeallyteam/test-results.xml",
-      "utf-8"
-    );
-    let parsedOutput;
-    const getParsedOutput = async (junitTestData) => {
-      const result = await transform(junitTestData, {
-        testsuites: [
-          "/testsuites",
-          {
-            testsuite: [
-              "/testsuites/testsuite",
-              {
-                testcase: [
-                  "testcase",
-                  {
-                    name: "@name",
-                    classname: "@classname",
-                    time: "@time",
-                    failure: ".",
-                  },
-                ],
-                name: "@name",
-                errors: "@errors",
-                failures: "@failures",
-                skipped: "@skipped",
-                timestamp: "@timestamp",
-                time: "@time",
-                tests: "@tests",
-              },
-            ],
-            name: "@name",
-            tests: "@tests",
-            failures: "@failures",
-            errors: "@errors",
-            time: "@time",
-          },
-        ],
-      });
-      return JSON.stringify(result, null, 2);
-    };
-
-    parsedOutput = await getParsedOutput(junitTestData);
-    return parsedOutput;
-    let unitTestData = fs.readFileSync(
       process.env.TEST_REPORT_PATH ||
         "/Users/mac/Desktop/SiliSky/gitTest/GitServerTesting/junit.xml",
       "utf-8"
     );
-    let jsonObj;
-    try {
-      jsonObj = parser.parse(unitTestData, options, true);
-    } catch (error) {
-      console.log(error.message);
-    }
-    return jsonObj;
+    let testResult = await parseTestData(junitTestData);
+    return sendTestResultsData(testResult);
   } catch (err) {
-    console.log(err);
+    handleError({
+      err,
+      location: "unitTestResults -> getUnitTestResults",
+    });
   }
 };
 
