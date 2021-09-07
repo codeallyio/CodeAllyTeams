@@ -67,7 +67,7 @@ const parseTestData = async (junitTestData) => {
     for (let i = 0; i < test.tests; i++) {
       testResults.push({
         name: test.testcase[i].classname,
-        success: test.testcase[i].failure == "" ? false : true,
+        success: test.testcase[i].failure == "" ? true : false,
         receivedOutput: test.testcase[i].failure
           ? test.testcase[i].failure
           : test.testcase[i].name,
