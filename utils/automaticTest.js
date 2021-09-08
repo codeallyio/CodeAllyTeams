@@ -9,6 +9,7 @@ const {
 const child_process = require("child_process");
 const { sendLog } = require("./debugger");
 const { createWebview, reloadWebview } = require("./webview");
+const { getUnitTestResults } = require("./unitTestResults");
 
 const environment = process.env.CODEALLY_ENVIRONMENT;
 
@@ -119,7 +120,7 @@ const startAutomaticTest = () => {
               });
 
               // Handle Closure
-              testProcess.process.on("exit", (exitCode) => {
+              testProcess.process.on("exit", async (exitCode) => {
                 sendLog(`startAutomaticTest - exit: ${exitCode}`);
                 clearInterval(refreshWebviewInterval);
 
@@ -143,6 +144,8 @@ const startAutomaticTest = () => {
                     html: `<pre>${html}</pre>`,
                   });
                 }
+
+                await getUnitTestResults();
 
                 testRunningFlag = false;
               });

@@ -96,7 +96,7 @@ const getUnitTestResults = async () => {
       "utf-8"
     );
     let testResult = await parseTestData(junitTestData);
-    return sendTestResultsData(testResult);
+    return await sendTestResultsData(testResult);
   } catch (err) {
     handleError({
       err,
