@@ -95,6 +95,10 @@ const getUnitTestResults = async () => {
         "/Users/mac/Desktop/SiliSky/gitTest/GitServerTesting/junit.xml",
       "utf-8"
     );
+    console.log(
+      "🚀 ~ file: unitTestResults.js ~ line 98 ~ getUnitTestResults ~ junitTestData",
+      junitTestData
+    );
     let testResult = await parseTestData(junitTestData);
     return await sendTestResultsData(testResult);
   } catch (err) {
