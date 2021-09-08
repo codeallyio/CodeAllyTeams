@@ -91,7 +91,7 @@ const parseTestData = async (junitTestData) => {
 const getUnitTestResults = async () => {
   try {
     let junitTestData = fs.readFileSync(
-      process.env.TEST_REPORT_PATH ||
+      `/home/codeally/project/${process.env.TEST_REPORT_PATH}` ||
         "/Users/mac/Desktop/SiliSky/gitTest/GitServerTesting/junit.xml",
       "utf-8"
     );
