@@ -154,14 +154,14 @@ const sendTestResultsData = async (parsedTestData) => {
     makePromise(execute(websocketLink, setProjectData))
       .then((response) => {
         handleError({
-          response,
-          location: "unitTestResults -> sendTestResultsData -> mutation",
+          error: response,
+          location: "unitTestResults -> sendTestResultsData -> then",
         });
       })
       .catch((error) => {
         handleError({
           error,
-          location: "unitTestResults -> sendTestResultsData -> mutation",
+          location: "unitTestResults -> sendTestResultsData -> catch",
         });
       });
   } catch (error) {
