@@ -21,33 +21,33 @@ const { websocketLink } = require("./websocketLink");
 const getJSONReport = async (junitTestData) => {
   try {
     const result = await transform(junitTestData, {
-      testsuites: [
-        "/testsuites",
+      // testsuites: [
+      //   "/testsuites",
+      //   {
+      testsuite: [
+        "testsuite",
         {
-          testsuite: [
-            "testsuite",
+          testcase: [
+            "testcase",
             {
-              testcase: [
-                "testcase",
-                {
-                  name: "@name",
-                  classname: "@classname",
-                  time: "number(@time)",
-                  failure: ".",
-                  skipped: ".",
-                },
-              ],
               name: "@name",
-              errors: "number(@errors)",
-              failures: "@failures",
-              skipped: "@skipped || @skip",
-              timestamp: "@timestamp",
-              time: "@time",
-              tests: "@tests",
+              classname: "@classname",
+              time: "number(@time)",
+              failure: ".",
+              skipped: ".",
             },
           ],
+          name: "@name",
+          errors: "number(@errors)",
+          failures: "@failures",
+          skipped: "@skipped || @skip",
+          timestamp: "@timestamp",
+          time: "@time",
+          tests: "@tests",
         },
       ],
+      // },
+      // ],
     });
     return JSON.stringify(result, null, 2);
   } catch (err) {
