@@ -154,7 +154,7 @@ const sendTestResultsData = async (parsedTestData) => {
     makePromise(execute(websocketLink, setProjectData))
       .then((response) => {
         handleError({
-          error: response,
+          error: JSON.stringify(response),
           location: "unitTestResults -> sendTestResultsData -> then",
         });
       })
