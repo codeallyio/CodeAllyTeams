@@ -70,7 +70,8 @@ const parseTestData = async (junitTestData) => {
       "🚀 ~ file: unitTestResults.js ~ line 66 ~ parseTestData ~ junitTestReport",
       junitTestReport
     );
-    let test = junitTestReport.testsuites[0].testsuite[0];
+    // let test = junitTestReport.testsuites[0].testsuite[0];
+    let test = junitTestReport.testsuite[0];
     console.log(
       "🚀 ~ file: unitTestResults.js ~ line 68 ~ parseTestData ~ test",
       test
