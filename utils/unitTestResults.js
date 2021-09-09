@@ -87,9 +87,9 @@ const parseTestData = async (junitTestData) => {
       });
     }
     let parsedTestData = {
-      all: test.tests,
-      passed: test.tests - test.failures,
-      failed: test.failures,
+      all: parseInt(test.tests),
+      passed: parseInt(test.tests - test.failures),
+      failed: parseInt(test.failures),
       repoTestResults: testResults,
     };
     console.log(
