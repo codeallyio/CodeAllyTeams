@@ -61,8 +61,20 @@ const getJSONReport = async (junitTestData) => {
 const parseTestData = async (junitTestData) => {
   try {
     let json = await getJSONReport(junitTestData);
+    console.log(
+      "🚀 ~ file: unitTestResults.js ~ line 64 ~ parseTestData ~ json",
+      json
+    );
     let junitTestReport = JSON.parse(json);
+    console.log(
+      "🚀 ~ file: unitTestResults.js ~ line 66 ~ parseTestData ~ junitTestReport",
+      junitTestReport
+    );
     let test = junitTestReport.testsuites[0].testsuite[0];
+    console.log(
+      "🚀 ~ file: unitTestResults.js ~ line 68 ~ parseTestData ~ test",
+      test
+    );
     let testResults = [];
     for (let i = 0; i < test.tests; i++) {
       testResults.push({
@@ -79,6 +91,10 @@ const parseTestData = async (junitTestData) => {
       failed: test.failures,
       repoTestResults: testResults,
     };
+    console.log(
+      "🚀 ~ file: unitTestResults.js ~ line 85 ~ parseTestData ~ parsedTestData",
+      parsedTestData
+    );
     return parsedTestData;
   } catch (err) {
     handleError({
