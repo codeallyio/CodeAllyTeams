@@ -313,6 +313,48 @@ rescue => e
 end
     `,
   },
+  Kotlin: {
+    fileName: "main.kt",
+    testFileContent: ({ inputValue, userFileContent }) => `
+    ${userFileContent}
+    try {  
+      print(main(${inputValue})) 
+    } catch (e: ArithmeticException) {  
+      print(e)
+    }
+  `,
+  },
+  Go: {
+    filename: "main.go",
+    testFileContent: ({ inputValue, userFileContent }) => `
+    package main
+    import "fmt"
+
+    ${userFileContent}
+    Block{
+      Try: func() {
+          fmt.Println(main(${inputValue}))
+      },
+      Catch: func(e Exception) {
+          fmt.Printf("Caught %v\n", e)
+      },
+      Finally: func() {
+          fmt.Println(main(${inputValue}))
+      },
+  }.Do()
+    `,
+  },
+  Swift: {
+    filename: "main.swift",
+    testFileContent: ({ inputValue, userFileContent }) => `
+    ${userFileContent}
+    do {
+      print(${inputValue})
+    } catch let error {
+      print(error.localizedDescription)
+    }
+    `,
+  },
 };
 
 module.exports = {
