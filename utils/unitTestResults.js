@@ -152,7 +152,12 @@ const sendTestResultsData = async (parsedTestData) => {
     sendLog(`sendTestResultsData - variables: ${setProjectData.variables}`);
 
     makePromise(execute(websocketLink, setProjectData))
-      .then()
+      .then((response) => {
+        handleError({
+          response,
+          location: "unitTestResults -> sendTestResultsData -> mutation",
+        });
+      })
       .catch((error) => {
         handleError({
           error,
