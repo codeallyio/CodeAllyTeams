@@ -50,7 +50,7 @@ const getJSONReport = async (junitTestData) => {
       depth = 1;
       result = await transform(junitTestData, {
         testsuites: [
-          "/testsuites",
+          "testsuites",
           {
             testsuite: [
               "testsuite",
