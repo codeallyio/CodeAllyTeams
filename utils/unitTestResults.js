@@ -19,7 +19,6 @@ const { websocketLink } = require("./websocketLink");
 // });
 
 const getJSONReport = async (junitTestData) => {
-  console.log("IN FUNCTION METAL!!!!");
   try {
     let depth = 0;
     let result = await transform(junitTestData, {
@@ -46,15 +45,6 @@ const getJSONReport = async (junitTestData) => {
         },
       ],
     });
-    console.log(
-      "🚀 ~ file: unitTestResults.js ~ line 48 ~ getJSONReport ~ result",
-      result
-    );
-
-    console.log("(result)", result);
-    console.log("(result.length)", result.length);
-    console.log("(result.length <= 0)", result.length <= 0);
-    console.log("(result && result.length <= 0)", result && result.length <= 0);
 
     if (
       (result && result.testsuite && result.testsuite.length <= 0) ||
@@ -91,10 +81,6 @@ const getJSONReport = async (junitTestData) => {
           },
         ],
       });
-      console.log(
-        "🚀 ~ file: unitTestResults.js ~ line 81 ~ getJSONReport ~ result",
-        result
-      );
     }
     return { json: JSON.stringify(result, null, 2), depth };
   } catch (err) {
@@ -108,25 +94,16 @@ const getJSONReport = async (junitTestData) => {
 const parseTestData = async (junitTestData) => {
   try {
     let { json, depth } = await getJSONReport(junitTestData);
-    console.log(
-      "🚀 ~ file: unitTestResults.js ~ line 64 ~ parseTestData ~ json",
-      json
-    );
+
     let junitTestReport = JSON.parse(json);
-    console.log(
-      "🚀 ~ file: unitTestResults.js ~ line 66 ~ parseTestData ~ junitTestReport",
-      junitTestReport
-    );
+
     let test;
     if (depth) {
       test = junitTestReport.testsuites[0].testsuite[0];
     } else {
       test = junitTestReport.testsuite[0];
     }
-    console.log(
-      "🚀 ~ file: unitTestResults.js ~ line 68 ~ parseTestData ~ test",
-      test
-    );
+
     let testResults = [];
     for (let i = 0; i < test.tests; i++) {
       testResults.push({
@@ -143,10 +120,7 @@ const parseTestData = async (junitTestData) => {
       failed: parseInt(test.failures),
       repoTestResults: testResults,
     };
-    console.log(
-      "🚀 ~ file: unitTestResults.js ~ line 85 ~ parseTestData ~ parsedTestData",
-      parsedTestData
-    );
+
     return parsedTestData;
   } catch (err) {
     handleError({
@@ -163,10 +137,7 @@ const getUnitTestResults = async () => {
         "/Users/mac/Desktop/SiliSky/gitTest/GitServerTesting/junit.xml",
       "utf-8"
     );
-    console.log(
-      "🚀 ~ file: unitTestResults.js ~ line 98 ~ getUnitTestResults ~ junitTestData",
-      junitTestData
-    );
+
     let testResult = await parseTestData(junitTestData);
     return await sendTestResultsData(testResult);
   } catch (err) {

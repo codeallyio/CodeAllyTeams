@@ -44,15 +44,10 @@ const startAutomaticTest = () => {
     receiveTerminalOperation
   ).subscribe({
     next: async (data) => {
-      console.log("🚀 ~ file: automaticTest.js ~ line 47 ~ next: ~ data", data);
       try {
         const {
           data: { automaticTest },
         } = data;
-        console.log(
-          "🚀 ~ file: automaticTest.js ~ line 51 ~ next: ~ automaticTest",
-          automaticTest
-        );
 
         if (
           automaticTest &&
