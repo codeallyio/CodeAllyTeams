@@ -56,7 +56,11 @@ const getJSONReport = async (junitTestData) => {
     console.log("(result.length <= 0)", result.length <= 0);
     console.log("(result && result.length <= 0)", result && result.length <= 0);
 
-    if ((result && result.length <= 0) || !result) {
+    if (
+      (result && result.testsuite && result.testsuite.length <= 0) ||
+      !result ||
+      !result.testsuite
+    ) {
       depth = 1;
       result = await transform(junitTestData, {
         testsuites: [
