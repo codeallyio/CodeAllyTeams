@@ -19,6 +19,7 @@ const { websocketLink } = require("./websocketLink");
 // });
 
 const getJSONReport = async (junitTestData) => {
+  console.log("IN FUNCTION METAL!!!!");
   try {
     let depth = 0;
     let result = await transform(junitTestData, {
@@ -45,6 +46,10 @@ const getJSONReport = async (junitTestData) => {
         },
       ],
     });
+    console.log(
+      "🚀 ~ file: unitTestResults.js ~ line 48 ~ getJSONReport ~ result",
+      result
+    );
 
     if ((result && result.length <= 0) || !result) {
       depth = 1;
@@ -77,6 +82,10 @@ const getJSONReport = async (junitTestData) => {
           },
         ],
       });
+      console.log(
+        "🚀 ~ file: unitTestResults.js ~ line 81 ~ getJSONReport ~ result",
+        result
+      );
     }
     return { json: JSON.stringify(result, null, 2), depth };
   } catch (err) {
