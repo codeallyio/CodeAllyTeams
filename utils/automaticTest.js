@@ -38,15 +38,21 @@ let testProcess;
 
 const startAutomaticTest = () => {
   // Start terminal if ping arrives
+  console.log("startAutomaticTest");
   autoTestTerminalSubscriber = execute(
     websocketLink,
     receiveTerminalOperation
   ).subscribe({
     next: async (data) => {
+      console.log("🚀 ~ file: automaticTest.js ~ line 47 ~ next: ~ data", data);
       try {
         const {
           data: { automaticTest },
         } = data;
+        console.log(
+          "🚀 ~ file: automaticTest.js ~ line 51 ~ next: ~ automaticTest",
+          automaticTest
+        );
 
         if (
           automaticTest &&
