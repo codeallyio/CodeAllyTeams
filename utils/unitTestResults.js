@@ -20,10 +20,8 @@ const { websocketLink } = require("./websocketLink");
 
 const getJSONReport = async (junitTestData) => {
   try {
-    const result = await transform(junitTestData, {
-      // testsuites: [
-      //   "/testsuites",
-      //   {
+    let depth = 0;
+    let result = await transform(junitTestData, {
       testsuite: [
         "testsuite",
         {
@@ -46,10 +44,41 @@ const getJSONReport = async (junitTestData) => {
           tests: "@tests",
         },
       ],
-      // },
-      // ],
     });
-    return JSON.stringify(result, null, 2);
+
+    if ((result && result.length <= 0) || !result) {
+      depth = 1;
+      result = await transform(junitTestData, {
+        testsuites: [
+          "/testsuites",
+          {
+            testsuite: [
+              "testsuite",
+              {
+                testcase: [
+                  "testcase",
+                  {
+                    name: "@name",
+                    classname: "@classname",
+                    time: "number(@time)",
+                    failure: ".",
+                    skipped: ".",
+                  },
+                ],
+                name: "@name",
+                errors: "number(@errors)",
+                failures: "@failures",
+                skipped: "@skipped || @skip",
+                timestamp: "@timestamp",
+                time: "@time",
+                tests: "@tests",
+              },
+            ],
+          },
+        ],
+      });
+    }
+    return { json: JSON.stringify(result, null, 2), depth };
   } catch (err) {
     handleError({
       err,
@@ -60,7 +89,7 @@ const getJSONReport = async (junitTestData) => {
 
 const parseTestData = async (junitTestData) => {
   try {
-    let json = await getJSONReport(junitTestData);
+    let { json, depth } = await getJSONReport(junitTestData);
     console.log(
       "🚀 ~ file: unitTestResults.js ~ line 64 ~ parseTestData ~ json",
       json
@@ -70,8 +99,12 @@ const parseTestData = async (junitTestData) => {
       "🚀 ~ file: unitTestResults.js ~ line 66 ~ parseTestData ~ junitTestReport",
       junitTestReport
     );
-    // let test = junitTestReport.testsuites[0].testsuite[0];
-    let test = junitTestReport.testsuite[0];
+    let test;
+    if (depth) {
+      test = junitTestReport.testsuites[0].testsuite[0];
+    } else {
+      test = junitTestReport.testsuite[0];
+    }
     console.log(
       "🚀 ~ file: unitTestResults.js ~ line 68 ~ parseTestData ~ test",
       test
