@@ -180,18 +180,42 @@ const execFuncCpp = (
     return `std::cout << main_function(${inputValue}) << std::endl;`;
   }
 };
+
 const execFuncJava = (inputValue, outputType) => {
   if (outputType.includes("[]")) {
     return `System.out.println(Arrays.toString(main_function(${inputValue})));`;
   }
   return `System.out.println(main_function(${inputValue}));`;
 };
+
 const execFuncCSharp = (inputValue, outputType) => {
   if (outputType.includes("[]")) {
     return `System.Console.WriteLine("[" + string.Join(",",MainFunction(${inputValue})) + "]");`;
   }
   return `System.Console.WriteLine(MainFunction(${inputValue}));`;
 };
+
+const execFuncKotlin = (inputValue, outputType) => {
+  if (outputType.includes("<") && outputType.includes(">")) {
+    return `print(mainFunction(${inputValue}).toString())`;
+  }
+  return `print(mainFunction(${inputValue}))`;
+};
+
+const execFuncGo = (inputValue, outputType) => {
+  if (outputType.includes("[]")) {
+    return `fmt.Printf(strconv.Itoa(mainFunction(${inputValue}))`;
+  }
+  return `fmt.Printf(mainFunction(${inputValue})`;
+};
+
+const execFuncSwift = (inputValue, inputType) => {
+  if (inputType.includes("[") && inputType.includes("]")) {
+    return `print(String(mainFunction(${inputValue})))`;
+  }
+  return `print(mainFunction(${inputValue})`;
+};
+
 // Some languages have weird formatting but it's necessary for them to work
 const languagesData = {
   "C++": {
@@ -315,10 +339,10 @@ end
   },
   Kotlin: {
     fileName: "main.kt",
-    testFileContent: ({ inputValue, userFileContent }) => `
+    testFileContent: ({ inputValue, userFileContent, outputType }) => `
     ${userFileContent}
     try {  
-      print(main(${inputValue})) 
+      ${execFuncKotlin(inputValue, outputType)}
     } catch (e: ArithmeticException) {  
       print(e)
     }
@@ -326,30 +350,38 @@ end
   },
   Go: {
     filename: "main.go",
-    testFileContent: ({ inputValue, userFileContent }) => `
+    testFileContent: ({ inputValue, userFileContent, outputType }) => `
     package main
-    import "fmt"
+    import (
+      "strconv"
+      "fmt"
+    )
 
     ${userFileContent}
     Block{
       Try: func() {
-          fmt.Println(main(${inputValue}))
+        ${execFuncGo(inputValue, outputType)}
       },
       Catch: func(e Exception) {
           fmt.Printf("Caught %v\n", e)
       },
       Finally: func() {
-          fmt.Println(main(${inputValue}))
+          ${execFuncGo(inputValue, outputType)}
       },
   }.Do()
     `,
   },
   Swift: {
     filename: "main.swift",
-    testFileContent: ({ inputValue, userFileContent }) => `
+    testFileContent: ({
+      inputValue,
+      userFileContent,
+      inputType,
+      outputType,
+    }) => `
     ${userFileContent}
     do {
-      print(${inputValue})
+      ${execFuncSwift(inputValue, inputType)}
     } catch let error {
       print(error.localizedDescription)
     }
