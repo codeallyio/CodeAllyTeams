@@ -349,7 +349,7 @@ end
   `,
   },
   Go: {
-    filename: "main.go",
+    fileName: "main.go",
     testFileContent: ({ inputValue, userFileContent, outputType }) => `
     package main
     import (
@@ -372,7 +372,7 @@ end
     `,
   },
   Swift: {
-    filename: "main.swift",
+    fileName: "main.swift",
     testFileContent: ({
       inputValue,
       userFileContent,
