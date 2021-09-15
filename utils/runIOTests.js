@@ -180,18 +180,42 @@ const execFuncCpp = (
     return `std::cout << main_function(${inputValue}) << std::endl;`;
   }
 };
+
 const execFuncJava = (inputValue, outputType) => {
   if (outputType.includes("[]")) {
     return `System.out.println(Arrays.toString(main_function(${inputValue})));`;
   }
   return `System.out.println(main_function(${inputValue}));`;
 };
+
 const execFuncCSharp = (inputValue, outputType) => {
   if (outputType.includes("[]")) {
     return `System.Console.WriteLine("[" + string.Join(",",MainFunction(${inputValue})) + "]");`;
   }
   return `System.Console.WriteLine(MainFunction(${inputValue}));`;
 };
+
+// const execFuncKotlin = (inputValue, outputType) => {
+//   if (outputType.includes("<") && outputType.includes(">")) {
+//     return `print(mainFunction(${inputValue}).toString())`;
+//   }
+//   return `print(mainFunction(${inputValue}))`;
+// };
+
+// const execFuncGo = (inputValue, outputType) => {
+//   if (outputType.includes("[]")) {
+//     return `fmt.Printf(strconv.Itoa(mainFunction(${inputValue}))`;
+//   }
+//   return `fmt.Printf(mainFunction(${inputValue})`;
+// };
+
+const execFuncSwift = (inputValue, inputType) => {
+  if (inputType.includes("[") && inputType.includes("]")) {
+    return `print(String(mainFunction(input: ${inputValue})))`;
+  }
+  return `print(mainFunction(input: ${inputValue}))`;
+};
+
 // Some languages have weird formatting but it's necessary for them to work
 const languagesData = {
   "C++": {
@@ -311,6 +335,49 @@ begin
 rescue => e
   print "Caught an error: #{e}"
 end
+    `,
+  },
+  Kotlin: {
+    fileName: "main.kt",
+    testFileContent: ({ inputValue, userFileContent, outputType }) => `
+    ${userFileContent}
+
+  func main() {
+    try {  
+      print(mainFunction(${inputValue}).toString())
+    } catch (e: ArithmeticException) {  
+      print(e)
+    }
+  }
+  `,
+  },
+  Go: {
+    fileName: "main.go",
+    testFileContent: ({ inputValue, userFileContent, outputType }) => `
+    package main
+    import (
+      "strconv"
+      "fmt"
+    )
+
+    ${userFileContent}
+
+    func main() {
+      fmt.Printf(strconv.Itoa(mainFunction(${inputValue})))
+    }
+    `,
+  },
+  Swift: {
+    fileName: "main.swift",
+    testFileContent: ({
+      inputValue,
+      userFileContent,
+      inputType,
+      outputType,
+    }) => `
+    ${userFileContent}
+    
+    ${execFuncSwift(inputValue, inputType)}
     `,
   },
 };
