@@ -211,9 +211,9 @@ const execFuncGo = (inputValue, outputType) => {
 
 const execFuncSwift = (inputValue, inputType) => {
   if (inputType.includes("[") && inputType.includes("]")) {
-    return `print(String(mainFunction(${inputValue})))`;
+    return `print(String(mainFunction(input: ${inputValue})))`;
   }
-  return `print(mainFunction(${inputValue})`;
+  return `print(mainFunction(input: ${inputValue}))`;
 };
 
 // Some languages have weird formatting but it's necessary for them to work
@@ -380,11 +380,8 @@ end
       outputType,
     }) => `
     ${userFileContent}
-    do {
-      ${execFuncSwift(inputValue, inputType)}
-    } catch let error {
-      print(error.localizedDescription)
-    }
+    
+    ${execFuncSwift(inputValue, inputType)}
     `,
   },
 };
