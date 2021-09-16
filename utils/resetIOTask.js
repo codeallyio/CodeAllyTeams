@@ -24,15 +24,25 @@ const watchResetIOTask = () => {
       resetIOTaskOperation
     ).subscribe({
       next: async (data) => {
+        console.log("🚀 ~ file: resetIOTask.js ~ line 27 ~ next: ~ data", data);
         try {
           const {
             data: {
               resetIOTask: { language, fileContent },
             },
           } = data;
+          console.log(
+            "🚀 ~ file: resetIOTask.js ~ line 33 ~ next: ~ language, fileContent",
+            language,
+            fileContent
+          );
 
           if (language && fileContent && readyToReset) {
             readyToReset = false;
+            console.log(
+              "🚀 ~ file: resetIOTask.js ~ line 38 ~ next: ~ readyToReset",
+              readyToReset
+            );
 
             const fileName = languagesData[language].fileName;
 
