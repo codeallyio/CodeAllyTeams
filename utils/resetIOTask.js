@@ -15,7 +15,6 @@ const resetIOTaskOperation = {
 };
 
 let startResetIOTaskSubscriber = null;
-let readyToReset = true;
 
 const watchResetIOTask = () => {
   try {
@@ -37,14 +36,12 @@ const watchResetIOTask = () => {
             fileContent
           );
 
-          if (language && fileContent && readyToReset) {
-            readyToReset = false;
-            console.log(
-              "🚀 ~ file: resetIOTask.js ~ line 38 ~ next: ~ readyToReset",
-              readyToReset
-            );
-
+          if (language && fileContent) {
             const fileName = languagesData[language].fileName;
+            console.log(
+              "🚀 ~ file: resetIOTask.js ~ line 48 ~ next: ~ fileName",
+              fileName
+            );
 
             const response = await exec(
               `cd /home/codeally/project && echo '${fileContent}' > ${fileName}`
