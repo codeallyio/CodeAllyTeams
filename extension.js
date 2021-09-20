@@ -28,6 +28,10 @@ const {
   checkOutputFilesInterval,
 } = require("./utils/terminalSharing");
 const { handleError } = require("./utils/errorHandling");
+const {
+  watchResetIOTask,
+  startResetIOTaskSubscriber,
+} = require("./utils/resetIOTask");
 
 const environment = process.env.CODEALLY_ENVIRONMENT;
 const userType = process.env.CODEALLY_USER_TYPE;
@@ -188,6 +192,7 @@ async function activate(context) {
     monitorPorts();
     watchFileChange();
     manageTerminalSharing(context);
+    watchResetIOTask();
 
     if (terminals.length) {
       terminal = vscode.window.terminals[0];
@@ -316,6 +321,7 @@ function deactivate() {
   focusEditorSubscriber.unsubscribe();
   autoTestTerminalSubscriber.unsubscribe();
   startIOTestSubscriber.unsubscribe();
+  startResetIOTaskSubscriber.unsubscribe();
   clearInterval(checkPortsInterval);
   clearInterval(checkOutputFilesInterval);
 }

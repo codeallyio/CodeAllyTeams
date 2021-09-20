@@ -103,6 +103,15 @@ subscription($projectId: String!) {
 }
 `;
 
+exports.resetIOTaskSubscription = `
+subscription($projectId: String!) {
+    resetIOTask(projectId: $projectId) {
+            language
+            fileContent
+    }
+}
+`;
+
 exports.watchActiveUsersSubscription = `
 subscription($projectId: ID!) {
     watchActiveUsers(projectId: $projectId) {
