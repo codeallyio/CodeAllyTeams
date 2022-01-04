@@ -38,6 +38,9 @@ let testProcess;
 
 let timeoutCounter = 0;
 let outputLinesCounter = 0;
+let refreshWebviewInterval;
+let html;
+let webviewPanel;
 
 const startAutomaticTest = () => {
   // Start terminal if ping arrives
@@ -60,11 +63,8 @@ const startAutomaticTest = () => {
           !testRunningFlag
         ) {
           // const terminalWriter = await startTestTerminal();
-          let webviewPanel;
-          let html = "<h3>Automatic test results will be visible below:</h3>";
+          html = "<h3>Automatic test results will be visible below:</h3>";
           outputLinesCounter = html.length;
-
-          let refreshWebviewInterval;
 
           testProcess = {
             process: child_process.spawn("/bin/bash"),
@@ -279,7 +279,25 @@ const startTestTerminal = async () => {
   return writeEmitter;
 };
 
-const handleTimeout = () => {};
+const handleTimeout = () => {
+  sendLog(`startAutomaticTest - timeout`);
+  clearInterval(refreshWebviewInterval);
+
+  sendOutput("Test Timeout.");
+
+  html +=
+    "\r\n<h4>Automatic test timed out due to lack of response from process.</h4>";
+  html += "\r\n<h4>If you're having issues try again or contact support.</h4>";
+
+  reloadWebview({
+    panel: webviewPanel,
+    html: `<pre>${html}</pre>`,
+  });
+
+  getUnitTestResults();
+
+  testRunningFlag = false;
+};
 
 module.exports = {
   startAutomaticTest,
