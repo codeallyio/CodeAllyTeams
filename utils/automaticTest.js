@@ -36,6 +36,9 @@ let autoTestTerminalSubscriber = null;
 let testRunningFlag = false;
 let testProcess;
 
+let timeoutCounter = 0;
+let outputLinesCounter = 0;
+
 const startAutomaticTest = () => {
   // Start terminal if ping arrives
   console.log("startAutomaticTest");
@@ -59,6 +62,7 @@ const startAutomaticTest = () => {
           // const terminalWriter = await startTestTerminal();
           let webviewPanel;
           let html = "<h3>Automatic test results will be visible below:</h3>";
+          outputLinesCounter = html.length;
 
           let refreshWebviewInterval;
 
@@ -79,14 +83,23 @@ const startAutomaticTest = () => {
                 `cd ${automaticTest.folderName} && ${automaticTest.testStartCommand} ; exit\n`
               );
 
-              refreshWebviewInterval = setInterval(
-                () =>
+              refreshWebviewInterval = setInterval(() => {
+                if (outputLinesCounter === html.length) {
+                  if (timeoutCounter > 100) {
+                    handleTimeout();
+                    return null;
+                  }
+
+                  timeoutCounter++;
+                } else {
+                  outputLinesCounter = html.length;
+
                   reloadWebview({
                     panel: webviewPanel,
                     html: `<pre>${html}</pre>`,
-                  }),
-                500
-              );
+                  });
+                }
+              }, 500);
             },
             initEvents: () => {
               // Handle Data
@@ -265,6 +278,8 @@ const startTestTerminal = async () => {
 
   return writeEmitter;
 };
+
+const handleTimeout = () => {};
 
 module.exports = {
   startAutomaticTest,
