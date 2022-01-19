@@ -244,6 +244,10 @@ const liveshareSubscriber = execute(
     const {
       data: { stroveLiveshare },
     } = data;
+    console.log(
+      "🚀 ~ file: extension.js ~ line 247 ~ stroveLiveshare",
+      stroveLiveshare
+    );
 
     if (initPing) {
       clearInterval(initPing);

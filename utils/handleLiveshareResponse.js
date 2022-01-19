@@ -54,6 +54,10 @@ const createUserNameDecorationType = ({ userData }) =>
   });
 
 const handleLiveshareResponse = (userDataArray) => {
+  console.log(
+    "🚀 ~ file: handleLiveshareResponse.js ~ line 57 ~ handleLiveshareResponse ~ userDataArray",
+    userDataArray
+  );
   decorationTypes.forEach((type) => type.dispose());
 
   // console.log("userDataArray.length", userDataArray.length);
@@ -82,8 +86,6 @@ const handleLiveshareResponse = (userDataArray) => {
         editor._documentData &&
         editor._documentData._uri &&
         editor._documentData._uri.path === userData.documentPath;
-
-
 
       if (isEditorPathTheSameAsUsers) {
         const codeDecorationType = createDecorationType({
