@@ -124,7 +124,22 @@ const handleLiveshareResponse = (userDataArray) => {
           let splitEditorText;
           if (editor && editor.document && editor.document.getText()) {
             splitEditorText = editor.document.getText().split("/n");
+            console.log(
+              "🚀 ~ file: handleLiveshareResponse.js ~ line 127 ~ userDataArray.forEach ~ splitEditorText",
+              splitEditorText
+            );
           }
+
+          console.log(
+            "first if",
+            userData && userData["selections"] && (lastLine || lastLine === 0)
+          );
+
+          console.log(
+            "second if",
+            splitEditorText &&
+              (splitEditorText[lastLine] || splitEditorText[lastLine] === "")
+          );
 
           if (
             userData &&
