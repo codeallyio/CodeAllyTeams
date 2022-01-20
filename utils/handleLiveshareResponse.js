@@ -85,9 +85,9 @@ const handleLiveshareResponse = (userDataArray) => {
         const isEditorPathTheSameAsUsers =
           userData &&
           editor &&
-          editor._documentData &&
-          editor._documentData._uri &&
-          editor._documentData._uri.path === userData.documentPath;
+          editor.document &&
+          editor.document.uri &&
+          editor.document.uri.path === userData.documentPath;
 
         console.log(
           "🚀 ~ file: handleLiveshareResponse.js ~ line 88 ~ userDataArray.forEach ~ editor",
@@ -118,6 +118,8 @@ const handleLiveshareResponse = (userDataArray) => {
           ) {
             lastLine = userData["selections"][0]["end"]["line"];
           }
+
+          console.log("editor lines", editor.document.getText());
 
           if (
             userData &&
