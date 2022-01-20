@@ -27,8 +27,8 @@ const decorate = ({ decorationArray, decorationType }) => {
 
 const createDecorationType = ({ userData }) =>
   vscode.window.createTextEditorDecorationType({
-    border: `1px solid hsla(${userData.color}, 80%, 70%, 1)`,
-    backgroundColor: `hsla(${userData.color}, 80%, 70%, 0.3)`,
+    border: `1px solid hsla(${60}, 80%, 70%, 1)`,
+    backgroundColor: `hsla(${60}, 80%, 70%, 0.3)`,
     // after: {
     //   height: "15px",
     //   width: "15px",
@@ -89,7 +89,16 @@ const handleLiveshareResponse = (userDataArray) => {
           editor._documentData._uri &&
           editor._documentData._uri.path === userData.documentPath;
 
+        console.log(
+          "🚀 ~ file: handleLiveshareResponse.js ~ line 88 ~ userDataArray.forEach ~ editor",
+          editor
+        );
+
         if (isEditorPathTheSameAsUsers) {
+          console.log(
+            "🚀 ~ file: handleLiveshareResponse.js ~ line 93 ~ userDataArray.forEach ~ isEditorPathTheSameAsUsers",
+            isEditorPathTheSameAsUsers
+          );
           const codeDecorationType = createDecorationType({
             userData,
           });
@@ -122,6 +131,8 @@ const handleLiveshareResponse = (userDataArray) => {
           ) {
             const lastLineLastCharacterPosition =
               editor._documentData._lines[lastLine].length;
+
+            console.log("ifs work");
 
             decorationTypes = [
               ...decorationTypes,
