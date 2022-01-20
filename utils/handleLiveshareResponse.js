@@ -121,15 +121,17 @@ const handleLiveshareResponse = (userDataArray) => {
 
           console.log("editor lines", editor.document.getText());
 
+          let splitEditorText;
+          if (editor && editor.document && editor.document.getText()) {
+            splitEditorText = editor.document.getText().split("/n");
+          }
+
           if (
             userData &&
             userData["selections"] &&
             (lastLine || lastLine === 0) &&
-            editor &&
-            editor._documentData &&
-            editor._documentData._lines &&
-            (editor._documentData._lines[lastLine] ||
-              editor._documentData._lines[lastLine] === "")
+            splitEditorText &&
+            (splitEditorText[lastLine] || splitEditorText[lastLine] === "")
           ) {
             const lastLineLastCharacterPosition =
               editor._documentData._lines[lastLine].length;
