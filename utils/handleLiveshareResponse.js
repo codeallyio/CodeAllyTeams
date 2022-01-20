@@ -123,7 +123,7 @@ const handleLiveshareResponse = (userDataArray) => {
 
           let splitEditorText;
           if (editor && editor.document && editor.document.getText()) {
-            splitEditorText = editor.document.getText().split("/n");
+            splitEditorText = editor.document.getText().split("\n");
             console.log(
               "🚀 ~ file: handleLiveshareResponse.js ~ line 127 ~ userDataArray.forEach ~ splitEditorText",
               splitEditorText
