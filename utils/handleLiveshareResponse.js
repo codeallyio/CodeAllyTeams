@@ -1,5 +1,6 @@
 const vscode = require("vscode");
 const Sentry = require("@sentry/node");
+const { handleError } = require("./errorHandling");
 
 const environment = process.env.CODEALLY_ENVIRONMENT;
 
@@ -54,131 +55,139 @@ const createUserNameDecorationType = ({ userData }) =>
   });
 
 const handleLiveshareResponse = (userDataArray) => {
-  console.log(
-    "🚀 ~ file: handleLiveshareResponse.js ~ line 57 ~ handleLiveshareResponse ~ userDataArray",
-    userDataArray
-  );
-  decorationTypes.forEach((type) => type.dispose());
+  try {
+    console.log(
+      "🚀 ~ file: handleLiveshareResponse.js ~ line 57 ~ handleLiveshareResponse ~ userDataArray",
+      userDataArray
+    );
+    decorationTypes.forEach((type) => type.dispose());
 
-  // console.log("userDataArray.length", userDataArray.length);
+    // console.log("userDataArray.length", userDataArray.length);
 
-  userDataArray.forEach((userData) => {
-    const userId = userData.userId;
+    userDataArray.forEach((userData) => {
+      const userId = userData.userId;
 
-    /* Skip decorating editor using users own activity data */
-    if (
-      (userId && userId !== process.env.CODEALLY_USER_ID) ||
-      (userId && !environment)
-    ) {
-      /*
+      /* Skip decorating editor using users own activity data */
+      if (
+        (userId && userId !== process.env.CODEALLY_USER_ID) ||
+        (userId && !environment)
+      ) {
+        /*
       We create a new object because liveshareActivity[userId] = userData has
       circular type and node does not show it's contents in the console making
       debugging harder.
     */
-      liveshareActivity[userId] = {
-        ...userData,
-      };
+        liveshareActivity[userId] = {
+          ...userData,
+        };
 
-      const editor = vscode.window.activeTextEditor;
-      const isEditorPathTheSameAsUsers =
-        userData &&
-        editor &&
-        editor._documentData &&
-        editor._documentData._uri &&
-        editor._documentData._uri.path === userData.documentPath;
-
-      if (isEditorPathTheSameAsUsers) {
-        const codeDecorationType = createDecorationType({
-          userData,
-        });
-
-        /* Need to make another decoration just to append user name at the end of the last selected line */
-        const userNameDecorationType = createUserNameDecorationType({
-          userData,
-        });
-
-        let lastLine;
-
-        if (
+        const editor = vscode.window.activeTextEditor;
+        const isEditorPathTheSameAsUsers =
           userData &&
-          userData["selections"] &&
-          userData["selections"][0] &&
-          userData["selections"][0]["end"]
-        ) {
-          lastLine = userData["selections"][0]["end"]["line"];
-        }
-
-        if (
-          userData &&
-          userData["selections"] &&
-          (lastLine || lastLine === 0) &&
           editor &&
           editor._documentData &&
-          editor._documentData._lines &&
-          (editor._documentData._lines[lastLine] ||
-            editor._documentData._lines[lastLine] === "")
-        ) {
-          const lastLineLastCharacterPosition =
-            editor._documentData._lines[lastLine].length;
+          editor._documentData._uri &&
+          editor._documentData._uri.path === userData.documentPath;
 
-          decorationTypes = [
-            ...decorationTypes,
-            codeDecorationType,
-            userNameDecorationType,
-          ];
-
-          /* Decorate code */
-          decorate({
-            decorationArray: [
-              {
-                range: new vscode.Range(
-                  new vscode.Position(
-                    userData["selections"][0]["start"]["line"],
-                    userData["selections"][0]["start"]["character"]
-                  ),
-                  new vscode.Position(
-                    userData["selections"][0]["end"]["line"],
-                    userData["selections"][0]["end"]["character"]
-                  )
-                ),
-              },
-            ],
-            decorationType: codeDecorationType,
+        if (isEditorPathTheSameAsUsers) {
+          const codeDecorationType = createDecorationType({
+            userData,
           });
 
-          /* Append user name at the end */
-          decorate({
-            decorationArray: [
-              {
-                range: new vscode.Range(
-                  new vscode.Position(
-                    userData["selections"][0]["end"]["line"],
-                    lastLineLastCharacterPosition
-                  ),
-                  new vscode.Position(
-                    userData["selections"][0]["end"]["line"],
-                    lastLineLastCharacterPosition
-                  )
-                ),
-              },
-            ],
-            decorationType: userNameDecorationType,
+          /* Need to make another decoration just to append user name at the end of the last selected line */
+          const userNameDecorationType = createUserNameDecorationType({
+            userData,
           });
-        } else {
-          Sentry.withScope((scope) => {
-            scope.setExtras({
-              data: {
-                editor: editor._documentData,
-                userData: userData,
-              },
-              location: "handleLiveshareResponse",
+
+          let lastLine;
+
+          if (
+            userData &&
+            userData["selections"] &&
+            userData["selections"][0] &&
+            userData["selections"][0]["end"]
+          ) {
+            lastLine = userData["selections"][0]["end"]["line"];
+          }
+
+          if (
+            userData &&
+            userData["selections"] &&
+            (lastLine || lastLine === 0) &&
+            editor &&
+            editor._documentData &&
+            editor._documentData._lines &&
+            (editor._documentData._lines[lastLine] ||
+              editor._documentData._lines[lastLine] === "")
+          ) {
+            const lastLineLastCharacterPosition =
+              editor._documentData._lines[lastLine].length;
+
+            decorationTypes = [
+              ...decorationTypes,
+              codeDecorationType,
+              userNameDecorationType,
+            ];
+
+            /* Decorate code */
+            decorate({
+              decorationArray: [
+                {
+                  range: new vscode.Range(
+                    new vscode.Position(
+                      userData["selections"][0]["start"]["line"],
+                      userData["selections"][0]["start"]["character"]
+                    ),
+                    new vscode.Position(
+                      userData["selections"][0]["end"]["line"],
+                      userData["selections"][0]["end"]["character"]
+                    )
+                  ),
+                },
+              ],
+              decorationType: codeDecorationType,
             });
-            Sentry.captureMessage("Incomplete data provided");
-          });
+
+            /* Append user name at the end */
+            decorate({
+              decorationArray: [
+                {
+                  range: new vscode.Range(
+                    new vscode.Position(
+                      userData["selections"][0]["end"]["line"],
+                      lastLineLastCharacterPosition
+                    ),
+                    new vscode.Position(
+                      userData["selections"][0]["end"]["line"],
+                      lastLineLastCharacterPosition
+                    )
+                  ),
+                },
+              ],
+              decorationType: userNameDecorationType,
+            });
+          } else {
+            Sentry.withScope((scope) => {
+              scope.setExtras({
+                data: {
+                  editor: editor._documentData,
+                  userData: userData,
+                },
+                location: "handleLiveshareResponse",
+              });
+              Sentry.captureMessage("Incomplete data provided");
+            });
+          }
         }
       }
-    }
-  });
+    });
+  } catch (e) {
+    handleError({
+      error: e,
+      location: "handleLiveshareResponse -> handleLiveshareResponse",
+      additionalData: userDataArray,
+    });
+  }
 };
 
 module.exports = {
