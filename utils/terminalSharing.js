@@ -92,11 +92,13 @@ const SharingManagementWebview = (_extensionUri) => {
 
             if (userType === "guest") {
               _view.webview.postMessage({ message: "set-sharing-flag-true" });
-              startSharing();
-            } else if (userType === "hiring") {
-              const guestId = findGuest();
 
-              if (guestId) startReceiving({ userId: guestId });
+              if (!sharedTerminal) startSharing();
+              // } else if (userType === "hiring") {
+              //   const guestId = findGuest();
+
+              //   if (guestId) startReceiving({ userId: guestId });
+              // }
             }
           }
           break;
@@ -528,6 +530,19 @@ const manageTerminalSharing = (context) => {
       () => checkOutputFiles(WebviewView),
       5000
     );
+
+    if (userType === "guest") {
+      startSharing();
+    } else if (userType === "hiring") {
+      const intervalHandler = setInterval(() => {
+        const guestId = findGuest();
+
+        if (guestId) {
+          startReceiving({ userId: guestId });
+          clearInterval(intervalHandler);
+        }
+      }, 1000);
+    }
   } catch (error) {
     handleError({
       error,
