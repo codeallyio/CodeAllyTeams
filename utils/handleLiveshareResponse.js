@@ -149,7 +149,7 @@ const handleLiveshareResponse = (userDataArray) => {
             (splitEditorText[lastLine] || splitEditorText[lastLine] === "")
           ) {
             const lastLineLastCharacterPosition =
-              editor._documentData._lines[lastLine].length;
+              splitEditorText[lastLine].length;
 
             console.log("ifs work");
 
