@@ -534,9 +534,14 @@ const manageTerminalSharing = (context) => {
     if (userType === "guest") {
       startSharing();
     } else if (userType === "hiring") {
-      const guestId = findGuest();
+      const intervalHandler = setInterval(() => {
+        const guestId = findGuest();
 
-      if (guestId) startReceiving({ userId: guestId });
+        if (guestId) {
+          startReceiving({ userId: guestId });
+          clearInterval(intervalHandler);
+        }
+      }, 1000);
     }
   } catch (error) {
     handleError({
