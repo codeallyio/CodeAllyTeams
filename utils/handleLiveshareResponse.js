@@ -27,8 +27,8 @@ const decorate = ({ decorationArray, decorationType }) => {
 
 const createDecorationType = ({ userData }) =>
   vscode.window.createTextEditorDecorationType({
-    border: `1px solid hsla(${60}, 80%, 70%, 1)`,
-    backgroundColor: `hsla(${60}, 80%, 70%, 0.3)`,
+    border: `1px solid hsla(${userData.color}, 80%, 70%, 1)`,
+    backgroundColor: `hsla(${userData.color}, 80%, 70%, 0.3)`,
     // after: {
     //   height: "15px",
     //   width: "15px",
