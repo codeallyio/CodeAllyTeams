@@ -56,10 +56,6 @@ const createUserNameDecorationType = ({ userData }) =>
 
 const handleLiveshareResponse = (userDataArray) => {
   try {
-    console.log(
-      "🚀 ~ file: handleLiveshareResponse.js ~ line 57 ~ handleLiveshareResponse ~ userDataArray",
-      userDataArray
-    );
     decorationTypes.forEach((type) => type.dispose());
 
     // console.log("userDataArray.length", userDataArray.length);
@@ -89,16 +85,7 @@ const handleLiveshareResponse = (userDataArray) => {
           editor.document.uri &&
           editor.document.uri.path === userData.documentPath;
 
-        console.log(
-          "🚀 ~ file: handleLiveshareResponse.js ~ line 88 ~ userDataArray.forEach ~ editor",
-          editor
-        );
-
         if (isEditorPathTheSameAsUsers) {
-          console.log(
-            "🚀 ~ file: handleLiveshareResponse.js ~ line 93 ~ userDataArray.forEach ~ isEditorPathTheSameAsUsers",
-            isEditorPathTheSameAsUsers
-          );
           const codeDecorationType = createDecorationType({
             userData,
           });
@@ -119,27 +106,10 @@ const handleLiveshareResponse = (userDataArray) => {
             lastLine = userData["selections"][0]["end"]["line"];
           }
 
-          console.log("editor lines", editor.document.getText());
-
           let splitEditorText;
           if (editor && editor.document && editor.document.getText()) {
             splitEditorText = editor.document.getText().split("\n");
-            console.log(
-              "🚀 ~ file: handleLiveshareResponse.js ~ line 127 ~ userDataArray.forEach ~ splitEditorText",
-              splitEditorText
-            );
           }
-
-          console.log(
-            "first if",
-            userData && userData["selections"] && (lastLine || lastLine === 0)
-          );
-
-          console.log(
-            "second if",
-            splitEditorText &&
-              (splitEditorText[lastLine] || splitEditorText[lastLine] === "")
-          );
 
           if (
             userData &&
@@ -150,8 +120,6 @@ const handleLiveshareResponse = (userDataArray) => {
           ) {
             const lastLineLastCharacterPosition =
               splitEditorText[lastLine].length;
-
-            console.log("ifs work");
 
             decorationTypes = [
               ...decorationTypes,
