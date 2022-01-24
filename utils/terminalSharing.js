@@ -537,7 +537,7 @@ const manageTerminalSharing = (context) => {
       const intervalHandler = setInterval(() => {
         const guestId = findGuest();
 
-        if (guestId) {
+        if (guestId && ACTIVE_USERS_DATA[guestId].isSharing) {
           startReceiving({ userId: guestId });
           clearInterval(intervalHandler);
         }
