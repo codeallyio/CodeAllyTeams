@@ -142,20 +142,37 @@ const execFuncCpp = (
       const len = JSON.parse(
         outputValue.replace("{", "[").replace("}", "]")
       ).length;
-      /*pointers
-      examples
+      /*
+      pointers examples
       ${outputType} = double *
-      ${inputType} = long long int arr[]examples
+      ${inputType} = long long int arr[]
+      examples
       ${inputValue} = {1,2,3}
       */
-      return `
+      if (inputType.includes("[]")) {
+        return `
       ${outputType}p;
       ${inputType} = ${inputValue};
       p = main_function(arr);
       int n = ${len};
       std::string result = "{";
       for(int i=0; i<n; i++){
-        result += *(p + i);
+        result += std::to_string(p[i]);
+        if(i != n-1){
+            result+=",";
+        }
+      }
+      result+="} ";
+      std::cout << result;
+      `;
+      }
+      return `
+      ${outputType}p;
+      p = main_function(${inputValue});
+      int n = ${len};
+      std::string result = "{";
+      for(int i=0; i<n; i++){
+        result += std::to_string(p[i]);
         if(i != n-1){
             result+=",";
         }
