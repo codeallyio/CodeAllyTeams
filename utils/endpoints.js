@@ -9,14 +9,14 @@ if (environment === "local" || !environment) {
   endpoint = "http://localhost:4040";
   websocketEndpoint = "ws://localhost:4040/graphql";
 } else if (environment === "development") {
-  endpoint = "https://graphql.codeally.io";
-  websocketEndpoint = "wss://graphql.codeally.io/graphql";
+  endpoint = "https://graphql.codeally.io/api";
+  websocketEndpoint = "wss://graphql.codeally.io/api/graphql";
 } else if (environment === "testing") {
-  endpoint = "https://testingapi.codeally.io";
-  websocketEndpoint = "wss://testingapi.codeally.io/graphql";
+  endpoint = "https://testingapi.codeally.io/api";
+  websocketEndpoint = "wss://testingapi.codeally.io/api/graphql";
 } else {
-  endpoint = "https://api.codeally.io/graphql";
-  websocketEndpoint = "wss://api.codeally.io/graphql";
+  endpoint = "https://api.codeally.io/api/graphql";
+  websocketEndpoint = "wss://api.codeally.io/api/graphql";
 }
 
 const liveshareActivityEndpoint = `${endpoint}/liveshareActivity`;
